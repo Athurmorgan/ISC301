@@ -39,4 +39,23 @@ export function login(emailInput: string, password: string): Result<User> {
   return ok(user)
 }
 
+export function changePassword(email: string, oldPass: string, newPass: string): Result<undefined> {
+  const user = userRepository.find(email.trim().toLowerCase())
+  if (!user) return fail('Không tìm thấy tài khoản')
+  if (user.passwordHash !== hashPassword(oldPass)) return fail('Mật khẩu cũ không chính xác')
+  if (newPass.length < 6) return fail('Mật khẩu mới cần ít nhất 6 ký tự')
+  userRepository.update(user.email, { passwordHash: hashPassword(newPass) })
+  return ok(undefined)
+}
+
+export function resetPassword(email: string, otp: string, newPass: string): Result<undefined> {
+  const cleanEmail = email.trim().toLowerCase()
+  const user = userRepository.find(cleanEmail)
+  if (!user) return fail('Email này chưa được đăng ký trong hệ thống')
+  if (otp.trim() !== '123456') return fail('Mã OTP không đúng (Mã demo: 123456)')
+  if (newPass.length < 6) return fail('Mật khẩu mới cần ít nhất 6 ký tự')
+  userRepository.update(cleanEmail, { passwordHash: hashPassword(newPass) })
+  return ok(undefined)
+}
+
 export const logout = () => userRepository.setSession(null)

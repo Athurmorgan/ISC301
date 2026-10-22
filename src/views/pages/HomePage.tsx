@@ -237,10 +237,13 @@ function StaffPicks({ books }: { books: Book[] }) {
   )
 }
 
+import { BuybackModal } from '../components/BuybackModal'
+
 function BuybackEstimator() {
   const books = useBooks()
   const [q, setQ] = useState('')
   const [pickedId, setPickedId] = useState<string>()
+  const [showModal, setShowModal] = useState(false)
   const picked = useBook(pickedId)
   const matches = useMemo(() => (picked ? [] : suggest(books, q, 5)), [books, q, picked])
 
@@ -310,18 +313,22 @@ function BuybackEstimator() {
                   ))}
                 </dl>
               </div>
-              <Link to={`/ho-tro?chu-de=buyback&sach=${picked.id}`} className="btn-ink col-span-2">
+              <button type="button" onClick={() => setShowModal(true)} className="btn-ink col-span-2">
                 Gửi yêu cầu thu mua
                 <Icon name="arrowRight" size={16} />
-              </Link>
+              </button>
             </div>
           ) : (
-            <p className="mt-6 border border-dashed border-rule px-4 py-8 text-center text-sm text-ink-mute">
-              Giá thu mua: 45% giá bán với sách như mới, 30% với sách đã qua sử dụng.
-            </p>
+            <div className="mt-6 border border-dashed border-rule px-4 py-8 text-center text-sm text-ink-mute">
+              <p>Giá thu mua: 45% giá bán với sách như mới, 30% với sách đã qua sử dụng.</p>
+              <button type="button" onClick={() => setShowModal(true)} className="btn-ghost btn-sm mt-4">
+                Bán sách không có trong danh mục
+              </button>
+            </div>
           )}
         </div>
       </div>
+      {showModal && <BuybackModal book={picked} onClose={() => setShowModal(false)} />}
     </section>
   )
 }

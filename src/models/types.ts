@@ -158,11 +158,43 @@ export interface User {
 }
 
 export interface Review {
+  id?: string
   bookId: string
   name: string
+  email?: string
   rating: number
   body: string
   at: string
+  verifiedPurchase?: boolean
+}
+
+export type BuybackStatus = 'pending' | 'collecting' | 'inspecting' | 'paid' | 'rejected'
+
+export interface BuybackEvent {
+  status: BuybackStatus
+  at: string
+  note: string
+}
+
+export interface BuybackRequest {
+  code: string
+  createdAt: string
+  bookId?: string
+  bookTitle: string
+  author: string
+  condition: Exclude<ConditionId, 'seal'>
+  estimatedPrice: number
+  customerName: string
+  phone: string
+  email?: string
+  address: string
+  bankName: string
+  bankAccount: string
+  accountHolder: string
+  note?: string
+  photo?: string
+  status: BuybackStatus
+  history: BuybackEvent[]
 }
 
 export type TicketTopic = 'order' | 'quality' | 'payment' | 'buyback' | 'other'

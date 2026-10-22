@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../controllers/useAuth'
 import { useBooks } from '../../controllers/useBooks'
 import { useCartCount } from '../../controllers/useCart'
+import { useWishlist } from '../../controllers/useWishlist'
 import { suggest } from '../../models/catalogQuery'
 import { formatMoney } from '../../models/format'
 import { unitPrice } from '../../models/pricing'
@@ -20,6 +21,7 @@ const NAV = [
 
 export function Header() {
   const count = useCartCount()
+  const { count: favCount } = useWishlist()
   const { user } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
@@ -56,6 +58,12 @@ export function Header() {
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
           <SearchBox />
+          <Link to="/tai-khoan?tab=wishlist" className="relative grid h-10 w-10 place-items-center text-paper/85 hover:text-paper" aria-label={`Yêu thích, ${favCount} cuốn`} title="Sách yêu thích">
+            <Icon name="heart" />
+            {favCount > 0 && (
+              <span className="absolute right-0.5 top-0.5 grid h-[18px] min-w-[18px] place-items-center bg-forest px-1 text-[10px] font-semibold text-paper num">{favCount}</span>
+            )}
+          </Link>
           <Link to="/tai-khoan" className="grid h-10 w-10 place-items-center text-paper/85 hover:text-paper" aria-label={user ? `Tài khoản của ${user.name}` : 'Đăng nhập'} title={user ? user.name : 'Đăng nhập'}>
             <Icon name="user" />
           </Link>

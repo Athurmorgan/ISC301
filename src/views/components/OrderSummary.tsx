@@ -1,7 +1,8 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
-import { COUPONS } from '../../data/catalog'
+import { useStore } from '../../controllers/useStore'
 import { formatMoney } from '../../models/format'
 import type { Result, Totals } from '../../models/types'
+import { couponsStore } from '../../services/couponRepository'
 import { Icon } from './Icon'
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
 
 /** Khối tổng tiền + mã giảm giá dùng chung cho Giỏ hàng và Thanh toán */
 export function OrderSummary({ totals, codes, onApply, onRemove, shippingLabel = 'Phí giao hàng', children }: Props) {
+  const coupons = useStore(couponsStore)
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
   const savings = totals.listTotal - totals.subtotal + totals.discount + totals.shippingDiscount
@@ -56,7 +58,7 @@ export function OrderSummary({ totals, codes, onApply, onRemove, shippingLabel =
           <details className="mt-2 text-xs text-ink-mute">
             <summary className="cursor-pointer select-none hover:text-ink">Mã đang có hiệu lực</summary>
             <ul className="mt-2 space-y-1.5">
-              {COUPONS.map((c) => (
+              {coupons.map((c) => (
                 <li key={c.code}>
                   <button type="button" onClick={() => setCode(c.code)} className="text-left hover:text-ink">
                     <span className="font-mono font-medium text-ink">{c.code}</span> — {c.description}

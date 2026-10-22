@@ -49,10 +49,45 @@ export function StatusTimeline({ order }: { order: Order }) {
   )
 }
 
+import { useAuth } from '../../controllers/useAuth'
+
+const maskPhone = (p: string) => {
+  const clean = p.replace(/\D/g, '')
+  if (clean.length < 6) return '***'
+  return clean.slice(0, 3) + '****' + clean.slice(-3)
+}
+
+const maskName = (name: string) => {
+  const parts = name.trim().split(' ')
+  return parts.map((w, i) => (i === 0 ? w : w[0] + '**')).join(' ')
+}
+
+const maskStreet = (street: string) => {
+  return street.length > 5 ? '***' + street.slice(-5) : '***'
+}
+
 /** Chi tiết đơn: sách, địa chỉ, thanh toán và các thao tác của khách */
 export function OrderDetail({ order }: { order: Order }) {
   const { cancelByCustomer, reorder } = useOrderActions()
+  const { user } = useAuth()
   const [armed, setArmed] = useState(false)
+  const [verifyPhoneInput, setVerifyPhoneInput] = useState('')
+  const [unlocked, setUnlocked] = useState(false)
+  const [verifyError, setVerifyError] = useState('')
+
+  const isOwner = user?.role === 'admin' || (user?.email && user.email === order.userEmail) || unlocked
+
+  function handleVerifyPhone(e: React.FormEvent) {
+    e.preventDefault()
+    const cleanInput = verifyPhoneInput.replace(/\D/g, '')
+    const cleanPhone = order.customer.phone.replace(/\D/g, '')
+    if (cleanPhone.endsWith(cleanInput) && cleanInput.length >= 4) {
+      setUnlocked(true)
+      setVerifyError('')
+    } else {
+      setVerifyError('4 số cuối điện thoại không khớp với đơn hàng')
+    }
+  }
 
   return (
     <article className="border border-ink bg-card">
@@ -105,11 +140,29 @@ export function OrderDetail({ order }: { order: Order }) {
         <div className="space-y-6 p-5 text-sm sm:p-6">
           <div>
             <p className="eyebrow mb-2">Giao đến</p>
-            <p className="font-semibold">{order.customer.name}</p>
-            <p className="text-ink-soft">{order.customer.phone}</p>
+            <p className="font-semibold">{isOwner ? order.customer.name : maskName(order.customer.name)}</p>
+            <p className="text-ink-soft">{isOwner ? order.customer.phone : maskPhone(order.customer.phone)}</p>
             <p className="mt-1 text-ink-soft">
-              {order.customer.street}, {order.customer.district}, {order.customer.province}
+              {isOwner ? order.customer.street : maskStreet(order.customer.street)}, {order.customer.district}, {order.customer.province}
             </p>
+            {!isOwner && (
+              <form onSubmit={handleVerifyPhone} className="mt-3 border border-rule bg-paper p-3 text-xs">
+                <p className="font-semibold text-ink">Bảo mật thông tin người nhận</p>
+                <p className="mt-1 text-ink-mute">Nhập 4 số cuối số điện thoại đặt hàng để mở khoá địa chỉ đầy đủ:</p>
+                <div className="mt-2 flex gap-2">
+                  <input
+                    type="password"
+                    maxLength={4}
+                    value={verifyPhoneInput}
+                    onChange={(e) => setVerifyPhoneInput(e.target.value.replace(/\D/g, ''))}
+                    placeholder="VD: 5678"
+                    className="field h-8 w-24 text-center font-mono py-0 text-sm"
+                  />
+                  <button type="submit" className="btn-ink btn-sm">Mở khoá</button>
+                </div>
+                {verifyError && <p className="mt-1.5 text-terra">{verifyError}</p>}
+              </form>
+            )}
           </div>
           <div>
             <p className="eyebrow mb-2">Thanh toán</p>
@@ -121,7 +174,7 @@ export function OrderDetail({ order }: { order: Order }) {
           {order.note && (
             <div>
               <p className="eyebrow mb-2">Ghi chú</p>
-              <p className="text-ink-soft">{order.note}</p>
+              <p className="text-ink-soft">{isOwner ? order.note : '*** (Đã ẩn vì lý do riêng tư)'}</p>
             </div>
           )}
         </div>

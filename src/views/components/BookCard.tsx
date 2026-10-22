@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useCart } from '../../controllers/useCart'
+import { useWishlist } from '../../controllers/useWishlist'
 import { isOnDeal, unitPrice } from '../../models/pricing'
 import type { Book } from '../../models/types'
 import { BookCover } from './BookCover'
@@ -13,22 +14,41 @@ interface Props {
 
 export function BookCard({ book, eager }: Props) {
   const { add } = useCart()
+  const { isFavorite, toggle } = useWishlist()
   const soldOut = book.stock === 0
   const deal = isOnDeal(book)
+  const fav = isFavorite(book.id)
 
   return (
-    <article className="group flex flex-col">
-      <Link to={`/sach/${book.id}`} className="relative block" aria-label={book.title}>
-        <BookCover
-          src={book.cover}
-          title={book.title}
-          author={book.author}
-          eager={eager}
-          className={`transition-transform duration-300 group-hover:-translate-y-1 ${soldOut ? 'opacity-55 grayscale-[40%]' : ''}`}
-        />
-        {soldOut && <span className="absolute left-2 top-2 bg-paper px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wider text-ink">Tạm hết</span>}
-        {deal && !soldOut && <span className="absolute left-2 top-2 bg-terra px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wider text-paper">Giá tốt</span>}
-      </Link>
+    <article className="group relative flex flex-col">
+      <div className="relative">
+        <Link to={`/sach/${book.id}`} className="block" aria-label={book.title}>
+          <BookCover
+            src={book.cover}
+            title={book.title}
+            author={book.author}
+            eager={eager}
+            className={`transition-transform duration-300 group-hover:-translate-y-1 ${soldOut ? 'opacity-55 grayscale-[40%]' : ''}`}
+          />
+          {soldOut && <span className="absolute left-2 top-2 bg-paper px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wider text-ink">Tạm hết</span>}
+          {deal && !soldOut && <span className="absolute left-2 top-2 bg-terra px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wider text-paper">Giá tốt</span>}
+        </Link>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            toggle(book)
+          }}
+          className={`absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-paper/90 backdrop-blur transition-transform active:scale-90 hover:bg-paper ${
+            fav ? 'text-terra' : 'text-ink-mute opacity-0 group-hover:opacity-100 hover:text-ink'
+          }`}
+          aria-label={fav ? `Bỏ yêu thích ${book.title}` : `Thêm ${book.title} vào yêu thích`}
+          title={fav ? 'Bỏ yêu thích' : 'Lưu yêu thích'}
+        >
+          <Icon name="heart" size={16} filled={fav} />
+        </button>
+      </div>
 
       <div className="mt-4 flex flex-1 flex-col">
         <p className="text-xs text-ink-mute line-clamp-1">{book.author}</p>

@@ -14,6 +14,11 @@ export function useAuth() {
     login: auth.login,
     register: auth.register,
     logout: auth.logout,
+    changePassword(oldPass: string, newPass: string) {
+      if (!user) return { ok: false, error: 'Chưa đăng nhập' } as const
+      return auth.changePassword(user.email, oldPass, newPass)
+    },
+    resetPassword: auth.resetPassword,
     updateProfile(patch: { name: string; phone: string; address: Partial<Address> }) {
       if (user && user.role === 'customer') userRepository.update(user.email, patch)
     },

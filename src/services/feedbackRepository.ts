@@ -5,8 +5,10 @@ export const reviewsStore = persistentStore<Review[]>('reviews', () => [])
 export const ticketsStore = persistentStore<Ticket[]>('tickets', () => [])
 
 export const reviewRepository = {
+  all: () => reviewsStore.get(),
   forBook: (bookId: string) => reviewsStore.get().filter((r) => r.bookId === bookId),
   insert: (review: Review) => reviewsStore.set((list) => [review, ...list]),
+  delete: (at: string) => reviewsStore.set((list) => list.filter((r) => r.at !== at)),
 }
 
 export const ticketRepository = {

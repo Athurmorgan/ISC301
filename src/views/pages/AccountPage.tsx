@@ -1,15 +1,21 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { PROVINCES, STATUS_LABEL, TICKET_TOPICS } from '../../data/catalog'
 import { useAuth } from '../../controllers/useAuth'
+import { useBuybacks } from '../../controllers/useBuyback'
+import { useCart } from '../../controllers/useCart'
 import { useTickets } from '../../controllers/useFeedback'
 import { useAllOrders } from '../../controllers/useOrders'
-import { formatDate, formatMoney } from '../../models/format'
+import { useWishlist } from '../../controllers/useWishlist'
+import { formatDate, formatDateTime, formatMoney } from '../../models/format'
 import { itemCount } from '../../models/order'
+import { unitPrice } from '../../models/pricing'
 import type { Address, OrderStatus, User } from '../../models/types'
 import { hasErrors, isVietnamesePhone, type Errors } from '../../models/validation'
+import { BUYBACK_STATUS_LABEL } from '../../services/buybackRepository'
 import { notify } from '../../services/toastService'
-import { EmptyState, SelectField, StatusTag, TextField } from '../components/ui'
+import { Icon } from '../components/Icon'
+import { EmptyState, Modal, SelectField, StatusTag, TextField } from '../components/ui'
 
 export function AccountPage() {
   const { user } = useAuth()
@@ -30,7 +36,7 @@ function AuthForms() {
         <p className="eyebrow">Tài khoản BookWise</p>
         <h1 className="mt-3 text-4xl leading-tight sm:text-5xl">Đăng nhập để theo dõi đơn và đặt sách nhanh hơn.</h1>
         <ul className="mt-8 space-y-3 text-ink-soft">
-          {['Lưu địa chỉ, tự điền khi thanh toán', 'Xem lại mọi đơn hàng và trạng thái giao', 'Theo dõi yêu cầu hỗ trợ đã gửi'].map((t, i) => (
+          {['Lưu địa chỉ, tự điền khi thanh toán', 'Xem lại mọi đơn hàng và trạng thái giao', 'Theo dõi yêu cầu hỗ trợ & bán lại sách', 'Lưu tủ sách yêu thích cá nhân'].map((t, i) => (
             <li key={t} className="flex gap-3">
               <span className="font-mono text-sm text-ink-mute">0{i + 1}</span>
               {t}
@@ -68,6 +74,7 @@ function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [showForgot, setShowForgot] = useState(false)
 
   function submit(e: FormEvent) {
     e.preventDefault()
@@ -77,14 +84,84 @@ function LoginForm() {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-4" noValidate>
-      <TextField label="Email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-      <TextField label="Mật khẩu" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      {error && <p className="text-sm text-terra">{error}</p>}
-      <button type="submit" className="btn-ink w-full">
-        Đăng nhập
-      </button>
-    </form>
+    <>
+      <form onSubmit={submit} className="space-y-4" noValidate>
+        <TextField label="Email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <div>
+          <TextField label="Mật khẩu" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <div className="mt-1 text-right">
+            <button type="button" onClick={() => setShowForgot(true)} className="text-xs text-ink-mute hover:text-ink underline">
+              Quên mật khẩu?
+            </button>
+          </div>
+        </div>
+        {error && <p className="text-sm text-terra">{error}</p>}
+        <button type="submit" className="btn-ink w-full">
+          Đăng nhập
+        </button>
+      </form>
+      {showForgot && <ForgotPasswordModal onClose={() => setShowForgot(false)} />}
+    </>
+  )
+}
+
+function ForgotPasswordModal({ onClose }: { onClose: () => void }) {
+  const { resetPassword } = useAuth()
+  const [email, setEmail] = useState('')
+  const [otp, setOtp] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [step, setStep] = useState<1 | 2>(1)
+  const [error, setError] = useState('')
+
+  function handleSendOtp(e: FormEvent) {
+    e.preventDefault()
+    if (!email.trim() || !email.includes('@')) {
+      return setError('Vui lòng nhập email hợp lệ')
+    }
+    setError('')
+    setStep(2)
+    notify('Mã OTP xác thực đã được gửi! (Mã thử nghiệm demo: 123456)')
+  }
+
+  function handleReset(e: FormEvent) {
+    e.preventDefault()
+    const res = resetPassword(email, otp, newPassword)
+    if (!res.ok) return setError(res.error)
+    notify('Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay.')
+    onClose()
+  }
+
+  return (
+    <Modal open onClose={onClose} title="Đặt lại mật khẩu" width="max-w-md">
+      {step === 1 ? (
+        <form onSubmit={handleSendOtp} className="space-y-4" noValidate>
+          <p className="text-sm text-ink-soft">Nhập email tài khoản của bạn để nhận mã xác thực OTP.</p>
+          <TextField label="Email tài khoản" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          {error && <p className="text-sm text-terra">{error}</p>}
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" onClick={onClose} className="btn-ghost">Huỷ</button>
+            <button type="submit" className="btn-ink">Gửi mã OTP</button>
+          </div>
+        </form>
+      ) : (
+        <form onSubmit={handleReset} className="space-y-4" noValidate>
+          <div className="border border-forest/30 bg-forest-tint p-3 text-xs text-forest">
+            Đã gửi mã xác thực tới <strong>{email}</strong>.<br />
+            Mã OTP mẫu cho bản demo: <strong className="font-mono text-sm">123456</strong>
+          </div>
+          <TextField label="Mã OTP" maxLength={6} placeholder="123456" value={otp} onChange={(e) => setOtp(e.target.value)} />
+          <TextField label="Mật khẩu mới" type="password" hint="Ít nhất 6 ký tự" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+          {error && <p className="text-sm text-terra">{error}</p>}
+          <div className="flex justify-between items-center gap-2 pt-2">
+            <button type="button" onClick={() => setStep(1)} className="text-xs text-ink-mute hover:underline">Quay lại</button>
+            <div className="flex gap-2">
+              <button type="button" onClick={onClose} className="btn-ghost">Huỷ</button>
+              <button type="submit" className="btn-ink">Lưu mật khẩu</button>
+            </div>
+          </div>
+        </form>
+      )}
+    </Modal>
   )
 }
 
@@ -140,12 +217,26 @@ function AdminLanding({ user }: { user: User }) {
   )
 }
 
-type Tab = 'orders' | 'profile' | 'tickets'
-const TABS: Record<Tab, string> = { orders: 'Đơn hàng', profile: 'Hồ sơ & địa chỉ', tickets: 'Yêu cầu hỗ trợ' }
+type Tab = 'orders' | 'wishlist' | 'buyback' | 'profile' | 'password' | 'tickets'
+const TABS: Record<Tab, string> = {
+  orders: 'Đơn hàng',
+  wishlist: 'Yêu thích',
+  buyback: 'Bán sách cũ',
+  profile: 'Hồ sơ & địa chỉ',
+  password: 'Đổi mật khẩu',
+  tickets: 'Yêu cầu hỗ trợ',
+}
 
 function CustomerAccount({ user }: { user: User }) {
   const { logout } = useAuth()
-  const [tab, setTab] = useState<Tab>('orders')
+  const [params, setParams] = useSearchParams()
+  const initialTab = (params.get('tab') as Tab) || 'orders'
+  const [tab, setTabState] = useState<Tab>(initialTab in TABS ? initialTab : 'orders')
+
+  function setTab(t: Tab) {
+    setTabState(t)
+    setParams({ tab: t })
+  }
 
   return (
     <div className="container-page pt-10 sm:pt-14">
@@ -162,7 +253,7 @@ function CustomerAccount({ user }: { user: User }) {
         </button>
       </header>
 
-      <div className="mt-8 grid gap-10 lg:grid-cols-[12rem_1fr]">
+      <div className="mt-8 grid gap-10 lg:grid-cols-[13rem_1fr]">
         <nav className="flex gap-1 overflow-x-auto lg:flex-col" role="tablist" aria-label="Mục tài khoản">
           {(Object.keys(TABS) as Tab[]).map((t) => (
             <button
@@ -179,7 +270,10 @@ function CustomerAccount({ user }: { user: User }) {
         </nav>
         <div>
           {tab === 'orders' && <MyOrders user={user} />}
+          {tab === 'wishlist' && <MyWishlist />}
+          {tab === 'buyback' && <MyBuybacks user={user} />}
           {tab === 'profile' && <Profile user={user} />}
+          {tab === 'password' && <ChangePasswordForm />}
           {tab === 'tickets' && <MyTickets user={user} />}
         </div>
       </div>
@@ -328,5 +422,165 @@ function MyTickets({ user }: { user: User }) {
         </li>
       ))}
     </ul>
+  )
+}
+
+function MyWishlist() {
+  const { wishlistBooks, remove } = useWishlist()
+  const { add } = useCart()
+
+  if (!wishlistBooks.length) {
+    return (
+      <EmptyState title="Tủ sách yêu thích đang trống" action={<Link to="/sach" className="btn-ink">Khám phá sách</Link>}>
+        Bạn có thể bấm vào biểu tượng trái tim ở bất kỳ cuốn sách nào để lưu lại tại đây.
+      </EmptyState>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between border-b border-rule pb-3">
+        <p className="text-sm text-ink-soft">Có <strong>{wishlistBooks.length}</strong> cuốn trong danh sách yêu thích</p>
+      </div>
+      <ul className="divide-y divide-rule border-y border-rule">
+        {wishlistBooks.map((b) => (
+          <li key={b.id} className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <Link to={`/sach/${b.id}`} className="shrink-0">
+                <img src={b.cover} alt="" className="h-16 w-11 bg-paper-deep object-cover border border-rule" />
+              </Link>
+              <div className="min-w-0">
+                <Link to={`/sach/${b.id}`} className="block truncate font-medium text-sm hover:underline">
+                  {b.title}
+                </Link>
+                <p className="text-xs text-ink-mute">{b.author}</p>
+                <p className="mt-1 font-semibold text-sm num">{formatMoney(unitPrice(b))}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 self-end sm:self-center">
+              <button
+                type="button"
+                onClick={() => add(b, 'seal', 1)}
+                disabled={b.stock === 0}
+                className="btn-ink btn-sm"
+              >
+                {b.stock === 0 ? 'Tạm hết hàng' : 'Thêm vào giỏ'}
+              </button>
+              <button
+                type="button"
+                onClick={() => remove(b.id)}
+                className="btn-ghost btn-sm text-ink-mute hover:text-terra"
+                title="Bỏ yêu thích"
+              >
+                <Icon name="trash" size={14} />
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function MyBuybacks({ user }: { user: User }) {
+  const { requests } = useBuybacks()
+  const mine = useMemo(
+    () =>
+      requests
+        .filter((r) => r.email?.toLowerCase() === user.email.toLowerCase() || r.phone === user.phone)
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    [requests, user],
+  )
+
+  if (!mine.length) {
+    return (
+      <EmptyState
+        title="Chưa có yêu cầu bán lại sách nào"
+        action={<Link to="/#thu-mua" className="btn-ink">Bán sách cũ ngay</Link>}
+      >
+        Bạn có sách cũ không dùng đến? BookWise thu mua với giá lên đến 45% giá bìa, nhận sách tận nhà và chuyển khoản nhanh.
+      </EmptyState>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between border-b border-rule pb-3">
+        <p className="text-sm text-ink-soft">Có <strong>{mine.length}</strong> yêu cầu bán lại sách</p>
+        <Link to="/#thu-mua" className="btn-ghost btn-sm">Tạo yêu cầu mới</Link>
+      </div>
+      <ul className="divide-y divide-rule border-y border-rule">
+        {mine.map((b) => (
+          <li key={b.code} className="py-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-3">
+                <span className="font-mono font-medium text-sm">{b.code}</span>
+                <span className="tag text-xs font-semibold">{BUYBACK_STATUS_LABEL[b.status]}</span>
+              </div>
+              <span className="font-semibold text-forest num text-sm">
+                Ước tính: {formatMoney(b.estimatedPrice)}
+              </span>
+            </div>
+
+            <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+              <div>
+                <p className="font-medium text-ink">{b.bookTitle}</p>
+                <p className="text-xs text-ink-mute">{b.author} · {b.condition === 'likenew' ? 'Như mới (98%)' : 'Đã sử dụng (90%)'}</p>
+              </div>
+              <div className="text-xs text-ink-soft">
+                <p>Nhận tiền qua: <strong>{b.bankName}</strong> · {b.bankAccount} ({b.accountHolder})</p>
+                <p className="mt-0.5 text-ink-mute">Địa chỉ lấy: {b.address}</p>
+              </div>
+            </div>
+
+            <div className="mt-3 border-t border-rule-soft pt-3">
+              <p className="eyebrow text-2xs">Tiến trình xử lý:</p>
+              <ul className="mt-1.5 space-y-1 text-xs">
+                {b.history.map((h, i) => (
+                  <li key={i} className="flex gap-2 text-ink-soft">
+                    <span className="text-ink-mute num shrink-0">{formatDateTime(h.at)}</span>
+                    <span>— {h.note}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function ChangePasswordForm() {
+  const { changePassword } = useAuth()
+  const [oldPass, setOldPass] = useState('')
+  const [newPass, setNewPass] = useState('')
+  const [confirmPass, setConfirmPass] = useState('')
+  const [error, setError] = useState('')
+
+  function submit(e: FormEvent) {
+    e.preventDefault()
+    if (!oldPass) return setError('Vui lòng nhập mật khẩu hiện tại')
+    if (newPass.length < 6) return setError('Mật khẩu mới cần ít nhất 6 ký tự')
+    if (newPass !== confirmPass) return setError('Mật khẩu xác nhận không khớp')
+
+    const r = changePassword(oldPass, newPass)
+    if (!r.ok) return setError(r.error)
+    setError('')
+    setOldPass('')
+    setNewPass('')
+    setConfirmPass('')
+    notify('Đã đổi mật khẩu thành công!')
+  }
+
+  return (
+    <form onSubmit={submit} className="max-w-md space-y-4" noValidate>
+      <p className="eyebrow border-b border-rule pb-2">Thay đổi mật khẩu đăng nhập</p>
+      <TextField label="Mật khẩu hiện tại" type="password" value={oldPass} onChange={(e) => setOldPass(e.target.value)} />
+      <TextField label="Mật khẩu mới" type="password" hint="Ít nhất 6 ký tự" value={newPass} onChange={(e) => setNewPass(e.target.value)} />
+      <TextField label="Xác nhận mật khẩu mới" type="password" value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} />
+      {error && <p className="text-sm text-terra">{error}</p>}
+      <button type="submit" className="btn-ink">Cập nhật mật khẩu</button>
+    </form>
   )
 }

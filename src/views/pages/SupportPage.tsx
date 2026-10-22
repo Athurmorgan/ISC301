@@ -10,6 +10,7 @@ import { buybackQuote } from '../../models/pricing'
 import type { Ticket, TicketTopic } from '../../models/types'
 import { hasErrors } from '../../models/validation'
 import { Icon } from '../components/Icon'
+import { BuybackModal } from '../components/BuybackModal'
 import { SelectField, TextArea, TextField } from '../components/ui'
 
 export function SupportPage() {
@@ -149,8 +150,11 @@ function TicketForm() {
     )
   }
 
+  const [showBuybackModal, setShowBuybackModal] = useState(false)
+
   return (
     <aside className="self-start border border-ink bg-card">
+      {showBuybackModal && <BuybackModal book={book} onClose={() => setShowBuybackModal(false)} />}
       <form onSubmit={submit} noValidate className="space-y-4 p-6 sm:p-8">
         <div>
           <h2 className="text-2xl">Gửi yêu cầu</h2>
@@ -163,6 +167,18 @@ function TicketForm() {
             </option>
           ))}
         </SelectField>
+        {form.topic === 'buyback' && (
+          <div className="border border-forest/30 bg-forest-tint p-3 text-xs text-forest space-y-2">
+            <p>Bạn muốn bán lại sách cũ? Bạn có thể mở biểu mẫu thu mua chuyên biệt để nhận báo giá tức thì và điền STK chuyển khoản.</p>
+            <button
+              type="button"
+              onClick={() => setShowBuybackModal(true)}
+              className="btn-ink btn-sm w-full"
+            >
+              Mở biểu mẫu bán sách có định giá ngay
+            </button>
+          </div>
+        )}
         <TextField label="Họ và tên" value={form.name} onChange={(e) => set('name', e.target.value)} error={errors.name} />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
           <TextField label="Email" type="email" value={form.email} onChange={(e) => set('email', e.target.value)} error={errors.email} />
