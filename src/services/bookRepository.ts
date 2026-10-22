@@ -22,6 +22,19 @@ export const bookRepository = {
     booksStore.set((list) => list.map((b) => (b.id === id ? { ...b, stock: Math.max(0, b.stock + delta) } : b)))
   },
 
+  addRating(id: string, star: number) {
+    booksStore.set((list) =>
+      list.map((b) => {
+        if (b.id !== id) return b
+        const count = b.ratingCount || 0
+        const current = b.rating || 0
+        const nextCount = count + 1
+        const nextRating = Math.round(((current * count + star) / nextCount) * 10) / 10
+        return { ...b, ratingCount: nextCount, rating: nextRating }
+      }),
+    )
+  },
+
   /** Trừ kho khi đặt hàng; thất bại nếu một đầu sách không đủ hàng. */
   reserve(items: Pick<OrderItem, 'bookId' | 'qty' | 'title'>[]): Result<undefined> {
     const list = booksStore.get()

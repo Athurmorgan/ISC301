@@ -29,6 +29,13 @@ const PATHS = {
   external: 'M14 4h6v6M20 4l-9 9M18 14v5.5H4.5V6H10',
   clock: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-13.5V12l3 2',
   paperclip: 'm20 11.5-8.2 8.2a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8',
+  heart: 'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z',
+  key: 'M21 2l-2 2m-1.5 1.5L16 7l1.5 1.5L16 10l-1.5-1.5-2 2a6.5 6.5 0 1 1-2.12-2.12l8.62-8.62z',
+  tag: 'M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82zM7 7h.01',
+  users: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm14 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+  book: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z',
+  upload: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12',
+  image: 'M3 3h18v18H3V3zm3 4a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm15 11-6-7-4 5-3-3.5L3 18h18z',
 } as const
 
 export type IconName = keyof typeof PATHS
@@ -38,15 +45,16 @@ interface Props {
   size?: number
   className?: string
   title?: string
+  filled?: boolean
 }
 
-export function Icon({ name, size = 20, className, title }: Props) {
+export function Icon({ name, size = 20, className, title, filled }: Props) {
   return (
     <svg
       width={size}
       height={size}
       viewBox="0 0 24 24"
-      fill="none"
+      fill={filled ? 'currentColor' : 'none'}
       stroke="currentColor"
       strokeWidth={1.5}
       strokeLinecap="round"

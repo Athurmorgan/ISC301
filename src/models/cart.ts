@@ -1,10 +1,14 @@
 import { COUPONS } from '../data/catalog'
+import { couponRepository } from '../services/couponRepository'
 import { formatMoney } from './format'
 import { unitPrice } from './pricing'
 import { fail, ok } from './result'
 import type { Book, CartItem, CartLine, ConditionId, Coupon, Result, ShippingMethod, Totals } from './types'
 
-export const findCoupon = (code: string) => COUPONS.find((c) => c.code === code.trim().toUpperCase())
+export const findCoupon = (code: string) => {
+  const c = code.trim().toUpperCase()
+  return couponRepository.find(c) ?? COUPONS.find((item) => item.code === c)
+}
 
 /** Mã giảm phí ship và mã giảm tiền hàng thuộc hai nhóm khác nhau, mỗi nhóm dùng một mã. */
 const couponGroup = (c: Coupon) => (c.kind === 'shipping' ? 'shipping' : 'order')

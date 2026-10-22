@@ -4,21 +4,51 @@ import { fail, ok } from '../models/result'
 import type { Result, Review, Ticket, TicketTopic } from '../models/types'
 import { isEmail, isVietnamesePhone } from '../models/validation'
 import { reviewRepository, reviewsStore, ticketRepository, ticketsStore } from '../services/feedbackRepository'
-import { orderRepository } from '../services/orderRepository'
+import { orderRepository, ordersStore } from '../services/orderRepository'
 import { useStore } from './useStore'
+
+import { bookRepository } from '../services/bookRepository'
+import { sessionStore } from '../services/userRepository'
+
+export function useAllReviews() {
+  const all = useStore(reviewsStore)
+  return {
+    reviews: all,
+    remove: (at: string) => reviewRepository.delete(at),
+  }
+}
 
 export function useReviews(bookId: string) {
   const all = useStore(reviewsStore)
+  const orders = useStore(ordersStore)
+  const sessionEmail = useStore(sessionStore)
   const reviews = useMemo(() => all.filter((r) => r.bookId === bookId), [all, bookId])
 
-  function add(input: Omit<Review, 'bookId' | 'at'>): Result<undefined> {
+  // Người dùng đã mua cuốn sách này hay chưa?
+  const hasPurchased = useMemo(() => {
+    if (!sessionEmail) return false
+    return orderRepository
+      .byEmail(sessionEmail)
+      .some((o) => o.status !== 'cancelled' && o.items.some((i) => i.bookId === bookId))
+  }, [sessionEmail, bookId, orders])
+
+  function add(input: Omit<Review, 'bookId' | 'at' | 'verifiedPurchase'>): Result<undefined> {
     if (input.name.trim().length < 2) return fail('Nhập tên của bạn')
     if (input.rating < 1 || input.rating > 5) return fail('Chọn số sao')
     if (input.body.trim().length < 10) return fail('Nhận xét cần ít nhất 10 ký tự')
-    reviewRepository.insert({ ...input, name: input.name.trim(), body: input.body.trim(), bookId, at: new Date().toISOString() })
+    
+    reviewRepository.insert({
+      ...input,
+      name: input.name.trim(),
+      body: input.body.trim(),
+      bookId,
+      at: new Date().toISOString(),
+      verifiedPurchase: hasPurchased,
+    })
+    bookRepository.addRating(bookId, input.rating)
     return ok(undefined)
   }
-  return { reviews, add }
+  return { reviews, add, hasPurchased }
 }
 
 export interface TicketInput {
