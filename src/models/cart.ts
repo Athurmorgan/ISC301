@@ -1,7 +1,7 @@
 import { formatMoney } from './format'
-import { unitPrice } from './pricing'
+import { isBuyable } from './listing'
 import { fail, ok } from './result'
-import type { Book, CartItem, CartLine, ConditionId, Coupon, Result, ShippingMethod, Totals } from './types'
+import type { Book, CartItem, CartLine, Coupon, Listing, Result, ShippingMethod, Totals } from './types'
 
 /** Tìm mã trong danh sách đang có hiệu lực (do quản trị viên quản lý). */
 export const findCoupon = (coupons: Coupon[], code: string) => coupons.find((c) => c.code === code.trim().toUpperCase())
@@ -9,35 +9,36 @@ export const findCoupon = (coupons: Coupon[], code: string) => coupons.find((c) 
 /** Mã giảm phí ship và mã giảm tiền hàng thuộc hai nhóm khác nhau, mỗi nhóm dùng một mã. */
 const couponGroup = (c: Coupon) => (c.kind === 'shipping' ? 'shipping' : 'order')
 
-export function buildLines(items: CartItem[], books: Book[]): CartLine[] {
+/** Giỏ lưu theo tin đăng; tin đã hết hoặc bị ẩn sẽ tự rơi khỏi giỏ */
+export function buildLines(items: CartItem[], books: Book[], listings: Listing[]): CartLine[] {
   return items.flatMap((item) => {
     const book = books.find((b) => b.id === item.bookId)
-    if (!book) return []
-    const price = unitPrice(book, item.condition)
-    return [{ ...item, book, unitPrice: price, lineTotal: price * item.qty }]
+    const listing = listings.find((l) => l.id === item.listingId)
+    if (!book || !listing || !isBuyable(listing)) return []
+    const qty = Math.min(item.qty, listing.qty)
+    return [{ ...item, qty, condition: listing.condition, book, listing, unitPrice: listing.price, lineTotal: listing.price * qty }]
   })
 }
 
-export const quantityInCart = (items: CartItem[], bookId: string, except?: ConditionId) =>
-  items.filter((i) => i.bookId === bookId && i.condition !== except).reduce((sum, i) => sum + i.qty, 0)
+export const quantityInCart = (items: CartItem[], listingId: string) => items.find((i) => i.listingId === listingId)?.qty ?? 0
 
-/** Thêm sách vào giỏ, không vượt tồn kho (tính cả các tình trạng khác của cùng đầu sách). */
-export function addItem(items: CartItem[], book: Book, condition: ConditionId, qty: number): Result<CartItem[]> {
-  if (book.stock === 0) return fail('Sách tạm hết hàng')
-  if (quantityInCart(items, book.id) + qty > book.stock) return fail(`Chỉ còn ${book.stock} cuốn trong kho`)
-  const exists = items.some((i) => i.bookId === book.id && i.condition === condition)
+/** Thêm sách của một tin đăng vào giỏ, không vượt số cuốn người bán còn. */
+export function addItem(items: CartItem[], listing: Listing, qty: number, buyer?: string | null): Result<CartItem[]> {
+  if (buyer && listing.sellerId === buyer) return fail('Đây là sách bạn đang đăng bán')
+  if (!isBuyable(listing)) return fail('Tin đăng này đã hết sách')
+  if (quantityInCart(items, listing.id) + qty > listing.qty) return fail(`Người bán chỉ còn ${listing.qty} cuốn`)
+  const exists = items.some((i) => i.listingId === listing.id)
   return ok(
     exists
-      ? items.map((i) => (i.bookId === book.id && i.condition === condition ? { ...i, qty: i.qty + qty } : i))
-      : [...items, { bookId: book.id, condition, qty }],
+      ? items.map((i) => (i.listingId === listing.id ? { ...i, qty: i.qty + qty } : i))
+      : [...items, { listingId: listing.id, bookId: listing.bookId, condition: listing.condition, qty }],
   )
 }
 
-export function setItemQty(items: CartItem[], book: Book, condition: ConditionId, qty: number): CartItem[] {
-  const max = Math.max(0, book.stock - quantityInCart(items, book.id, condition))
-  const next = Math.min(Math.max(0, Math.floor(qty)), max)
-  if (next === 0) return items.filter((i) => !(i.bookId === book.id && i.condition === condition))
-  return items.map((i) => (i.bookId === book.id && i.condition === condition ? { ...i, qty: next } : i))
+export function setItemQty(items: CartItem[], listing: Listing, qty: number): CartItem[] {
+  const next = Math.min(Math.max(0, Math.floor(qty)), listing.qty)
+  if (next === 0) return items.filter((i) => i.listingId !== listing.id)
+  return items.map((i) => (i.listingId === listing.id ? { ...i, qty: next } : i))
 }
 
 /** Kiểm tra và áp mã; trả về danh sách mã mới (thay mã cùng nhóm nếu có). */

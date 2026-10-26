@@ -1,7 +1,7 @@
 {
   "users": [
     {
-      "id": 1,
+      "id": 10,
       "email": "admin@bookwise.vn",
       "name": "Quản trị viên BookWise",
       "phone": "0901234567",
@@ -9,10 +9,10 @@
       "province": "TP. Hồ Chí Minh",
       "district": "Quận 1",
       "street": "123 Nguyễn Huệ",
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
-      "id": 2,
+      "id": 11,
       "email": "nguyenvanan@gmail.com",
       "name": "Nguyễn Văn An",
       "phone": "0903123456",
@@ -20,10 +20,10 @@
       "province": "TP. Hồ Chí Minh",
       "district": "Quận 1",
       "street": "12 Lê Lợi",
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
-      "id": 3,
+      "id": 12,
       "email": "tranthib@gmail.com",
       "name": "Trần Thị Bích",
       "phone": "0987654321",
@@ -31,10 +31,10 @@
       "province": "Hà Nội",
       "district": "Cầu Giấy",
       "street": "45 Xuân Thủy",
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
-      "id": 4,
+      "id": 13,
       "email": "lehoangnam@gmail.com",
       "name": "Lê Hoàng Nam",
       "phone": "0918776655",
@@ -42,7 +42,18 @@
       "province": "Đà Nẵng",
       "district": "Hải Châu",
       "street": "78 Nguyễn Văn Linh",
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
+    },
+    {
+      "id": 14,
+      "email": "sinhvien@bookwise.vn",
+      "name": "Trần Thu Hà",
+      "phone": "0912345678",
+      "role": "customer",
+      "province": "TP. Hồ Chí Minh",
+      "district": "Quận 10",
+      "street": "KTX 135B Trần Hưng Đạo",
+      "created_at": "2026-10-26T23:36:21.800Z"
     }
   ],
   "categories": [
@@ -77,10 +88,10 @@
       "publisher": null,
       "category": "kinh-te",
       "cover": "/covers/tam-ly-hoc-ve-tien.jpg",
-      "price": 145000,
+      "price": 76000,
       "list_price": 189000,
-      "deal_price": 119000,
-      "stock": 42,
+      "deal_price": null,
+      "stock": 44,
       "sold": 2140,
       "rating": 4.8,
       "rating_count": 1260,
@@ -88,7 +99,7 @@
       "first_published": 2020,
       "description": "19 câu chuyện ngắn cho thấy cách ta cư xử với tiền quan trọng hơn những gì ta biết về tài chính. Housel viết về lòng tham, nỗi sợ, may rủi và sức mạnh âm thầm của lãi kép bằng giọng văn rất dễ đọc.",
       "staff_pick": "Cuốn chúng tôi hay tặng cho người vừa nhận lương tháng đầu tiên.",
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "cha-giau-cha-ngheo",
@@ -99,10 +110,10 @@
       "publisher": "NXB Trẻ",
       "category": "kinh-te",
       "cover": "/covers/cha-giau-cha-ngheo.jpg",
-      "price": 98000,
+      "price": 39000,
       "list_price": 125000,
       "deal_price": null,
-      "stock": 37,
+      "stock": 38,
       "sold": 3810,
       "rating": 4.5,
       "rating_count": 2050,
@@ -110,7 +121,7 @@
       "first_published": 1997,
       "description": "Hai người cha với hai quan niệm trái ngược về tiền bạc, và bài học về tài sản, tiêu sản mà trường học không dạy. Một cuốn nhập môn tư duy tài chính cá nhân đã bán hàng chục triệu bản.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "nha-dau-tu-thong-minh",
@@ -121,10 +132,10 @@
       "publisher": null,
       "category": "kinh-te",
       "cover": "/covers/nha-dau-tu-thong-minh.jpg",
-      "price": 219000,
+      "price": 112000,
       "list_price": 279000,
       "deal_price": null,
-      "stock": 14,
+      "stock": 15,
       "sold": 960,
       "rating": 4.7,
       "rating_count": 410,
@@ -132,7 +143,7 @@
       "first_published": 1949,
       "description": "Nền tảng của trường phái đầu tư giá trị: biên an toàn, ông Thị Trường và sự khác biệt giữa đầu tư với đầu cơ. Warren Buffett gọi đây là cuốn sách hay nhất về đầu tư từng được viết.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "tu-tot-den-vi-dai",
@@ -143,7 +154,7 @@
       "publisher": null,
       "category": "kinh-te",
       "cover": "/covers/tu-tot-den-vi-dai.jpg",
-      "price": 135000,
+      "price": 67000,
       "list_price": 168000,
       "deal_price": null,
       "stock": 21,
@@ -154,7 +165,7 @@
       "first_published": 2001,
       "description": "Nhóm nghiên cứu của Jim Collins theo dõi 1.435 công ty để tìm ra vì sao chỉ 11 cái tên vượt từ “tốt” lên “vĩ đại” và giữ được phong độ suốt 15 năm.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "khoi-nghiep-tinh-gon",
@@ -165,7 +176,7 @@
       "publisher": null,
       "category": "kinh-te",
       "cover": "/covers/khoi-nghiep-tinh-gon.jpg",
-      "price": 129000,
+      "price": 64000,
       "list_price": 159000,
       "deal_price": null,
       "stock": 16,
@@ -176,7 +187,7 @@
       "first_published": 2011,
       "description": "Xây — đo — học: phương pháp thử nghiệm nhanh với sản phẩm khả dụng tối thiểu để biết khách hàng thật sự cần gì trước khi đốt hết vốn.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "khong-den-mot",
@@ -187,7 +198,7 @@
       "publisher": null,
       "category": "kinh-te",
       "cover": "/covers/khong-den-mot.jpg",
-      "price": 109000,
+      "price": 55000,
       "list_price": 138000,
       "deal_price": null,
       "stock": 19,
@@ -198,7 +209,7 @@
       "first_published": 2014,
       "description": "Đồng sáng lập PayPal cho rằng tiến bộ thật sự đến từ việc tạo ra thứ hoàn toàn mới, không phải sao chép thứ đã có. Những ghi chép từ khóa học khởi nghiệp nổi tiếng ở Stanford.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "tu-duy-nhanh-va-cham",
@@ -209,9 +220,9 @@
       "publisher": null,
       "category": "kinh-te",
       "cover": "/covers/tu-duy-nhanh-va-cham.jpg",
-      "price": 199000,
+      "price": 104000,
       "list_price": 259000,
-      "deal_price": 159000,
+      "deal_price": null,
       "stock": 23,
       "sold": 1530,
       "rating": 4.7,
@@ -220,7 +231,7 @@
       "first_published": 2011,
       "description": "Nhà kinh tế học đoạt giải Nobel giải thích hai hệ thống điều khiển suy nghĩ: một nhanh, trực giác; một chậm, cân nhắc — và những thiên kiến khiến ta quyết định sai.",
       "staff_pick": "Đọc chậm, mỗi tối một chương. Bạn sẽ nhận ra chính mình trong rất nhiều thí nghiệm.",
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "kinh-te-hoc-hai-huoc",
@@ -231,7 +242,7 @@
       "publisher": null,
       "category": "kinh-te",
       "cover": "/covers/kinh-te-hoc-hai-huoc.jpg",
-      "price": 112000,
+      "price": 56000,
       "list_price": 140000,
       "deal_price": null,
       "stock": 18,
@@ -242,7 +253,7 @@
       "first_published": 2005,
       "description": "Giáo viên gian lận, đô vật sumo dàn xếp và vì sao băng buôn ma túy vẫn sống chung với mẹ: kinh tế học được dùng để soi những câu hỏi đời thường kỳ lạ nhất.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "chien-luoc-dai-duong-xanh",
@@ -253,7 +264,7 @@
       "publisher": null,
       "category": "kinh-te",
       "cover": "/covers/chien-luoc-dai-duong-xanh.jpg",
-      "price": 159000,
+      "price": 80000,
       "list_price": 199000,
       "deal_price": null,
       "stock": 11,
@@ -264,7 +275,7 @@
       "first_published": 2005,
       "description": "Thay vì lao vào “đại dương đỏ” cạnh tranh khốc liệt, doanh nghiệp có thể tạo ra khoảng thị trường chưa ai khai phá. Kèm các công cụ phân tích như đường giá trị và khung bốn hành động.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "nguoi-giau-co-nhat-babylon",
@@ -275,7 +286,7 @@
       "publisher": null,
       "category": "kinh-te",
       "cover": "/covers/nguoi-giau-co-nhat-babylon.jpg",
-      "price": 69000,
+      "price": 35000,
       "list_price": 88000,
       "deal_price": null,
       "stock": 33,
@@ -286,7 +297,7 @@
       "first_published": 1926,
       "description": "Những ngụ ngôn về tiết kiệm, đầu tư và trả nợ đặt trong bối cảnh Babylon cổ đại. Mỏng, dễ đọc và vẫn đúng sau gần một trăm năm.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "nghi-giau-lam-giau",
@@ -297,7 +308,7 @@
       "publisher": null,
       "category": "kinh-te",
       "cover": "/covers/nghi-giau-lam-giau.jpg",
-      "price": 96000,
+      "price": 48000,
       "list_price": 120000,
       "deal_price": null,
       "stock": 26,
@@ -308,7 +319,7 @@
       "first_published": 1937,
       "description": "Mười ba nguyên tắc thành công được Napoleon Hill đúc kết sau hơn hai mươi năm phỏng vấn những doanh nhân thành đạt nhất nước Mỹ đầu thế kỷ XX.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "ga-nghien-giay",
@@ -319,7 +330,7 @@
       "publisher": null,
       "category": "kinh-te",
       "cover": "/covers/ga-nghien-giay.jpg",
-      "price": 165000,
+      "price": 84000,
       "list_price": 209000,
       "deal_price": null,
       "stock": 15,
@@ -330,7 +341,7 @@
       "first_published": 2016,
       "description": "Hồi ký của người sáng lập Nike, từ khoản vay 50 đô của cha đến một thương hiệu toàn cầu. Thẳng thắn về những lần suýt phá sản và những người đã cùng ông đi qua.",
       "staff_pick": "Hồi ký doanh nhân hay nhất mà hiệu sách từng bán. Đọc như tiểu thuyết.",
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "dac-nhan-tam",
@@ -341,7 +352,7 @@
       "publisher": "First News",
       "category": "ky-nang",
       "cover": "/covers/dac-nhan-tam.jpg",
-      "price": 76000,
+      "price": 38000,
       "list_price": 96000,
       "deal_price": null,
       "stock": 54,
@@ -352,7 +363,7 @@
       "first_published": 1936,
       "description": "Những nguyên tắc giao tiếp căn bản: lắng nghe, khen ngợi chân thành, tránh tranh cãi. Gần một thế kỷ sau, cuốn sách vẫn được đọc như một cẩm nang ứng xử.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "thoi-quen-nguyen-tu",
@@ -363,9 +374,9 @@
       "publisher": null,
       "category": "ky-nang",
       "cover": "/covers/thoi-quen-nguyen-tu.jpg",
-      "price": 159000,
+      "price": 80000,
       "list_price": 199000,
-      "deal_price": 125000,
+      "deal_price": null,
       "stock": 35,
       "sold": 3420,
       "rating": 4.8,
@@ -374,7 +385,7 @@
       "first_published": 2018,
       "description": "Thay đổi 1% mỗi ngày, cộng dồn thành khác biệt lớn. James Clear đưa ra bốn quy luật để hình thành thói quen tốt và bỏ thói quen xấu, kèm nhiều ví dụ dễ áp dụng.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "7-thoi-quen-hieu-qua",
@@ -385,7 +396,7 @@
       "publisher": null,
       "category": "ky-nang",
       "cover": "/covers/7-thoi-quen-hieu-qua.jpg",
-      "price": 179000,
+      "price": 92000,
       "list_price": 229000,
       "deal_price": null,
       "stock": 20,
@@ -396,7 +407,7 @@
       "first_published": 1989,
       "description": "Đi từ chiến thắng bản thân đến chiến thắng tập thể: chủ động, bắt đầu với mục tiêu, ưu tiên điều quan trọng, tư duy cùng thắng và những thói quen còn lại.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "suc-manh-cua-thoi-quen",
@@ -407,7 +418,7 @@
       "publisher": null,
       "category": "ky-nang",
       "cover": "/covers/suc-manh-cua-thoi-quen.jpg",
-      "price": 139000,
+      "price": 70000,
       "list_price": 175000,
       "deal_price": null,
       "stock": 17,
@@ -418,7 +429,7 @@
       "first_published": 2012,
       "description": "Vòng lặp tín hiệu — hành động — phần thưởng giải thích vì sao ta làm điều ta làm, từ cá nhân đến các tập đoàn như Alcoa hay Starbucks.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "lam-ra-lam-choi-ra-choi",
@@ -429,7 +440,7 @@
       "publisher": null,
       "category": "ky-nang",
       "cover": "/covers/lam-ra-lam-choi-ra-choi.jpg",
-      "price": 125000,
+      "price": 64000,
       "list_price": 159000,
       "deal_price": null,
       "stock": 22,
@@ -440,7 +451,7 @@
       "first_published": 2016,
       "description": "Khả năng tập trung sâu đang trở nên hiếm và vì thế ngày càng có giá. Newport đề xuất những quy tắc cụ thể để làm việc không bị xao nhãng trong thời đại mạng xã hội.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "tam-ly-hoc-thanh-cong",
@@ -451,7 +462,7 @@
       "publisher": null,
       "category": "ky-nang",
       "cover": "/covers/tam-ly-hoc-thanh-cong.jpg",
-      "price": 119000,
+      "price": 60000,
       "list_price": 149000,
       "deal_price": null,
       "stock": 24,
@@ -462,7 +473,7 @@
       "first_published": 2006,
       "description": "Tư duy cố định hay tư duy phát triển? Nghiên cứu của nhà tâm lý học Stanford cho thấy niềm tin về năng lực ảnh hưởng thế nào đến việc học, công việc và các mối quan hệ.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "grit",
@@ -473,7 +484,7 @@
       "publisher": null,
       "category": "ky-nang",
       "cover": "/covers/grit.jpg",
-      "price": 135000,
+      "price": 68000,
       "list_price": 169000,
       "deal_price": null,
       "stock": 13,
@@ -484,7 +495,7 @@
       "first_published": 2016,
       "description": "Tài năng không phải tất cả. Angela Duckworth chỉ ra rằng sự bền bỉ theo đuổi một mục tiêu dài hạn mới là yếu tố dự báo thành công đáng tin cậy.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "huong-noi",
@@ -495,7 +506,7 @@
       "publisher": null,
       "category": "ky-nang",
       "cover": "/covers/huong-noi.jpg",
-      "price": 149000,
+      "price": 76000,
       "list_price": 189000,
       "deal_price": null,
       "stock": 12,
@@ -506,7 +517,7 @@
       "first_published": 2012,
       "description": "Trong một thế giới đề cao sự hoạt ngôn, Susan Cain bênh vực những người trầm lặng và cho thấy cách họ đóng góp theo kiểu của riêng mình.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "di-tim-le-song",
@@ -517,7 +528,7 @@
       "publisher": "First News",
       "category": "ky-nang",
       "cover": "/covers/di-tim-le-song.jpg",
-      "price": 72000,
+      "price": 35000,
       "list_price": 88000,
       "deal_price": null,
       "stock": 40,
@@ -528,7 +539,7 @@
       "first_published": 1946,
       "description": "Bác sĩ tâm thần Viktor Frankl kể lại những năm trong trại tập trung và rút ra một điều: con người có thể chịu đựng gần như mọi thứ nếu tìm thấy ý nghĩa cho nỗi đau của mình.",
       "staff_pick": "Mỏng, nhưng là cuốn sách nhiều người quay lại đọc nhất.",
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "ikigai",
@@ -539,7 +550,7 @@
       "publisher": null,
       "category": "ky-nang",
       "cover": "/covers/ikigai.jpg",
-      "price": 89000,
+      "price": 45000,
       "list_price": 112000,
       "deal_price": null,
       "stock": 30,
@@ -550,7 +561,7 @@
       "first_published": 2016,
       "description": "Hai tác giả đến ngôi làng Ogimi ở Okinawa để tìm hiểu vì sao người dân ở đây sống thọ, và khái niệm “lý do để thức dậy mỗi sáng”.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "nghe-thuat-tinh-te",
@@ -561,7 +572,7 @@
       "publisher": null,
       "category": "ky-nang",
       "cover": "/covers/nghe-thuat-tinh-te.jpg",
-      "price": 99000,
+      "price": 50000,
       "list_price": 125000,
       "deal_price": null,
       "stock": 28,
@@ -572,7 +583,7 @@
       "first_published": 2016,
       "description": "Không phải sách “nghĩ tích cực”. Manson khuyên bạn chọn thật kỹ những điều đáng bận tâm và chấp nhận rằng đau khổ là một phần của cuộc sống.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "dam-bi-ghet",
@@ -583,7 +594,7 @@
       "publisher": null,
       "category": "ky-nang",
       "cover": "/covers/dam-bi-ghet.jpg",
-      "price": 105000,
+      "price": 52000,
       "list_price": 129000,
       "deal_price": null,
       "stock": 25,
@@ -594,7 +605,7 @@
       "first_published": 2013,
       "description": "Cuộc đối thoại giữa một triết gia và một chàng trai trẻ về tâm lý học Adler: tự do là chấp nhận rằng không phải ai cũng sẽ quý mình.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "nha-gia-kim",
@@ -605,7 +616,7 @@
       "publisher": "Nhã Nam",
       "category": "van-hoc",
       "cover": "/covers/nha-gia-kim.jpg",
-      "price": 69000,
+      "price": 32000,
       "list_price": 79000,
       "deal_price": null,
       "stock": 62,
@@ -616,7 +627,7 @@
       "first_published": 1988,
       "description": "Chàng chăn cừu Santiago rời Andalusia đến sa mạc Ai Cập theo một giấc mơ về kho báu. Một câu chuyện ngụ ngôn ngắn về việc lắng nghe trái tim và đi đến cùng con đường của mình.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "rung-na-uy",
@@ -627,7 +638,7 @@
       "publisher": "Nhã Nam",
       "category": "van-hoc",
       "cover": "/covers/rung-na-uy.jpg",
-      "price": 125000,
+      "price": 62000,
       "list_price": 155000,
       "deal_price": null,
       "stock": 19,
@@ -638,7 +649,7 @@
       "first_published": 1987,
       "description": "Tokyo cuối những năm 1960. Watanabe nhớ lại mối tình với Naoko — cô gái mang vết thương từ cái chết của người bạn chung — và Midori, sống động, ồn ào và đầy sức sống.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "kafka-ben-bo-bien",
@@ -649,7 +660,7 @@
       "publisher": "Nhã Nam",
       "category": "van-hoc",
       "cover": "/covers/kafka-ben-bo-bien.jpg",
-      "price": 165000,
+      "price": 82000,
       "list_price": 205000,
       "deal_price": null,
       "stock": 0,
@@ -660,7 +671,7 @@
       "first_published": 2002,
       "description": "Cậu thiếu niên mười lăm tuổi bỏ nhà ra đi và ông lão Nakata biết nói chuyện với mèo — hai câu chuyện song song dần đan vào nhau trong thế giới nửa thực nửa mơ của Murakami.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "1984",
@@ -671,7 +682,7 @@
       "publisher": "Nhã Nam",
       "category": "van-hoc",
       "cover": "/covers/1984.jpg",
-      "price": 105000,
+      "price": 52000,
       "list_price": 130000,
       "deal_price": null,
       "stock": 27,
@@ -682,7 +693,7 @@
       "first_published": 1949,
       "description": "Winston Smith làm việc tại Bộ Sự thật, nơi quá khứ được viết lại mỗi ngày. Cuốn tiểu thuyết đã đặt ra những khái niệm như Anh Cả, tư duy kép và cảnh sát tư tưởng.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "trai-suc-vat",
@@ -693,7 +704,7 @@
       "publisher": "Nhã Nam",
       "category": "van-hoc",
       "cover": "/covers/trai-suc-vat.jpg",
-      "price": 59000,
+      "price": 29000,
       "list_price": 72000,
       "deal_price": null,
       "stock": 31,
@@ -704,7 +715,7 @@
       "first_published": 1945,
       "description": "Các con vật nổi dậy đuổi ông chủ trại và lập nên một xã hội bình đẳng — cho đến khi “có những con vật bình đẳng hơn những con khác”.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "bo-gia",
@@ -715,9 +726,9 @@
       "publisher": null,
       "category": "van-hoc",
       "cover": "/covers/bo-gia.jpg",
-      "price": 149000,
+      "price": 74000,
       "list_price": 185000,
-      "deal_price": 115000,
+      "deal_price": null,
       "stock": 18,
       "sold": 1780,
       "rating": 4.8,
@@ -726,7 +737,7 @@
       "first_published": 1969,
       "description": "Gia đình Corleone và luật lệ riêng của họ giữa thế giới ngầm New York. Nền tảng cho bộ phim kinh điển của Francis Ford Coppola.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "hoang-tu-be",
@@ -737,7 +748,7 @@
       "publisher": "Nhã Nam",
       "category": "van-hoc",
       "cover": "/covers/hoang-tu-be.jpg",
-      "price": 58000,
+      "price": 28000,
       "list_price": 70000,
       "deal_price": null,
       "stock": 45,
@@ -748,7 +759,7 @@
       "first_published": 1943,
       "description": "Một phi công rơi máy bay giữa sa mạc gặp cậu bé đến từ tiểu hành tinh B612. Câu chuyện viết cho trẻ em nhưng người lớn đọc lại mới thấy hết.",
       "staff_pick": "Món quà an toàn nhất cho bất kỳ ai, ở bất kỳ tuổi nào.",
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "giet-con-chim-nhai",
@@ -759,7 +770,7 @@
       "publisher": "Nhã Nam",
       "category": "van-hoc",
       "cover": "/covers/giet-con-chim-nhai.jpg",
-      "price": 115000,
+      "price": 56000,
       "list_price": 140000,
       "deal_price": null,
       "stock": 16,
@@ -770,7 +781,7 @@
       "first_published": 1960,
       "description": "Qua đôi mắt cô bé Scout, một vụ án ở thị trấn nhỏ miền Nam nước Mỹ những năm 1930 phơi bày định kiến chủng tộc và lòng can đảm của người cha Atticus Finch.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "dai-gia-gatsby",
@@ -781,7 +792,7 @@
       "publisher": null,
       "category": "van-hoc",
       "cover": "/covers/dai-gia-gatsby.jpg",
-      "price": 79000,
+      "price": 39000,
       "list_price": 98000,
       "deal_price": null,
       "stock": 22,
@@ -792,7 +803,7 @@
       "first_published": 1925,
       "description": "Những bữa tiệc xa hoa ở Long Island và một người đàn ông dồn cả gia tài để níu lại quá khứ. Bức chân dung sắc nét về Giấc mơ Mỹ thời Jazz.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "tram-nam-co-don",
@@ -803,7 +814,7 @@
       "publisher": "Nhã Nam",
       "category": "van-hoc",
       "cover": "/covers/tram-nam-co-don.jpg",
-      "price": 155000,
+      "price": 78000,
       "list_price": 195000,
       "deal_price": null,
       "stock": 14,
@@ -814,7 +825,7 @@
       "first_published": 1967,
       "description": "Bảy thế hệ nhà Buendía ở làng Macondo, nơi những điều kỳ ảo xảy ra bình thản như chuyện thường ngày. Kiệt tác của chủ nghĩa hiện thực huyền ảo.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "nguoi-dua-dieu",
@@ -825,7 +836,7 @@
       "publisher": "Nhã Nam",
       "category": "van-hoc",
       "cover": "/covers/nguoi-dua-dieu.jpg",
-      "price": 125000,
+      "price": 62000,
       "list_price": 155000,
       "deal_price": null,
       "stock": 20,
@@ -836,7 +847,7 @@
       "first_published": 2003,
       "description": "Amir và Hassan lớn lên cùng nhau ở Kabul cho đến một buổi chiều thả diều làm thay đổi tất cả. Câu chuyện về tình bạn, sự phản bội và con đường chuộc lỗi.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "ong-gia-va-bien-ca",
@@ -847,7 +858,7 @@
       "publisher": null,
       "category": "van-hoc",
       "cover": "/covers/ong-gia-va-bien-ca.jpg",
-      "price": 55000,
+      "price": 27000,
       "list_price": 68000,
       "deal_price": null,
       "stock": 29,
@@ -858,7 +869,7 @@
       "first_published": 1952,
       "description": "Ông lão Santiago ra khơi sau 84 ngày không bắt được cá và vật lộn ba ngày đêm với một con cá kiếm khổng lồ. Tác phẩm góp phần đưa Hemingway đến giải Nobel.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "harry-potter-1",
@@ -869,9 +880,9 @@
       "publisher": "NXB Trẻ",
       "category": "van-hoc",
       "cover": "/covers/harry-potter-1.jpg",
-      "price": 135000,
+      "price": 66000,
       "list_price": 165000,
-      "deal_price": 109000,
+      "deal_price": null,
       "stock": 33,
       "sold": 2890,
       "rating": 4.9,
@@ -880,7 +891,7 @@
       "first_published": 1997,
       "description": "Vào sinh nhật mười một tuổi, Harry nhận được thư nhập học từ Trường Phù thủy và Pháp sư Hogwarts. Mở đầu cho bộ truyện của cả một thế hệ độc giả.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "khong-gia-dinh",
@@ -891,7 +902,7 @@
       "publisher": null,
       "category": "van-hoc",
       "cover": "/covers/khong-gia-dinh.jpg",
-      "price": 119000,
+      "price": 59000,
       "list_price": 148000,
       "deal_price": null,
       "stock": 17,
@@ -902,7 +913,7 @@
       "first_published": 1878,
       "description": "Cậu bé Rémi bị bán cho một gánh xiếc rong và bắt đầu cuộc hành trình khắp nước Pháp cùng cụ Vitalis và đàn chó, chú khỉ Joli-Coeur.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "nhung-nguoi-khon-kho",
@@ -913,7 +924,7 @@
       "publisher": null,
       "category": "van-hoc",
       "cover": "/covers/nhung-nguoi-khon-kho.jpg",
-      "price": 289000,
+      "price": 144000,
       "list_price": 360000,
       "deal_price": null,
       "stock": 9,
@@ -924,7 +935,7 @@
       "first_published": 1862,
       "description": "Jean Valjean, người tù khổ sai được cứu rỗi bởi lòng tốt của một giám mục, và cuộc truy đuổi kéo dài nhiều năm của thanh tra Javert. Bộ tiểu thuyết đồ sộ về công lý và lòng nhân.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "sapiens",
@@ -935,9 +946,9 @@
       "publisher": null,
       "category": "khoa-hoc",
       "cover": "/covers/sapiens.jpg",
-      "price": 209000,
+      "price": 108000,
       "list_price": 269000,
-      "deal_price": 169000,
+      "deal_price": null,
       "stock": 18,
       "sold": 1920,
       "rating": 4.8,
@@ -946,7 +957,7 @@
       "first_published": 2011,
       "description": "Hành trình 70.000 năm từ một loài vượn không mấy nổi bật đến chủ nhân hành tinh: cách mạng nhận thức, nông nghiệp, sự thống nhất loài người và cách mạng khoa học.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "homo-deus",
@@ -957,7 +968,7 @@
       "publisher": null,
       "category": "khoa-hoc",
       "cover": "/covers/homo-deus.jpg",
-      "price": 199000,
+      "price": 102000,
       "list_price": 255000,
       "deal_price": null,
       "stock": 13,
@@ -968,7 +979,7 @@
       "first_published": 2015,
       "description": "Khi nạn đói, dịch bệnh và chiến tranh dần bị kiểm soát, loài người sẽ theo đuổi điều gì tiếp theo? Harari bàn về dữ liệu, thuật toán và tương lai của chủ nghĩa nhân văn.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "21-bai-hoc",
@@ -979,7 +990,7 @@
       "publisher": null,
       "category": "khoa-hoc",
       "cover": "/covers/21-bai-hoc.jpg",
-      "price": 189000,
+      "price": 96000,
       "list_price": 239000,
       "deal_price": null,
       "stock": 15,
@@ -990,7 +1001,7 @@
       "first_published": 2018,
       "description": "Sau quá khứ và tương lai, Harari quay về hiện tại: tin giả, chủ nghĩa dân tộc, việc làm trong thời AI và cách giữ sự tỉnh táo giữa quá nhiều thông tin.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "sung-vi-trung-va-thep",
@@ -1001,7 +1012,7 @@
       "publisher": null,
       "category": "khoa-hoc",
       "cover": "/covers/sung-vi-trung-va-thep.jpg",
-      "price": 229000,
+      "price": 116000,
       "list_price": 289000,
       "deal_price": null,
       "stock": 10,
@@ -1012,7 +1023,7 @@
       "first_published": 1997,
       "description": "Vì sao các xã hội Á-Âu chinh phục thế giới mà không phải ngược lại? Câu trả lời của Jared Diamond nằm ở địa lý, cây trồng, vật nuôi và mầm bệnh. Giải Pulitzer 1998.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "luoc-su-thoi-gian",
@@ -1023,7 +1034,7 @@
       "publisher": "NXB Trẻ",
       "category": "khoa-hoc",
       "cover": "/covers/luoc-su-thoi-gian.jpg",
-      "price": 115000,
+      "price": 58000,
       "list_price": 145000,
       "deal_price": null,
       "stock": 12,
@@ -1034,7 +1045,7 @@
       "first_published": 1988,
       "description": "Từ Vụ Nổ Lớn đến lỗ đen và mũi tên thời gian, Stephen Hawking giải thích những câu hỏi lớn của vũ trụ học mà gần như không dùng đến một phương trình nào.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "vu-tru",
@@ -1045,7 +1056,7 @@
       "publisher": null,
       "category": "khoa-hoc",
       "cover": "/covers/vu-tru.jpg",
-      "price": 175000,
+      "price": 88000,
       "list_price": 219000,
       "deal_price": null,
       "stock": 11,
@@ -1056,7 +1067,7 @@
       "first_published": 1980,
       "description": "Cuốn sách đi kèm loạt phim tài liệu nổi tiếng: lịch sử khoa học, sự tiến hoá của sự sống và vị trí nhỏ bé nhưng quý giá của Trái Đất giữa vũ trụ bao la.",
       "staff_pick": "Nếu chỉ đọc một cuốn khoa học phổ thông trong năm nay, hãy chọn cuốn này.",
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "gen-ich-ky",
@@ -1067,7 +1078,7 @@
       "publisher": null,
       "category": "khoa-hoc",
       "cover": "/covers/gen-ich-ky.jpg",
-      "price": 159000,
+      "price": 80000,
       "list_price": 199000,
       "deal_price": null,
       "stock": 9,
@@ -1078,7 +1089,7 @@
       "first_published": 1976,
       "description": "Nhìn tiến hoá từ góc độ của gen thay vì cá thể. Cuốn sách cũng là nơi lần đầu xuất hiện khái niệm “meme”.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "su-that-ve-the-gioi",
@@ -1089,10 +1100,10 @@
       "publisher": null,
       "category": "khoa-hoc",
       "cover": "/covers/su-that-ve-the-gioi.jpg",
-      "price": 155000,
+      "price": 59000,
       "list_price": 195000,
       "deal_price": null,
-      "stock": 16,
+      "stock": 17,
       "sold": 590,
       "rating": 4.7,
       "rating_count": 260,
@@ -1100,7 +1111,7 @@
       "first_published": 2018,
       "description": "Mười bản năng khiến ta nhìn thế giới bi quan hơn thực tế, và cách dùng dữ liệu để suy nghĩ rõ ràng hơn. Cuốn sách cuối cùng của bác sĩ Hans Rosling.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "nguon-goc-cac-loai",
@@ -1111,10 +1122,10 @@
       "publisher": null,
       "category": "khoa-hoc",
       "cover": "/covers/nguon-goc-cac-loai.jpg",
-      "price": 185000,
+      "price": 79000,
       "list_price": 230000,
       "deal_price": null,
-      "stock": 7,
+      "stock": 8,
       "sold": 260,
       "rating": 4.6,
       "rating_count": 110,
@@ -1122,7 +1133,7 @@
       "first_published": 1859,
       "description": "Tác phẩm đặt nền móng cho sinh học tiến hoá, trình bày thuyết chọn lọc tự nhiên qua những quan sát tỉ mỉ suốt hơn hai mươi năm.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     },
     {
       "id": "gen-lich-su",
@@ -1133,7 +1144,7 @@
       "publisher": null,
       "category": "khoa-hoc",
       "cover": "/covers/gen-lich-su.jpg",
-      "price": 245000,
+      "price": 124000,
       "list_price": 309000,
       "deal_price": null,
       "stock": 8,
@@ -1144,7 +1155,7 @@
       "first_published": 2016,
       "description": "Từ vườn đậu của Mendel đến công nghệ chỉnh sửa gen CRISPR, xen lẫn câu chuyện về bệnh tâm thần trong chính gia đình tác giả.",
       "staff_pick": null,
-      "created_at": "2026-10-26T17:02:38.487Z"
+      "created_at": "2026-10-26T23:36:21.800Z"
     }
   ],
   "coupons": [
@@ -1333,7 +1344,7 @@
   ],
   "order_items": [
     {
-      "id": 1,
+      "id": 20,
       "order_code": "BW-100234",
       "book_id": "tam-ly-hoc-ve-tien",
       "title": "Tâm lý học về tiền",
@@ -1342,58 +1353,73 @@
       "category": "kinh-te",
       "condition": "likenew",
       "unit_price": 116000,
-      "qty": 1
+      "qty": 1,
+      "listing_id": "bw-tam-ly-hoc-ve-tien-likenew",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise"
     },
     {
-      "id": 2,
+      "id": 21,
       "order_code": "BW-100234",
       "book_id": "cha-giau-cha-ngheo",
       "title": "Cha giàu, cha nghèo",
       "author": "Robert T. Kiyosaki",
       "cover": "/covers/cha-giau-cha-ngheo.jpg",
       "category": "kinh-te",
-      "condition": "seal",
+      "condition": "likenew",
       "unit_price": 98000,
-      "qty": 1
+      "qty": 1,
+      "listing_id": "bw-cha-giau-cha-ngheo-likenew",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise"
     },
     {
-      "id": 3,
+      "id": 22,
       "order_code": "BW-100582",
       "book_id": "tu-duy-nhanh-va-cham",
       "title": "Tư duy nhanh và chậm",
       "author": "Daniel Kahneman",
       "cover": "/covers/tu-duy-nhanh-va-cham.jpg",
       "category": "kinh-te",
-      "condition": "seal",
+      "condition": "likenew",
       "unit_price": 159000,
-      "qty": 1
+      "qty": 1,
+      "listing_id": "bw-tu-duy-nhanh-va-cham-likenew",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise"
     },
     {
-      "id": 4,
+      "id": 23,
       "order_code": "BW-100582",
       "book_id": "nha-dau-tu-thong-minh",
       "title": "Nhà đầu tư thông minh",
       "author": "Benjamin Graham",
       "cover": "/covers/nha-dau-tu-thong-minh.jpg",
       "category": "kinh-te",
-      "condition": "seal",
+      "condition": "likenew",
       "unit_price": 219000,
-      "qty": 1
+      "qty": 1,
+      "listing_id": "bw-nha-dau-tu-thong-minh-likenew",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise"
     },
     {
-      "id": 5,
+      "id": 24,
       "order_code": "BW-100791",
       "book_id": "sapiens-luoc-su-loai-nguoi",
       "title": "Sapiens: Lược sử loài người",
       "author": "Yuval Noah Harari",
       "cover": "/covers/sapiens-luoc-su-loai-nguoi.jpg",
       "category": "khoa-hoc",
-      "condition": "seal",
+      "condition": "likenew",
       "unit_price": 175000,
-      "qty": 2
+      "qty": 2,
+      "listing_id": "bw-sapiens-luoc-su-loai-nguoi-likenew",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise"
     },
     {
-      "id": 6,
+      "id": 25,
       "order_code": "BW-100912",
       "book_id": "khong-den-mot",
       "title": "Không đến một",
@@ -1402,101 +1428,107 @@
       "category": "kinh-te",
       "condition": "used",
       "unit_price": 65400,
-      "qty": 1
+      "qty": 1,
+      "listing_id": "bw-khong-den-mot-used",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise"
     },
     {
-      "id": 7,
+      "id": 26,
       "order_code": "BW-100105",
       "book_id": "tu-tot-den-vi-dai",
       "title": "Từ tốt đến vĩ đại",
       "author": "Jim Collins",
       "cover": "/covers/tu-tot-den-vi-dai.jpg",
       "category": "kinh-te",
-      "condition": "seal",
+      "condition": "likenew",
       "unit_price": 135000,
-      "qty": 1
+      "qty": 1,
+      "listing_id": "bw-tu-tot-den-vi-dai-likenew",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise"
     }
   ],
   "order_history": [
     {
-      "id": 1,
+      "id": 35,
       "order_code": "BW-100234",
       "status": "pending",
       "note": "Đơn hàng được khởi tạo thành công qua VietQR",
       "created_at": "2026-10-25T09:15:00.000Z"
     },
     {
-      "id": 2,
+      "id": 36,
       "order_code": "BW-100234",
       "status": "confirmed",
       "note": "Đã nhận thanh toán 229.000đ. Kho hoàn tất kiểm định và đóng gói sách",
       "created_at": "2026-10-25T09:20:00.000Z"
     },
     {
-      "id": 3,
+      "id": 37,
       "order_code": "BW-100234",
       "status": "shipping",
       "note": "Bàn giao cho shipper AhaMove (Trần Quốc Bảo - 0988112233)",
       "created_at": "2026-10-25T10:00:00.000Z"
     },
     {
-      "id": 4,
+      "id": 38,
       "order_code": "BW-100234",
       "status": "delivered",
       "note": "Giao hàng thành công đến người nhận. Khách đã kiểm tra sách",
       "created_at": "2026-10-25T11:20:00.000Z"
     },
     {
-      "id": 5,
+      "id": 39,
       "order_code": "BW-100582",
       "status": "pending",
       "note": "Đơn hàng COD chờ xác nhận thông tin giao hàng",
       "created_at": "2026-10-26T08:30:00.000Z"
     },
     {
-      "id": 6,
+      "id": 40,
       "order_code": "BW-100582",
       "status": "confirmed",
-      "note": "Điện thoại xác nhận thành công. Đóng gói 2 cuốn sách nguyên seal có chống sốc",
+      "note": "Điện thoại xác nhận thành công. Đóng gói 2 cuốn sách có chống sốc",
       "created_at": "2026-10-26T09:15:00.000Z"
     },
     {
-      "id": 7,
+      "id": 41,
       "order_code": "BW-100582",
       "status": "shipping",
       "note": "Bàn giao bưu tá GHN. Đang trên đường phát hàng khu vực Cầu Giấy",
       "created_at": "2026-10-26T14:10:00.000Z"
     },
     {
-      "id": 8,
+      "id": 42,
       "order_code": "BW-100791",
       "status": "pending",
       "note": "Thanh toán trực tuyến thẻ Visa thành công",
       "created_at": "2026-10-26T13:40:00.000Z"
     },
     {
-      "id": 9,
+      "id": 43,
       "order_code": "BW-100791",
       "status": "confirmed",
       "note": "Bộ phận kho đã nhận đơn, đang chuẩn bị hàng",
       "created_at": "2026-10-26T14:00:00.000Z"
     },
     {
-      "id": 10,
+      "id": 44,
       "order_code": "BW-100912",
       "status": "pending",
       "note": "Đơn hàng mới tạo, đã thanh toán qua MoMo, chờ duyệt xuất kho",
       "created_at": "2026-10-26T14:45:00.000Z"
     },
     {
-      "id": 11,
+      "id": 45,
       "order_code": "BW-100105",
       "status": "pending",
       "note": "Đơn hàng đã đặt",
       "created_at": "2026-10-24T10:00:00.000Z"
     },
     {
-      "id": 12,
+      "id": 46,
       "order_code": "BW-100105",
       "status": "cancelled",
       "note": "Khách hàng huỷ đơn do chọn sai địa chỉ nhận hàng. Kho đã hoàn lại tồn kho.",
@@ -1505,7 +1537,7 @@
   ],
   "delivery_shipments": [
     {
-      "id": 1,
+      "id": 5,
       "tracking_code": "AHA-BW-100234",
       "order_code": "BW-100234",
       "carrier_name": "AhaMove",
@@ -1520,7 +1552,7 @@
       "updated_at": "2026-10-25T11:20:00.000Z"
     },
     {
-      "id": 2,
+      "id": 6,
       "tracking_code": "GHN-VN-100582",
       "order_code": "BW-100582",
       "carrier_name": "GHN",
@@ -1537,48 +1569,48 @@
   ],
   "delivery_checkpoints": [
     {
-      "id": 1,
-      "shipment_id": 1,
+      "id": 13,
+      "shipment_id": 5,
       "location": "Kho Tổng BookWise (Quận 1)",
       "status_text": "Lấy hàng thành công",
       "description": "Tài xế đã nhận gói hàng nguyên vẹn",
       "event_time": "2026-10-25T10:05:00.000Z"
     },
     {
-      "id": 2,
-      "shipment_id": 1,
+      "id": 14,
+      "shipment_id": 5,
       "location": "Đường Nguyễn Thị Minh Khai",
       "status_text": "Đang di chuyển",
       "description": "Shipper đang trên đường tới địa chỉ khách hàng",
       "event_time": "2026-10-25T10:35:00.000Z"
     },
     {
-      "id": 3,
-      "shipment_id": 1,
+      "id": 15,
+      "shipment_id": 5,
       "location": "12 Lê Lợi, Quận 1",
       "status_text": "Giao thành công",
       "description": "Khách hàng ký nhận bưu kiện",
       "event_time": "2026-10-25T11:20:00.000Z"
     },
     {
-      "id": 4,
-      "shipment_id": 2,
+      "id": 16,
+      "shipment_id": 6,
       "location": "Kho Phía Bắc (Long Biên)",
       "status_text": "Xuất kho",
       "description": "Đã đóng gói và niêm phong kiện hàng",
       "event_time": "2026-10-26T10:00:00.000Z"
     },
     {
-      "id": 5,
-      "shipment_id": 2,
+      "id": 17,
+      "shipment_id": 6,
       "location": "Bưu cục GHN Cầu Giấy",
       "status_text": "Đến bưu cục phát",
       "description": "Kiện hàng đã tới bưu cục phụ trách giao",
       "event_time": "2026-10-26T13:45:00.000Z"
     },
     {
-      "id": 6,
-      "shipment_id": 2,
+      "id": 18,
+      "shipment_id": 6,
       "location": "Tuyến Cầu Giấy - Dịch Vọng",
       "status_text": "Đang phát hàng",
       "description": "Shipper Nguyễn Văn Tài (0912345678) đang liên hệ giao",
@@ -1634,79 +1666,79 @@
   ],
   "support_faqs": [
     {
-      "id": 1,
+      "id": 21,
       "category": "Giao hàng",
       "question": "Bao lâu thì tôi nhận được sách?",
       "answer": "Giao tiêu chuẩn qua GHN hoặc Viettel Post mất 2–3 ngày làm việc trên toàn quốc. Tại Hà Nội và TP. Hồ Chí Minh, bạn có thể chọn giao hỏa tốc qua AhaMove, nhận sách trong khoảng 2 giờ kể từ khi đơn được xác nhận.",
       "sort_order": 1
     },
     {
-      "id": 2,
+      "id": 22,
       "category": "Giao hàng",
       "question": "Phí giao hàng được tính thế nào?",
       "answer": "Giao tiêu chuẩn 15.000đ, hỏa tốc 30.000đ. Mã FREESHIP15K giảm 15.000đ phí giao cho đơn từ 150.000đ và có thể dùng cùng một mã giảm giá đơn hàng.",
       "sort_order": 2
     },
     {
-      "id": 3,
+      "id": 23,
       "category": "Tình trạng sách",
-      "question": "“Như mới 98%” và “Đã qua sử dụng 90%” khác nhau ra sao?",
+      "question": "“Như mới 95%” và “Đã qua sử dụng 80%” khác nhau ra sao?",
       "answer": "Sách “Như mới” thường chỉ được đọc một lần: gáy thẳng, không ghi chú, không gấp mép. Sách “Đã qua sử dụng” có thể ngả màu giấy hoặc trầy nhẹ bìa nhưng nội dung đầy đủ, không rách trang. Mọi cuốn đều qua kiểm định 7 bước trước khi lên kệ.",
       "sort_order": 3
     },
     {
-      "id": 4,
+      "id": 24,
       "category": "Tình trạng sách",
       "question": "Làm sao tôi biết sách không phải sách lậu?",
-      "answer": "BookWise chỉ nhập sách mới từ nhà phát hành chính thức. Sách cũ được đối chiếu ISBN, chất lượng in, giấy và tem nhà phát hành. Nếu phát hiện sách giả, chúng tôi hoàn 200% giá trị cuốn sách.",
+      "answer": "Mọi cuốn, kể cả sách do người bán đăng, đều được gửi về BookWise trước khi giao. Sách được đối chiếu ISBN, chất lượng in, giấy và tem nhà phát hành. Nếu phát hiện sách giả, chúng tôi hoàn 200% giá trị cuốn sách.",
       "sort_order": 4
     },
     {
-      "id": 5,
+      "id": 25,
       "category": "Đổi trả",
       "question": "Tôi có thể đổi trả sách không?",
       "answer": "Bạn có 7 ngày kể từ khi nhận hàng để đổi trả nếu sách không đúng tình trạng mô tả, lỗi in hoặc hư hỏng do vận chuyển. Hãy gửi yêu cầu kèm mã đơn trong mục Hỗ trợ, chúng tôi phản hồi trong 24 giờ.",
       "sort_order": 5
     },
     {
-      "id": 6,
+      "id": 26,
       "category": "Thanh toán",
       "question": "BookWise hỗ trợ những hình thức thanh toán nào?",
       "answer": "Chuyển khoản VietQR (quét bằng ứng dụng ngân hàng bất kỳ, số tiền điền sẵn), ví MoMo/ZaloPay, thẻ ATM/Visa/Mastercard có xác thực OTP và thanh toán khi nhận hàng (COD) được kiểm tra sách trước.",
       "sort_order": 6
     },
     {
-      "id": 7,
+      "id": 27,
       "category": "Thanh toán",
       "question": "Tôi đã chuyển khoản nhưng đơn vẫn “Chờ xác nhận”?",
       "answer": "Đơn được xác nhận sau khi BookWise kiểm tra tồn kho và đối soát giao dịch, thường trong vòng 30 phút giờ hành chính. Nếu sau 2 giờ vẫn chưa thay đổi, hãy gửi yêu cầu hỗ trợ kèm mã đơn.",
       "sort_order": 7
     },
     {
-      "id": 8,
+      "id": 28,
       "category": "Đơn hàng",
       "question": "Làm sao để huỷ đơn?",
       "answer": "Bạn tự huỷ được khi đơn còn ở trạng thái “Chờ xác nhận”, ngay trong trang Tra cứu đơn hoặc Tài khoản. Đơn đã xác nhận cần liên hệ bộ phận hỗ trợ. Khi huỷ, tiền đã thanh toán được hoàn trong 1–3 ngày làm việc.",
       "sort_order": 8
     },
     {
-      "id": 9,
+      "id": 29,
       "category": "Đơn hàng",
       "question": "Tôi không nhớ mã đơn hàng?",
       "answer": "Trong trang Tra cứu đơn, bạn có thể tìm bằng số điện thoại đã dùng khi đặt hàng. Nếu đăng nhập, toàn bộ đơn hàng nằm trong mục Tài khoản.",
       "sort_order": 9
     },
     {
-      "id": 10,
+      "id": 30,
       "category": "Bán lại sách",
       "question": "BookWise thu mua sách cũ như thế nào?",
-      "answer": "Nhập tên sách ở mục “Bán lại sách cũ” trên trang chủ để xem giá thu mua ước tính: 45% giá bán với sách như mới, 30% với sách đã qua sử dụng. Gửi yêu cầu, chúng tôi đến lấy tận nhà và chuyển khoản trong 24 giờ sau khi kiểm định.",
+      "answer": "Nhập tên sách ở mục “Bán lại sách cũ” trên trang chủ để xem giá thu mua ước tính: 30% giá bìa với sách như mới, 20% với sách đã qua sử dụng. Gửi yêu cầu, chúng tôi đến lấy tận nhà và chuyển khoản trong 24 giờ sau khi kiểm định.",
       "sort_order": 10
     }
   ],
   "book_reviews": [
     {
-      "id": 1,
+      "id": 7,
       "book_id": "tam-ly-hoc-ve-tien",
       "name": "Nguyễn Văn An",
       "email": "nguyenvanan@gmail.com",
@@ -1716,7 +1748,7 @@
       "created_at": "2026-10-25T14:00:00.000Z"
     },
     {
-      "id": 2,
+      "id": 8,
       "book_id": "tu-duy-nhanh-va-cham",
       "name": "Hoàng Minh Quân",
       "email": "quan.hm@gmail.com",
@@ -1726,7 +1758,7 @@
       "created_at": "2026-10-22T08:30:00.000Z"
     },
     {
-      "id": 3,
+      "id": 9,
       "book_id": "cha-giau-cha-ngheo",
       "name": "Phạm Hồng Ánh",
       "email": "anh.ph@gmail.com",
@@ -1803,60 +1835,1611 @@
   ],
   "buyback_history": [
     {
-      "id": 1,
+      "id": 17,
       "buyback_code": "BB-9001",
       "status": "pending",
       "note": "Khách gửi yêu cầu thu mua trực tuyến",
       "created_at": "2026-10-23T10:00:00.000Z"
     },
     {
-      "id": 2,
+      "id": 18,
       "buyback_code": "BB-9001",
       "status": "collecting",
       "note": "Shipper đã đến lấy sách tại nhà",
       "created_at": "2026-10-23T15:00:00.000Z"
     },
     {
-      "id": 3,
+      "id": 19,
       "buyback_code": "BB-9001",
       "status": "inspecting",
       "note": "Chuyên viên kiểm định sách đạt chuẩn Likenew 98%",
       "created_at": "2026-10-24T09:30:00.000Z"
     },
     {
-      "id": 4,
+      "id": 20,
       "buyback_code": "BB-9001",
       "status": "paid",
       "note": "Đã giải ngân 58.000đ vào tài khoản Techcombank của khách",
       "created_at": "2026-10-24T15:00:00.000Z"
     },
     {
-      "id": 5,
+      "id": 21,
       "buyback_code": "BB-9002",
       "status": "pending",
       "note": "Khách gửi yêu cầu thu mua",
       "created_at": "2026-10-25T14:00:00.000Z"
     },
     {
-      "id": 6,
+      "id": 22,
       "buyback_code": "BB-9002",
       "status": "collecting",
       "note": "Bưu tá đã gom sách chuyển về kho Hà Nội",
       "created_at": "2026-10-25T17:00:00.000Z"
     },
     {
-      "id": 7,
+      "id": 23,
       "buyback_code": "BB-9002",
       "status": "inspecting",
       "note": "Đang thẩm định số trang highlight để chốt giá thu mua",
       "created_at": "2026-10-26T10:00:00.000Z"
     },
     {
-      "id": 8,
+      "id": 24,
       "buyback_code": "BB-9003",
       "status": "pending",
       "note": "Đăng ký bán lại thành công, chờ xếp lịch hẹn lấy sách",
       "created_at": "2026-10-26T15:20:00.000Z"
+    }
+  ],
+  "seller_applications": [
+    {
+      "email": "sinhvien@bookwise.vn",
+      "full_name": "Trần Thu Hà",
+      "phone": "0912345678",
+      "id_number": "0792••••1234",
+      "school": "ĐH Kinh tế TP. Hồ Chí Minh",
+      "pickup_address": "KTX 135B Trần Hưng Đạo, Quận 1, TP. Hồ Chí Minh",
+      "bank_name": "MB Bank",
+      "bank_account": "0912345678",
+      "account_holder": "TRAN THU HA",
+      "has_student_card": 1,
+      "status": "approved",
+      "reason": null,
+      "submitted_at": "2026-09-20T09:00:00.000Z",
+      "reviewed_at": "2026-09-21T10:00:00.000Z"
+    }
+  ],
+  "seller_history": [
+    {
+      "id": 7,
+      "seller_email": "sinhvien@bookwise.vn",
+      "status": "pending",
+      "note": "Gửi hồ sơ đăng ký bán sách",
+      "created_at": "2026-09-20T09:00:00.000Z"
+    },
+    {
+      "id": 8,
+      "seller_email": "sinhvien@bookwise.vn",
+      "status": "approved",
+      "note": "CCCD và thẻ sinh viên hợp lệ",
+      "created_at": "2026-09-21T10:00:00.000Z"
+    }
+  ],
+  "listings": [
+    {
+      "id": "bw-tam-ly-hoc-ve-tien-likenew",
+      "book_id": "tam-ly-hoc-ve-tien",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 104000,
+      "qty": 17,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-tam-ly-hoc-ve-tien-used",
+      "book_id": "tam-ly-hoc-ve-tien",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 76000,
+      "qty": 25,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-cha-giau-cha-ngheo-likenew",
+      "book_id": "cha-giau-cha-ngheo",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 69000,
+      "qty": 15,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-cha-giau-cha-ngheo-used",
+      "book_id": "cha-giau-cha-ngheo",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 50000,
+      "qty": 22,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-nha-dau-tu-thong-minh-likenew",
+      "book_id": "nha-dau-tu-thong-minh",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 153000,
+      "qty": 6,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-nha-dau-tu-thong-minh-used",
+      "book_id": "nha-dau-tu-thong-minh",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 112000,
+      "qty": 8,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-tu-tot-den-vi-dai-likenew",
+      "book_id": "tu-tot-den-vi-dai",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 92000,
+      "qty": 8,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-tu-tot-den-vi-dai-used",
+      "book_id": "tu-tot-den-vi-dai",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 67000,
+      "qty": 13,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-khoi-nghiep-tinh-gon-likenew",
+      "book_id": "khoi-nghiep-tinh-gon",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 87000,
+      "qty": 6,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-khoi-nghiep-tinh-gon-used",
+      "book_id": "khoi-nghiep-tinh-gon",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 64000,
+      "qty": 10,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-khong-den-mot-likenew",
+      "book_id": "khong-den-mot",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 76000,
+      "qty": 8,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-khong-den-mot-used",
+      "book_id": "khong-den-mot",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 55000,
+      "qty": 11,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-tu-duy-nhanh-va-cham-likenew",
+      "book_id": "tu-duy-nhanh-va-cham",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 142000,
+      "qty": 9,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-tu-duy-nhanh-va-cham-used",
+      "book_id": "tu-duy-nhanh-va-cham",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 104000,
+      "qty": 14,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-kinh-te-hoc-hai-huoc-likenew",
+      "book_id": "kinh-te-hoc-hai-huoc",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 77000,
+      "qty": 7,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-kinh-te-hoc-hai-huoc-used",
+      "book_id": "kinh-te-hoc-hai-huoc",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 56000,
+      "qty": 11,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-chien-luoc-dai-duong-xanh-likenew",
+      "book_id": "chien-luoc-dai-duong-xanh",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 109000,
+      "qty": 4,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-chien-luoc-dai-duong-xanh-used",
+      "book_id": "chien-luoc-dai-duong-xanh",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 80000,
+      "qty": 7,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-nguoi-giau-co-nhat-babylon-likenew",
+      "book_id": "nguoi-giau-co-nhat-babylon",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 48000,
+      "qty": 13,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-nguoi-giau-co-nhat-babylon-used",
+      "book_id": "nguoi-giau-co-nhat-babylon",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 35000,
+      "qty": 20,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-nghi-giau-lam-giau-likenew",
+      "book_id": "nghi-giau-lam-giau",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 66000,
+      "qty": 10,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-nghi-giau-lam-giau-used",
+      "book_id": "nghi-giau-lam-giau",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 48000,
+      "qty": 16,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-ga-nghien-giay-likenew",
+      "book_id": "ga-nghien-giay",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 115000,
+      "qty": 6,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-ga-nghien-giay-used",
+      "book_id": "ga-nghien-giay",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 84000,
+      "qty": 9,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-dac-nhan-tam-likenew",
+      "book_id": "dac-nhan-tam",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 53000,
+      "qty": 22,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-dac-nhan-tam-used",
+      "book_id": "dac-nhan-tam",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 38000,
+      "qty": 32,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-thoi-quen-nguyen-tu-likenew",
+      "book_id": "thoi-quen-nguyen-tu",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 109000,
+      "qty": 14,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-thoi-quen-nguyen-tu-used",
+      "book_id": "thoi-quen-nguyen-tu",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 80000,
+      "qty": 21,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-7-thoi-quen-hieu-qua-likenew",
+      "book_id": "7-thoi-quen-hieu-qua",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 126000,
+      "qty": 8,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-7-thoi-quen-hieu-qua-used",
+      "book_id": "7-thoi-quen-hieu-qua",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 92000,
+      "qty": 12,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-suc-manh-cua-thoi-quen-likenew",
+      "book_id": "suc-manh-cua-thoi-quen",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 96000,
+      "qty": 7,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-suc-manh-cua-thoi-quen-used",
+      "book_id": "suc-manh-cua-thoi-quen",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 70000,
+      "qty": 10,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-lam-ra-lam-choi-ra-choi-likenew",
+      "book_id": "lam-ra-lam-choi-ra-choi",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 87000,
+      "qty": 9,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-lam-ra-lam-choi-ra-choi-used",
+      "book_id": "lam-ra-lam-choi-ra-choi",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 64000,
+      "qty": 13,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-tam-ly-hoc-thanh-cong-likenew",
+      "book_id": "tam-ly-hoc-thanh-cong",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 82000,
+      "qty": 10,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-tam-ly-hoc-thanh-cong-used",
+      "book_id": "tam-ly-hoc-thanh-cong",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 60000,
+      "qty": 14,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-grit-likenew",
+      "book_id": "grit",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 93000,
+      "qty": 5,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-grit-used",
+      "book_id": "grit",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 68000,
+      "qty": 8,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-huong-noi-likenew",
+      "book_id": "huong-noi",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 104000,
+      "qty": 5,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-huong-noi-used",
+      "book_id": "huong-noi",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 76000,
+      "qty": 7,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-di-tim-le-song-likenew",
+      "book_id": "di-tim-le-song",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 48000,
+      "qty": 16,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-di-tim-le-song-used",
+      "book_id": "di-tim-le-song",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 35000,
+      "qty": 24,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-ikigai-likenew",
+      "book_id": "ikigai",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 62000,
+      "qty": 12,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-ikigai-used",
+      "book_id": "ikigai",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 45000,
+      "qty": 18,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-nghe-thuat-tinh-te-likenew",
+      "book_id": "nghe-thuat-tinh-te",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 69000,
+      "qty": 11,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-nghe-thuat-tinh-te-used",
+      "book_id": "nghe-thuat-tinh-te",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 50000,
+      "qty": 17,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-dam-bi-ghet-likenew",
+      "book_id": "dam-bi-ghet",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 71000,
+      "qty": 10,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-dam-bi-ghet-used",
+      "book_id": "dam-bi-ghet",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 52000,
+      "qty": 15,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-nha-gia-kim-likenew",
+      "book_id": "nha-gia-kim",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 43000,
+      "qty": 25,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-nha-gia-kim-used",
+      "book_id": "nha-gia-kim",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 32000,
+      "qty": 37,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-rung-na-uy-likenew",
+      "book_id": "rung-na-uy",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 85000,
+      "qty": 8,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-rung-na-uy-used",
+      "book_id": "rung-na-uy",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 62000,
+      "qty": 11,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-1984-likenew",
+      "book_id": "1984",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 72000,
+      "qty": 11,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-1984-used",
+      "book_id": "1984",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 52000,
+      "qty": 16,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-trai-suc-vat-likenew",
+      "book_id": "trai-suc-vat",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 40000,
+      "qty": 12,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-trai-suc-vat-used",
+      "book_id": "trai-suc-vat",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 29000,
+      "qty": 19,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-bo-gia-likenew",
+      "book_id": "bo-gia",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 102000,
+      "qty": 7,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-bo-gia-used",
+      "book_id": "bo-gia",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 74000,
+      "qty": 11,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-hoang-tu-be-likenew",
+      "book_id": "hoang-tu-be",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 39000,
+      "qty": 18,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-hoang-tu-be-used",
+      "book_id": "hoang-tu-be",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 28000,
+      "qty": 27,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-giet-con-chim-nhai-likenew",
+      "book_id": "giet-con-chim-nhai",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 77000,
+      "qty": 6,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-giet-con-chim-nhai-used",
+      "book_id": "giet-con-chim-nhai",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 56000,
+      "qty": 10,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-dai-gia-gatsby-likenew",
+      "book_id": "dai-gia-gatsby",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 54000,
+      "qty": 9,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-dai-gia-gatsby-used",
+      "book_id": "dai-gia-gatsby",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 39000,
+      "qty": 13,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-tram-nam-co-don-likenew",
+      "book_id": "tram-nam-co-don",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 107000,
+      "qty": 6,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-tram-nam-co-don-used",
+      "book_id": "tram-nam-co-don",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 78000,
+      "qty": 8,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-nguoi-dua-dieu-likenew",
+      "book_id": "nguoi-dua-dieu",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 85000,
+      "qty": 8,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-nguoi-dua-dieu-used",
+      "book_id": "nguoi-dua-dieu",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 62000,
+      "qty": 12,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-ong-gia-va-bien-ca-likenew",
+      "book_id": "ong-gia-va-bien-ca",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 37000,
+      "qty": 12,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-ong-gia-va-bien-ca-used",
+      "book_id": "ong-gia-va-bien-ca",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 27000,
+      "qty": 17,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-harry-potter-1-likenew",
+      "book_id": "harry-potter-1",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 91000,
+      "qty": 13,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-harry-potter-1-used",
+      "book_id": "harry-potter-1",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 66000,
+      "qty": 20,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-khong-gia-dinh-likenew",
+      "book_id": "khong-gia-dinh",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 81000,
+      "qty": 7,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-khong-gia-dinh-used",
+      "book_id": "khong-gia-dinh",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 59000,
+      "qty": 10,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-nhung-nguoi-khon-kho-likenew",
+      "book_id": "nhung-nguoi-khon-kho",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 198000,
+      "qty": 4,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-nhung-nguoi-khon-kho-used",
+      "book_id": "nhung-nguoi-khon-kho",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 144000,
+      "qty": 5,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-sapiens-likenew",
+      "book_id": "sapiens",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 148000,
+      "qty": 7,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-sapiens-used",
+      "book_id": "sapiens",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 108000,
+      "qty": 11,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-homo-deus-likenew",
+      "book_id": "homo-deus",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 140000,
+      "qty": 5,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-homo-deus-used",
+      "book_id": "homo-deus",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 102000,
+      "qty": 8,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-21-bai-hoc-likenew",
+      "book_id": "21-bai-hoc",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 131000,
+      "qty": 6,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-21-bai-hoc-used",
+      "book_id": "21-bai-hoc",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 96000,
+      "qty": 9,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-sung-vi-trung-va-thep-likenew",
+      "book_id": "sung-vi-trung-va-thep",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 159000,
+      "qty": 4,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-sung-vi-trung-va-thep-used",
+      "book_id": "sung-vi-trung-va-thep",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 116000,
+      "qty": 6,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-luoc-su-thoi-gian-likenew",
+      "book_id": "luoc-su-thoi-gian",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 80000,
+      "qty": 5,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-luoc-su-thoi-gian-used",
+      "book_id": "luoc-su-thoi-gian",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 58000,
+      "qty": 7,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-vu-tru-likenew",
+      "book_id": "vu-tru",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 120000,
+      "qty": 4,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-vu-tru-used",
+      "book_id": "vu-tru",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 88000,
+      "qty": 7,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-gen-ich-ky-likenew",
+      "book_id": "gen-ich-ky",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 109000,
+      "qty": 4,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-gen-ich-ky-used",
+      "book_id": "gen-ich-ky",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 80000,
+      "qty": 5,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-su-that-ve-the-gioi-likenew",
+      "book_id": "su-that-ve-the-gioi",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 107000,
+      "qty": 6,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-su-that-ve-the-gioi-used",
+      "book_id": "su-that-ve-the-gioi",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 78000,
+      "qty": 10,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-nguon-goc-cac-loai-likenew",
+      "book_id": "nguon-goc-cac-loai",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 127000,
+      "qty": 3,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-nguon-goc-cac-loai-used",
+      "book_id": "nguon-goc-cac-loai",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 92000,
+      "qty": 4,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-gen-lich-su-likenew",
+      "book_id": "gen-lich-su",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "likenew",
+      "price": 170000,
+      "qty": 3,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "bw-gen-lich-su-used",
+      "book_id": "gen-lich-su",
+      "seller_id": "bookwise",
+      "seller_name": "BookWise",
+      "condition": "used",
+      "price": 124000,
+      "qty": 5,
+      "sold": 0,
+      "note": "Đã qua kiểm định 7 bước của BookWise",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "sv-tam-ly-hoc-ve-tien",
+      "book_id": "tam-ly-hoc-ve-tien",
+      "seller_id": "sinhvien@bookwise.vn",
+      "seller_name": "Trần Thu Hà",
+      "condition": "likenew",
+      "price": 99000,
+      "qty": 2,
+      "sold": 0,
+      "note": "Mua học kỳ trước, đọc một lần, còn bookmark tặng kèm",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "sv-cha-giau-cha-ngheo",
+      "book_id": "cha-giau-cha-ngheo",
+      "seller_id": "sinhvien@bookwise.vn",
+      "seller_name": "Trần Thu Hà",
+      "condition": "used",
+      "price": 39000,
+      "qty": 1,
+      "sold": 0,
+      "note": "Gáy hơi cong, vài trang gạch chân bút chì",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "sv-nha-dau-tu-thong-minh",
+      "book_id": "nha-dau-tu-thong-minh",
+      "seller_id": "sinhvien@bookwise.vn",
+      "seller_name": "Trần Thu Hà",
+      "condition": "likenew",
+      "price": 139000,
+      "qty": 1,
+      "sold": 0,
+      "note": "Sách môn Tài chính doanh nghiệp, giữ rất kỹ",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "sv-su-that-ve-the-gioi",
+      "book_id": "su-that-ve-the-gioi",
+      "seller_id": "sinhvien@bookwise.vn",
+      "seller_name": "Trần Thu Hà",
+      "condition": "used",
+      "price": 59000,
+      "qty": 1,
+      "sold": 0,
+      "note": "Bìa sờn góc, ruột sạch",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "sv-nguon-goc-cac-loai",
+      "book_id": "nguon-goc-cac-loai",
+      "seller_id": "sinhvien@bookwise.vn",
+      "seller_name": "Trần Thu Hà",
+      "condition": "used",
+      "price": 79000,
+      "qty": 1,
+      "sold": 0,
+      "note": "Có ghi chú bên lề chương 4–6",
+      "status": "active",
+      "reason": null,
+      "created_at": "2026-10-01T08:00:00.000Z",
+      "updated_at": "2026-10-01T08:00:00.000Z"
     }
   ]
 }

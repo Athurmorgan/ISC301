@@ -17,13 +17,13 @@ export const FAQS: Faq[] = [
   },
   {
     group: 'Tình trạng sách',
-    q: '“Như mới 98%” và “Đã qua sử dụng 90%” khác nhau ra sao?',
+    q: '“Như mới 95%” và “Đã qua sử dụng 80%” khác nhau ra sao?',
     a: 'Sách “Như mới” thường chỉ được đọc một lần: gáy thẳng, không ghi chú, không gấp mép. Sách “Đã qua sử dụng” có thể ngả màu giấy hoặc trầy nhẹ bìa nhưng nội dung đầy đủ, không rách trang. Mọi cuốn đều qua kiểm định 7 bước trước khi lên kệ.',
   },
   {
     group: 'Tình trạng sách',
     q: 'Làm sao tôi biết sách không phải sách lậu?',
-    a: 'BookWise chỉ nhập sách mới từ nhà phát hành chính thức. Sách cũ được đối chiếu ISBN, chất lượng in, giấy và tem nhà phát hành. Nếu phát hiện sách giả, chúng tôi hoàn 200% giá trị cuốn sách.',
+    a: 'Mọi cuốn, kể cả sách do người bán đăng, đều được gửi về BookWise trước khi giao. Sách được đối chiếu ISBN, chất lượng in, giấy và tem nhà phát hành. Nếu phát hiện sách giả, chúng tôi hoàn 200% giá trị cuốn sách.',
   },
   {
     group: 'Đổi trả',
@@ -53,6 +53,6 @@ export const FAQS: Faq[] = [
   {
     group: 'Bán lại sách',
     q: 'BookWise thu mua sách cũ như thế nào?',
-    a: 'Nhập tên sách ở mục “Bán lại sách cũ” trên trang chủ để xem giá thu mua ước tính: 45% giá bán với sách như mới, 30% với sách đã qua sử dụng. Gửi yêu cầu, chúng tôi đến lấy tận nhà và chuyển khoản trong 24 giờ sau khi kiểm định.',
+    a: 'Nhập tên sách ở mục “Bán lại sách cũ” trên trang chủ để xem giá thu mua ước tính: 30% giá bìa với sách như mới, 20% với sách đã qua sử dụng. Gửi yêu cầu, chúng tôi đến lấy tận nhà và chuyển khoản trong 24 giờ sau khi kiểm định.',
   },
 ]

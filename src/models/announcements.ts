@@ -42,15 +42,17 @@ export function buildAnnouncements(books: Book[], orders: Order[], now = Date.no
     },
   ]
 
-  const deal = books.filter(isOnDeal).sort((a, b) => percentOff(b.dealPrice!, b.price) - percentOff(a.dealPrice!, a.price))[0]
+  const deal = books.filter(isOnDeal).sort((a, b) => percentOff(b.price, b.listPrice) - percentOff(a.price, a.listPrice))[0]
   if (deal) {
     list.push({
       id: 'deal',
-      tag: 'Giá tốt hôm nay',
-      text: `${deal.title} chỉ còn ${formatMoney(deal.dealPrice!)}, giảm ${percentOff(deal.dealPrice!, deal.price)}%`,
+      tag: 'Siêu rẻ',
+      text: `${deal.title} chỉ từ ${formatMoney(deal.price)}, rẻ hơn ${percentOff(deal.price, deal.listPrice)}% giá bìa`,
       to: '/sach?uu-dai=1',
     })
   }
+
+  list.push({ id: 'sell', tag: 'Sinh viên bán sách', text: 'Đăng ký người bán, được duyệt là đăng tin bán giáo trình cũ ngay', to: '/tai-khoan?tab=seller' })
 
   list.push({ id: 'express', tag: 'Hỏa tốc', text: 'Giao trong 2 giờ tại Hà Nội và TP. Hồ Chí Minh', to: '/ho-tro' })
 

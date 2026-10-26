@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CONDITIONS, ORDER_FLOW, STATUS_HINT, STATUS_LABEL } from '../../data/catalog'
+import { ORDER_FLOW, STATUS_HINT, STATUS_LABEL, conditionLabel } from '../../data/catalog'
 import { formatDateTime, formatMoney } from '../../models/format'
 import { customerCanCancel, itemCount } from '../../models/order'
 import type { Order } from '../../models/types'
@@ -110,7 +110,7 @@ export function OrderDetail({ order, verifyPhone }: { order: Order; verifyPhone?
           <p className="eyebrow mb-3">{itemCount(order)} cuốn sách</p>
           <ul className="divide-y divide-rule-soft">
             {order.items.map((i) => (
-              <li key={`${i.bookId}-${i.condition}`} className="flex items-center gap-3 py-3">
+              <li key={i.listingId ?? `${i.bookId}-${i.condition}`} className="flex items-center gap-3 py-3">
                 <Link to={`/sach/${i.bookId}`} className="shrink-0">
                   <img src={i.cover} alt="" className="h-16 w-[2.66rem] bg-paper-deep object-cover" />
                 </Link>
@@ -119,7 +119,7 @@ export function OrderDetail({ order, verifyPhone }: { order: Order; verifyPhone?
                     {i.title}
                   </Link>
                   <p className="text-xs text-ink-mute">
-                    {CONDITIONS[i.condition].label} · {i.qty} × {formatMoney(i.unitPrice)}
+                    {conditionLabel(i.condition)}{i.sellerName ? ` · ${i.sellerName}` : ''} · {i.qty} × {formatMoney(i.unitPrice)}
                   </p>
                 </div>
                 <p className="text-sm font-semibold num">{formatMoney(i.qty * i.unitPrice)}</p>

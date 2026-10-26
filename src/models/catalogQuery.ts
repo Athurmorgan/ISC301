@@ -1,5 +1,5 @@
 import { normalize } from './format'
-import { unitPrice } from './pricing'
+import { isOnDeal, unitPrice } from './pricing'
 import type { Book, CategoryId } from './types'
 
 export type SortKey = 'popular' | 'newest' | 'price-asc' | 'price-desc' | 'rating'
@@ -12,14 +12,14 @@ export const SORT_LABEL: Record<SortKey, string> = {
   'price-desc': 'Giá giảm dần',
 }
 
-export type PriceBand = 'all' | 'under-100' | '100-150' | '150-200' | 'over-200'
+export type PriceBand = 'all' | 'under-50' | '50-80' | '80-120' | 'over-120'
 
 export const PRICE_BANDS: Record<PriceBand, { label: string; min: number; max: number }> = {
   all: { label: 'Mọi mức giá', min: 0, max: Infinity },
-  'under-100': { label: 'Dưới 100.000đ', min: 0, max: 99_999 },
-  '100-150': { label: '100.000 – 150.000đ', min: 100_000, max: 150_000 },
-  '150-200': { label: '150.000 – 200.000đ', min: 150_001, max: 200_000 },
-  'over-200': { label: 'Trên 200.000đ', min: 200_001, max: Infinity },
+  'under-50': { label: 'Dưới 50.000đ', min: 0, max: 49_999 },
+  '50-80': { label: '50.000 – 80.000đ', min: 50_000, max: 80_000 },
+  '80-120': { label: '80.000 – 120.000đ', min: 80_001, max: 120_000 },
+  'over-120': { label: 'Trên 120.000đ', min: 120_001, max: Infinity },
 }
 
 export interface CatalogQuery {
@@ -70,7 +70,7 @@ export function runQuery(books: Book[], query: CatalogQuery) {
       return p >= band.min && p <= band.max
     })
     .filter((b) => !query.inStock || b.stock > 0)
-    .filter((b) => !query.deals || b.dealPrice !== undefined)
+    .filter((b) => !query.deals || isOnDeal(b))
     .sort(comparators[query.sort])
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))

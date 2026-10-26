@@ -155,7 +155,7 @@ export const api = {
   orders: {
     checkout: (payload: {
       customer: { name: string; phone: string; email: string; province: string; district: string; street: string }
-      items: { bookId: string; condition: string; qty: number }[]
+      items: { listingId: string; bookId: string; condition: string; qty: number }[]
       shippingId: string
       paymentId: string
       couponCodes: string[]
@@ -180,5 +180,19 @@ export const api = {
 
   buybacks: {
     create: (payload: Record<string, unknown>) => request<{ code: string }>('/api/buybacks', json(payload)),
+  },
+
+  sellers: {
+    apply: (payload: Record<string, unknown>) => request<unknown>('/api/sellers/apply', json(payload)),
+    review: (email: string, status: string, note: string) =>
+      request<unknown>(`/api/sellers/${encodeURIComponent(email)}/status`, { method: 'PATCH', body: { status, note } }),
+  },
+
+  listings: {
+    save: <T extends { id: string }>(listing: T) =>
+      request<unknown>(`/api/listings/${encodeURIComponent(listing.id)}`, { method: 'PUT', body: listing }),
+    remove: (id: string) => request<unknown>(`/api/listings/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+    moderate: (id: string, status: string, reason: string) =>
+      request<unknown>(`/api/listings/${encodeURIComponent(id)}/status`, { method: 'PATCH', body: { status, reason } }),
   },
 }

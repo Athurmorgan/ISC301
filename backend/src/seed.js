@@ -2,13 +2,15 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { db, run, transaction } from './db.js'
+import { refreshBook, storeListingId } from './lib/listings.js'
 import { hashPassword } from './lib/password.js'
+import { BOOKWISE_SELLER, storePrice } from './lib/pricing.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 // Load data từ frontend source
-const { CATEGORIES, COUPONS, SHIPPING } = await import('../../src/data/catalog.ts')
+const { CATEGORIES, COUPONS, SHIPPING, DEMO_SELLER } = await import('../../src/data/catalog.ts')
 const { SEED_BOOKS } = await import('../../src/data/books.ts')
 const { FAQS } = await import('../../src/data/faq.ts')
 
@@ -18,6 +20,9 @@ export function seed({ exportJson = true } = {}) {
   transaction(() => {
     // 1. Xóa dữ liệu cũ để tránh trùng lặp
     db.exec(`
+      DELETE FROM listings;
+      DELETE FROM seller_history;
+      DELETE FROM seller_applications;
       DELETE FROM delivery_checkpoints;
       DELETE FROM delivery_shipments;
       DELETE FROM order_history;
@@ -81,6 +86,16 @@ export function seed({ exportJson = true } = {}) {
         province: 'Đà Nẵng',
         district: 'Hải Châu',
         street: '78 Nguyễn Văn Linh',
+      },
+      {
+        email: DEMO_SELLER.email,
+        name: DEMO_SELLER.name,
+        phone: DEMO_SELLER.phone,
+        password: DEMO_SELLER.password,
+        role: 'customer',
+        province: 'TP. Hồ Chí Minh',
+        district: 'Quận 10',
+        street: 'KTX 135B Trần Hưng Đạo',
       },
     ]
 
@@ -192,7 +207,7 @@ export function seed({ exportJson = true } = {}) {
             author: 'Robert T. Kiyosaki',
             cover: '/covers/cha-giau-cha-ngheo.jpg',
             category: 'kinh-te',
-            condition: 'seal',
+            condition: 'likenew',
             unitPrice: 98000,
             qty: 1,
           },
@@ -253,7 +268,7 @@ export function seed({ exportJson = true } = {}) {
             author: 'Daniel Kahneman',
             cover: '/covers/tu-duy-nhanh-va-cham.jpg',
             category: 'kinh-te',
-            condition: 'seal',
+            condition: 'likenew',
             unitPrice: 159000,
             qty: 1,
           },
@@ -263,14 +278,14 @@ export function seed({ exportJson = true } = {}) {
             author: 'Benjamin Graham',
             cover: '/covers/nha-dau-tu-thong-minh.jpg',
             category: 'kinh-te',
-            condition: 'seal',
+            condition: 'likenew',
             unitPrice: 219000,
             qty: 1,
           },
         ],
         history: [
           { status: 'pending', note: 'Đơn hàng COD chờ xác nhận thông tin giao hàng', at: '2026-10-26T08:30:00.000Z' },
-          { status: 'confirmed', note: 'Điện thoại xác nhận thành công. Đóng gói 2 cuốn sách nguyên seal có chống sốc', at: '2026-10-26T09:15:00.000Z' },
+          { status: 'confirmed', note: 'Điện thoại xác nhận thành công. Đóng gói 2 cuốn sách có chống sốc', at: '2026-10-26T09:15:00.000Z' },
           { status: 'shipping', note: 'Bàn giao bưu tá GHN. Đang trên đường phát hàng khu vực Cầu Giấy', at: '2026-10-26T14:10:00.000Z' },
         ],
         shipment: {
@@ -323,7 +338,7 @@ export function seed({ exportJson = true } = {}) {
             author: 'Yuval Noah Harari',
             cover: '/covers/sapiens-luoc-su-loai-nguoi.jpg',
             category: 'khoa-hoc',
-            condition: 'seal',
+            condition: 'likenew',
             unitPrice: 175000,
             qty: 2,
           },
@@ -412,7 +427,7 @@ export function seed({ exportJson = true } = {}) {
             author: 'Jim Collins',
             cover: '/covers/tu-tot-den-vi-dai.jpg',
             category: 'kinh-te',
-            condition: 'seal',
+            condition: 'likenew',
             unitPrice: 135000,
             qty: 1,
           },
@@ -444,9 +459,9 @@ export function seed({ exportJson = true } = {}) {
 
       for (const item of ord.items) {
         run(
-          `INSERT INTO order_items (order_code, book_id, title, author, cover, category, condition, unit_price, qty)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [ord.code, item.bookId, item.title, item.author, item.cover, item.category, item.condition, item.unitPrice, item.qty]
+          `INSERT INTO order_items (order_code, book_id, listing_id, seller_id, seller_name, title, author, cover, category, condition, unit_price, qty)
+           VALUES (?, ?, ?, ?, 'BookWise', ?, ?, ?, ?, ?, ?, ?)`,
+          [ord.code, item.bookId, storeListingId(item.bookId, item.condition), BOOKWISE_SELLER, item.title, item.author, item.cover, item.category, item.condition, item.unitPrice, item.qty]
         )
       }
 
@@ -679,18 +694,66 @@ export function seed({ exportJson = true } = {}) {
     }
   })
 
+  seedMarketplace()
+
   // 13. Xuất file JSON database mẫu ra `backend/data/sample_database.json`
   if (exportJson) exportSampleJson()
 
   console.log('✅ Đã nạp thành công bộ Database mẫu cho BookWise:')
-  console.log('  - 4 Tài khoản người dùng (1 Admin + 3 Khách hàng)')
-  console.log('  - 4 Danh mục sách & 49 Đầu sách đầy đủ giá bìa, giá deal, tồn kho')
+  console.log('  - 5 Tài khoản người dùng (1 Admin + 3 Khách hàng + 1 Người bán sinh viên)')
+  console.log('  - 4 Danh mục sách & 49 Đầu sách, tin đăng của kho BookWise và người bán')
   console.log('  - 3 Mã giảm giá (BOOKWISE50K, GIAM10, FREESHIP15K)')
   console.log('  - 5 Đơn hàng mẫu ở các trạng thái (Delivered, Shipping, Confirmed, Pending, Cancelled)')
   console.log('  - Vận đơn giao hàng chi tiết kèm trạm kiểm soát (AhaMove, GHN, Viettel Post)')
   console.log('  - 3 Phiếu hỗ trợ CSKH (Mở & Đã xử lý) + FAQs + Đánh giá sách')
   console.log('  - 3 Yêu cầu thu mua sách cũ (Buyback flow)')
   console.log('  - File backup JSON: backend/data/sample_database.json')
+}
+
+const DEMO_LISTINGS = [
+  ['tam-ly-hoc-ve-tien', 'likenew', 99000, 2, 'Mua học kỳ trước, đọc một lần, còn bookmark tặng kèm'],
+  ['cha-giau-cha-ngheo', 'used', 39000, 1, 'Gáy hơi cong, vài trang gạch chân bút chì'],
+  ['nha-dau-tu-thong-minh', 'likenew', 139000, 1, 'Sách môn Tài chính doanh nghiệp, giữ rất kỹ'],
+  ['su-that-ve-the-gioi', 'used', 59000, 1, 'Bìa sờn góc, ruột sạch'],
+  ['nguon-goc-cac-loai', 'used', 79000, 1, 'Có ghi chú bên lề chương 4–6'],
+]
+
+/**
+ * Nạp sàn người bán: tách tồn kho mỗi đầu sách thành tin của kho BookWise (40% như mới, còn lại đã dùng),
+ * thêm một người bán sinh viên đã được duyệt cùng vài tin đăng. Server gọi hàm này khi bảng listings còn trống.
+ */
+export function seedMarketplace() {
+  transaction(() => {
+    const at = '2026-10-01T08:00:00.000Z'
+    const books = db.prepare('SELECT id, list_price, stock FROM books').all()
+    const insert = db.prepare(
+      `INSERT OR IGNORE INTO listings (id, book_id, seller_id, seller_name, condition, price, qty, sold, note, status, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, 'active', ?, ?)`
+    )
+    for (const b of books) {
+      const likenew = Math.round(b.stock * 0.4)
+      for (const [condition, qty] of [['likenew', likenew], ['used', b.stock - likenew]]) {
+        if (qty > 0) {
+          insert.run(storeListingId(b.id, condition), b.id, BOOKWISE_SELLER, 'BookWise', condition, storePrice(b, condition), qty, 'Đã qua kiểm định 7 bước của BookWise', at, at)
+        }
+      }
+    }
+
+    run(
+      `INSERT OR IGNORE INTO seller_applications (email, full_name, phone, id_number, school, pickup_address, bank_name, bank_account, account_holder, has_student_card, status, submitted_at, reviewed_at)
+       VALUES (?, ?, ?, '079204001234', ?, 'KTX 135B Trần Hưng Đạo, Quận 1, TP. Hồ Chí Minh', 'MB Bank', '0912345678', 'TRAN THU HA', 1, 'approved', '2026-09-20T09:00:00.000Z', '2026-09-21T10:00:00.000Z')`,
+      [DEMO_SELLER.email, DEMO_SELLER.name, DEMO_SELLER.phone, DEMO_SELLER.school]
+    )
+    if (!db.prepare('SELECT 1 FROM seller_history WHERE seller_email = ?').all(DEMO_SELLER.email).length) {
+      run(`INSERT INTO seller_history (seller_email, status, note, created_at) VALUES (?, 'pending', 'Gửi hồ sơ đăng ký bán sách', '2026-09-20T09:00:00.000Z')`, [DEMO_SELLER.email])
+      run(`INSERT INTO seller_history (seller_email, status, note, created_at) VALUES (?, 'approved', 'CCCD và thẻ sinh viên hợp lệ', '2026-09-21T10:00:00.000Z')`, [DEMO_SELLER.email])
+    }
+    for (const [bookId, condition, price, qty, note] of DEMO_LISTINGS) {
+      insert.run(`sv-${bookId}`, bookId, DEMO_SELLER.email, DEMO_SELLER.name, condition, price, qty, note, at, at)
+    }
+
+    for (const b of books) refreshBook(b.id)
+  })
 }
 
 // Bản xuất để tham khảo cấu trúc dữ liệu: không kèm API key và mật khẩu đã băm
@@ -711,6 +774,9 @@ function exportSampleJson() {
     'book_reviews',
     'buyback_requests',
     'buyback_history',
+    'seller_applications',
+    'seller_history',
+    'listings',
   ]
 
   const dump = {}
@@ -718,6 +784,7 @@ function exportSampleJson() {
     dump[table] = db.prepare(`SELECT * FROM ${table}`).all()
   }
   dump.users = dump.users.map(({ password_hash: _hash, ...u }) => u)
+  dump.seller_applications = dump.seller_applications.map((a) => ({ ...a, id_number: `${a.id_number.slice(0, 4)}••••${a.id_number.slice(-4)}` }))
 
   const exportPath = path.resolve(__dirname, '../data/sample_database.json')
   fs.writeFileSync(exportPath, JSON.stringify(dump, null, 2), 'utf-8')

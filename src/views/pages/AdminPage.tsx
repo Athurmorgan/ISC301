@@ -1,29 +1,31 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { CATEGORIES, STATUS_LABEL, TICKET_TOPICS, categoryName } from '../../data/catalog'
+import { CATEGORIES, CONDITION_ORDER, CONDITIONS, STATUS_LABEL, TICKET_TOPICS, categoryName } from '../../data/catalog'
 import { emptyBookForm, toForm, useAdminBooks, validateBookForm, type BookForm, type BookFormErrors } from '../../controllers/useAdminBooks'
 import { useAuth } from '../../controllers/useAuth'
 import { useBooks } from '../../controllers/useBooks'
 import { useBuybacks } from '../../controllers/useBuyback'
 import { useAllReviews, useTickets } from '../../controllers/useFeedback'
 import { useAllOrders, useOrderActions } from '../../controllers/useOrders'
+import { useSellerAdmin } from '../../controllers/useSeller'
 import { useStore } from '../../controllers/useStore'
 import { formatDate, formatDateTime, formatMoney, formatNumber, normalize } from '../../models/format'
 import { NEXT_ACTION_LABEL, adminCanCancel, itemCount } from '../../models/order'
-import { unitPrice } from '../../models/pricing'
-import type { CategoryId, Coupon, CouponKind, OrderStatus } from '../../models/types'
+import { BOOKWISE_SELLER, type CategoryId, type Coupon, type CouponKind, type OrderStatus } from '../../models/types'
 import { hasErrors } from '../../models/validation'
 import { BUYBACK_STATUS_LABEL } from '../../services/buybackRepository'
 import { couponRepository, couponsStore } from '../../services/couponRepository'
+import { listingsStore } from '../../services/listingRepository'
 import { serverStatus, syncBooks } from '../../services/syncService'
 import { notify } from '../../services/toastService'
 import { usersStore } from '../../services/userRepository'
 import { Icon } from '../components/Icon'
 import { LivePanel } from '../components/LivePanel'
+import { ListingsPanel, SellersPanel } from '../components/SellerAdmin'
 import { Rating } from '../components/Rating'
 import { ConfirmButton, EmptyState, Modal, SelectField, StatusTag, TextArea, TextField } from '../components/ui'
 
-type Tab = 'live' | 'orders' | 'books' | 'buybacks' | 'coupons' | 'customers' | 'reviews' | 'tickets'
+type Tab = 'live' | 'orders' | 'books' | 'sellers' | 'listings' | 'buybacks' | 'coupons' | 'customers' | 'reviews' | 'tickets'
 
 export function AdminPage() {
   const { user, isAdmin, logout } = useAuth()
@@ -34,6 +36,7 @@ export function AdminPage() {
   const coupons = useStore(couponsStore)
   const users = useStore(usersStore)
   const { reviews } = useAllReviews()
+  const { applications, pending: pendingSellers, listings: marketListings } = useSellerAdmin()
   const [tab, setTab] = useState<Tab>('live')
 
   useEffect(() => {
@@ -54,13 +57,15 @@ export function AdminPage() {
   const stats = [
     { label: 'Doanh thu', value: formatMoney(live.reduce((s, o) => s + o.total, 0)), note: `${live.length} đơn hợp lệ` },
     { label: 'Chờ xác nhận', value: formatNumber(orders.filter((o) => o.status === 'pending').length), note: 'đơn cần xử lý' },
-    { label: 'Thu mua cần xử lý', value: formatNumber(buybacks.filter((b) => b.status === 'pending' || b.status === 'inspecting').length), note: 'yêu cầu sách cũ' },
+    { label: 'Hồ sơ người bán', value: formatNumber(pendingSellers), note: 'chờ duyệt quyền bán' },
     { label: 'Yêu cầu hỗ trợ', value: formatNumber(tickets.filter((t) => t.status === 'open').length), note: 'phiếu hỗ trợ' },
   ]
   const TABS: Record<Tab, string> = {
     live: 'Trực tiếp',
     orders: `Đơn hàng (${orders.length})`,
     books: `Kho sách (${books.length})`,
+    sellers: `Người bán (${applications.length})`,
+    listings: `Tin đăng (${marketListings.length})`,
     buybacks: `Thu mua cũ (${buybacks.length})`,
     coupons: `Mã giảm (${coupons.length})`,
     customers: `Khách hàng (${users.length})`,
@@ -111,6 +116,8 @@ export function AdminPage() {
         {tab === 'live' && <LivePanel />}
         {tab === 'orders' && <OrdersPanel />}
         {tab === 'books' && <BooksPanel />}
+        {tab === 'sellers' && <SellersPanel />}
+        {tab === 'listings' && <ListingsPanel />}
         {tab === 'buybacks' && <BuybacksPanel />}
         {tab === 'coupons' && <CouponsPanel />}
         {tab === 'customers' && <CustomersPanel />}
@@ -208,6 +215,7 @@ function OrdersPanel() {
 
 function BooksPanel() {
   const books = useBooks()
+  const listings = useStore(listingsStore)
   const { remove, adjustStock } = useAdminBooks()
   const [q, setQ] = useState('')
   const [category, setCategory] = useState<CategoryId | 'all'>('all')
@@ -233,10 +241,10 @@ function BooksPanel() {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[48rem] text-sm">
+        <table className="w-full min-w-[60rem] text-sm">
           <thead>
             <tr className="border-b border-ink text-left">
-              {['Sách', 'Thể loại', 'Giá bán', 'Đã bán', 'Tồn kho', ''].map((h) => (
+              {['Sách', 'Thể loại', 'Giá bìa', 'Rẻ nhất', 'Kho BookWise', 'Tin người bán', 'Đã bán', ''].map((h) => (
                 <th key={h} className="eyebrow py-3 pr-4 font-semibold">{h}</th>
               ))}
             </tr>
@@ -254,18 +262,30 @@ function BooksPanel() {
                   </div>
                 </td>
                 <td className="py-2.5 pr-4 text-ink-soft">{categoryName(b.category)}</td>
-                <td className="py-2.5 pr-4 num">
-                  {formatMoney(unitPrice(b))}
-                  {b.dealPrice && <span className="tag ml-2 text-terra">Deal</span>}
-                </td>
-                <td className="py-2.5 pr-4 num text-ink-soft">{formatNumber(b.sold)}</td>
+                <td className="py-2.5 pr-4 num text-ink-soft">{formatMoney(b.listPrice)}</td>
+                <td className="py-2.5 pr-4 num">{b.stock > 0 ? formatMoney(b.price) : <span className="text-ink-mute">Hết hàng</span>}</td>
                 <td className="py-2.5 pr-4">
-                  <div className="inline-flex items-center border border-rule">
-                    <button type="button" onClick={() => adjustStock(b.id, -1)} className="grid h-7 w-7 place-items-center hover:bg-paper-deep" aria-label="Giảm tồn kho"><Icon name="minus" size={12} /></button>
-                    <span className={`w-10 text-center num ${b.stock <= 5 ? 'font-semibold text-terra' : ''}`}>{b.stock}</span>
-                    <button type="button" onClick={() => adjustStock(b.id, 1)} className="grid h-7 w-7 place-items-center hover:bg-paper-deep" aria-label="Tăng tồn kho"><Icon name="plus" size={12} /></button>
+                  <div className="space-y-1">
+                    {CONDITION_ORDER.map((c) => {
+                      const qty = listings.find((l) => l.id === `bw-${b.id}-${c}`)?.qty ?? 0
+                      const label = CONDITIONS[c].label.split(' · ')[0]
+                      return (
+                        <div key={c} className="flex items-center gap-2">
+                          <span className="w-16 text-2xs text-ink-mute">{label}</span>
+                          <div className="inline-flex items-center border border-rule">
+                            <button type="button" onClick={() => adjustStock(b, c, -1)} disabled={!qty} className="grid h-6 w-6 place-items-center hover:bg-paper-deep disabled:opacity-30" aria-label={`Giảm ${label}`}><Icon name="minus" size={11} /></button>
+                            <span className={`w-8 text-center text-xs num ${qty === 0 ? 'text-terra' : ''}`}>{qty}</span>
+                            <button type="button" onClick={() => adjustStock(b, c, 1)} className="grid h-6 w-6 place-items-center hover:bg-paper-deep" aria-label={`Tăng ${label}`}><Icon name="plus" size={11} /></button>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 </td>
+                <td className="py-2.5 pr-4 num text-ink-soft">
+                  {listings.filter((l) => l.bookId === b.id && l.sellerId !== BOOKWISE_SELLER && l.status === 'active').length}
+                </td>
+                <td className="py-2.5 pr-4 num text-ink-soft">{formatNumber(b.sold)}</td>
                 <td className="py-2.5">
                   <div className="flex justify-end gap-2">
                     <button type="button" onClick={() => setEditing(toForm(b))} className="btn-ghost btn-sm">Sửa</button>
@@ -326,9 +346,6 @@ function BookEditor({ initial, onClose }: { initial: BookForm; onClose: () => vo
           {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </SelectField>
         <TextField label="Giá bìa (đ)" inputMode="numeric" value={form.listPrice} onChange={set('listPrice')} error={errors.listPrice} />
-        <TextField label="Giá bán (đ)" inputMode="numeric" value={form.price} onChange={set('price')} error={errors.price} />
-        <TextField label="Giá tốt hôm nay (đ)" inputMode="numeric" value={form.dealPrice} onChange={set('dealPrice')} error={errors.dealPrice} hint="Bỏ trống nếu không khuyến mãi" />
-        <TextField label="Tồn kho" inputMode="numeric" value={form.stock} onChange={set('stock')} error={errors.stock} />
         <TextField label="Số trang" inputMode="numeric" value={form.pages} onChange={set('pages')} />
         <TextField label="Năm xuất bản lần đầu" inputMode="numeric" value={form.firstPublished} onChange={set('firstPublished')} error={errors.firstPublished} />
         
@@ -409,7 +426,7 @@ function BuybacksPanel() {
                 </td>
                 <td className="py-3.5 pr-4">
                   <p className="font-medium text-ink">{b.bookTitle}</p>
-                  <p className="text-xs text-ink-mute">{b.author} · {b.condition === 'likenew' ? 'Như mới (98%)' : 'Đã dùng (90%)'}</p>
+                  <p className="text-xs text-ink-mute">{b.author} · {CONDITIONS[b.condition].label}</p>
                 </td>
                 <td className="py-3.5 pr-4">
                   <p>{b.customerName}</p>

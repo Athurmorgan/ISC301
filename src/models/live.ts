@@ -5,7 +5,7 @@
 
 import { CONDITIONS } from '../data/catalog'
 import { formatMoney } from './format'
-import { unitPrice } from './pricing'
+import { storePrice } from './pricing'
 import type { Book, ConditionId, Order } from './types'
 
 export type Rng = () => number
@@ -147,7 +147,7 @@ function makeEvent(rng: Rng, id: number, at: number, books: Book[]): LiveEvent {
     view: `đang xem “${book.title}”`,
     cart: `thêm “${book.title}” (${CONDITIONS[condition].label}) vào giỏ`,
     search: `tìm “${pick(rng, SEARCHES)}”`,
-    checkout: `bắt đầu thanh toán ${formatMoney(Math.round((unitPrice(book, condition) * (1 + Math.floor(rng() * 3))) / 1000) * 1000 + 15_000)}`,
+    checkout: `bắt đầu thanh toán ${formatMoney(Math.round((storePrice(book, condition) * (1 + Math.floor(rng() * 3))) / 1000) * 1000 + 15_000)}`,
     review: `đánh giá ${4 + Math.round(rng())} sao cho “${book.title}”`,
     signup: 'vừa tạo tài khoản mới',
   }[kind]

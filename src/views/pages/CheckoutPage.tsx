@@ -160,14 +160,14 @@ export function CheckoutPage() {
         <aside className="lg:sticky lg:top-32 lg:self-start">
           <ul className="mb-4 max-h-64 divide-y divide-rule-soft overflow-y-auto border border-rule bg-card px-4">
             {totals.lines.map((l) => (
-              <li key={`${l.bookId}-${l.condition}`} className="flex items-center gap-3 py-3">
+              <li key={l.listingId} className="flex items-center gap-3 py-3">
                 <span className="relative shrink-0">
                   <img src={l.book.cover} alt="" className="h-14 w-[2.33rem] bg-paper-deep object-cover" />
                   <span className="absolute -right-2 -top-2 grid h-5 min-w-5 place-items-center bg-ink px-1 text-2xs text-paper num">{l.qty}</span>
                 </span>
                 <span className="min-w-0 flex-1 pl-1">
                   <span className="block truncate text-sm font-medium">{l.book.title}</span>
-                  <span className="block text-2xs text-ink-mute">{CONDITIONS[l.condition].label}</span>
+                  <span className="block text-2xs text-ink-mute">{CONDITIONS[l.condition].label} · {l.listing.sellerName}</span>
                 </span>
                 <span className="text-sm num">{formatMoney(l.lineTotal)}</span>
               </li>

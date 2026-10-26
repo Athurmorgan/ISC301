@@ -26,6 +26,16 @@ if (fs.existsSync(SCHEMA_PATH)) {
   db.exec(schemaSql)
 }
 
+// Database tạo trước khi có sàn người bán: bổ sung cột còn thiếu cho order_items
+const ensureColumn = (table, column, type) => {
+  if (!db.prepare(`PRAGMA table_info(${table})`).all().some((c) => c.name === column)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`)
+  }
+}
+ensureColumn('order_items', 'listing_id', 'TEXT')
+ensureColumn('order_items', 'seller_id', 'TEXT')
+ensureColumn('order_items', 'seller_name', 'TEXT')
+
 /**
  * Helper thực thi truy vấn trả về nhiều dòng
  */

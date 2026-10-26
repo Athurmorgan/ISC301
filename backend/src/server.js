@@ -11,11 +11,17 @@ import deliveryRoutes from './routes/deliveryRoutes.js'
 import supportRoutes from './routes/supportRoutes.js'
 import dashboardRoutes from './routes/dashboardRoutes.js'
 import buybackRoutes from './routes/buybackRoutes.js'
+import sellerRoutes from './routes/sellerRoutes.js'
+import listingRoutes from './routes/listingRoutes.js'
 
 // Lần chạy đầu (database trống) tự nạp dữ liệu mẫu để front-end có sách ngay
 if (!queryOne('SELECT 1 AS found FROM books LIMIT 1')) {
   const { seed } = await import('./seed.js')
   seed({ exportJson: false })
+} else if (!queryOne('SELECT 1 AS found FROM listings LIMIT 1')) {
+  // Database có từ trước khi có sàn người bán: tạo tin đăng từ tồn kho hiện tại
+  const { seedMarketplace } = await import('./seed.js')
+  seedMarketplace()
 }
 
 const app = express()
@@ -59,6 +65,8 @@ app.get('/', (req, res) => {
         books: '/api/books, /api/books/:id, /api/books/categories',
         cartAndCheckout: '/api/orders/calculate-cart, /api/orders/apply-coupon, /api/orders/checkout, /api/orders/process-payment',
         buybacks: '/api/buybacks/estimate, /api/buybacks, /api/buybacks/:code',
+        sellers: '/api/sellers/apply, /api/sellers/me, /api/sellers, /api/sellers/:email/status',
+        listings: '/api/listings, /api/listings/mine, /api/listings/payouts, /api/listings/:id, /api/listings/:id/status',
       },
       flow3_order_tracking: {
         tracking: '/api/orders/track/:code, /api/orders/lookup',
@@ -88,6 +96,8 @@ app.use('/api/delivery', deliveryRoutes)
 app.use('/api/support', supportRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/buybacks', buybackRoutes)
+app.use('/api/sellers', sellerRoutes)
+app.use('/api/listings', listingRoutes)
 
 // 404 handler
 app.use((req, res) => {

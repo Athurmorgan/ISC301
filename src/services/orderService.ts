@@ -3,10 +3,10 @@ import { buildLines, computeTotals } from '../models/cart'
 import { couponRepository } from './couponRepository'
 import { generateCode } from '../models/order'
 import { fail, ok } from '../models/result'
-import type { Address, Order, OrderStatus, PaymentId, Result, ShippingId } from '../models/types'
+import type { Address, CartLine, Order, OrderItem, OrderStatus, PaymentId, Result, ShippingId } from '../models/types'
 import { API_ENABLED, api, errorMessage, isNetworkError, tokenStore } from './apiClient'
-import { bookRepository } from './bookRepository'
 import { cartRepository } from './cartRepository'
+import { catalogStore, listingRepository } from './listingRepository'
 import { orderRepository } from './orderRepository'
 import { markOffline, syncBooks } from './syncService'
 
@@ -18,16 +18,9 @@ export interface PlaceOrderInput {
   userEmail: string | null
 }
 
-/** Tạo đơn từ giỏ hiện tại: kiểm tra kho, trừ kho, lưu đơn, xoá giỏ. */
-export function placeOrder(input: PlaceOrderInput): Result<Order> {
-  const shipping = SHIPPING.find((s) => s.id === input.shippingId)!
-  if (shipping.provinces && !shipping.provinces.includes(input.customer.province)) {
-    return fail(`${shipping.name} chỉ áp dụng tại ${shipping.provinces.join(' và ')}`)
-  }
-  const totals = computeTotals(buildLines(cartRepository.items(), bookRepository.all()), cartRepository.coupons(), shipping, couponRepository.all())
-  if (!totals.lines.length) return fail('Giỏ hàng đang trống')
-
-  const items = totals.lines.map((l) => ({
+/** Chụp lại thông tin sách và người bán tại thời điểm đặt hàng */
+const toOrderItems = (lines: CartLine[]): OrderItem[] =>
+  lines.map((l) => ({
     bookId: l.book.id,
     title: l.book.title,
     author: l.book.author,
@@ -36,8 +29,22 @@ export function placeOrder(input: PlaceOrderInput): Result<Order> {
     condition: l.condition,
     unitPrice: l.unitPrice,
     qty: l.qty,
+    listingId: l.listing.id,
+    sellerId: l.listing.sellerId,
+    sellerName: l.listing.sellerName,
   }))
-  const reserved = bookRepository.reserve(items)
+
+/** Tạo đơn từ giỏ hiện tại: kiểm tra và trừ số sách của từng tin đăng, lưu đơn, xoá giỏ. */
+export function placeOrder(input: PlaceOrderInput): Result<Order> {
+  const shipping = SHIPPING.find((s) => s.id === input.shippingId)!
+  if (shipping.provinces && !shipping.provinces.includes(input.customer.province)) {
+    return fail(`${shipping.name} chỉ áp dụng tại ${shipping.provinces.join(' và ')}`)
+  }
+  const totals = computeTotals(buildLines(cartRepository.items(), catalogStore.get(), listingRepository.all()), cartRepository.coupons(), shipping, couponRepository.all())
+  if (!totals.lines.length) return fail('Giỏ hàng đang trống')
+
+  const items = toOrderItems(totals.lines)
+  const reserved = listingRepository.reserve(items)
   if (!reserved.ok) return reserved
 
   const now = new Date().toISOString()
@@ -69,7 +76,7 @@ export function changeStatus(code: string, status: OrderStatus, note = STATUS_HI
   const order = orderRepository.find(code)
   if (!order) return fail('Không tìm thấy đơn hàng')
   if (order.status === 'cancelled' || order.status === 'delivered') return fail('Đơn đã kết thúc, không thể đổi trạng thái')
-  if (status === 'cancelled') bookRepository.release(order.items)
+  if (status === 'cancelled') listingRepository.release(order.items)
 
   orderRepository.update(code, (o) => ({
     ...o,
@@ -92,14 +99,14 @@ const DEMO_OTP = '123456'
 export async function placeOrderOnline(input: PlaceOrderInput): Promise<Result<Order>> {
   if (!API_ENABLED) return placeOrder(input)
   const shipping = SHIPPING.find((s) => s.id === input.shippingId)!
-  const totals = computeTotals(buildLines(cartRepository.items(), bookRepository.all()), cartRepository.coupons(), shipping, couponRepository.all())
+  const totals = computeTotals(buildLines(cartRepository.items(), catalogStore.get(), listingRepository.all()), cartRepository.coupons(), shipping, couponRepository.all())
   if (!totals.lines.length) return fail('Giỏ hàng đang trống')
 
   let created
   try {
     created = await api.orders.checkout({
       customer: input.customer,
-      items: totals.lines.map((l) => ({ bookId: l.book.id, condition: l.condition, qty: l.qty })),
+      items: totals.lines.map((l) => ({ listingId: l.listing.id, bookId: l.book.id, condition: l.condition, qty: l.qty })),
       shippingId: input.shippingId,
       paymentId: input.paymentId,
       couponCodes: totals.appliedCoupons.map((c) => c.code),
@@ -123,16 +130,7 @@ export async function placeOrderOnline(input: PlaceOrderInput): Promise<Result<O
     }
   }
 
-  const items = totals.lines.map((l) => ({
-    bookId: l.book.id,
-    title: l.book.title,
-    author: l.book.author,
-    cover: l.book.cover,
-    category: l.book.category,
-    condition: l.condition,
-    unitPrice: l.unitPrice,
-    qty: l.qty,
-  }))
+  const items = toOrderItems(totals.lines)
   const payment = PAYMENTS.find((p) => p.id === input.paymentId)!
   const order: Order = {
     code: created.orderCode,
@@ -152,7 +150,7 @@ export async function placeOrderOnline(input: PlaceOrderInput): Promise<Result<O
     history: [{ status: 'pending', at: created.createdAt, note: payNote }],
   }
   // Trừ kho trên máy cho giao diện cập nhật ngay, rồi lấy lại số liệu chuẩn từ máy chủ
-  bookRepository.reserve(items)
+  listingRepository.reserve(items)
   orderRepository.insert(order)
   cartRepository.clear()
   void syncBooks()

@@ -25,7 +25,7 @@ export function Footer() {
         <div>
           <Logo />
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-ink-soft">
-            Hiệu sách trực tuyến cho sách mới và sách cũ đã kiểm định. Đọc nhiều hơn, tốn ít hơn, và để mỗi cuốn sách có thêm một người đọc.
+            Chợ sách cũ giá rẻ cho sinh viên, mọi cuốn đều qua kiểm định. Đọc nhiều hơn, tốn ít hơn, và để mỗi cuốn sách có thêm một người đọc.
           </p>
         </div>
         <FooterCol title="Tủ sách" links={CATEGORIES.map((c) => ({ to: `/sach?the-loai=${c.id}`, label: c.name }))} />

@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { CONDITIONS } from '../../data/catalog'
 import { useCart } from '../../controllers/useCart'
-import { quantityInCart } from '../../models/cart'
 import { formatMoney } from '../../models/format'
 import type { CartLine } from '../../models/types'
 import { Icon } from '../components/Icon'
@@ -10,7 +9,7 @@ import { OrderSummary } from '../components/OrderSummary'
 import { EmptyState, QtyStepper } from '../components/ui'
 
 export function CartPage() {
-  const { items, totals, codes, setQty, applyCoupon, removeCoupon } = useCart()
+  const { totals, codes, setQty, applyCoupon, removeCoupon } = useCart()
 
   useEffect(() => {
     document.title = 'Giỏ hàng — BookWise'
@@ -51,10 +50,10 @@ export function CartPage() {
             <ul className="divide-y divide-rule">
               {totals.lines.map((line) => (
                 <CartRow
-                  key={`${line.bookId}-${line.condition}`}
+                  key={line.listingId}
                   line={line}
-                  max={line.book.stock - quantityInCart(items, line.bookId, line.condition)}
-                  onQty={(q) => setQty(line.book, line.condition, q)}
+                  max={line.listing.qty}
+                  onQty={(q) => setQty(line.listingId, q)}
                 />
               ))}
             </ul>
@@ -95,7 +94,10 @@ function CartRow({ line, max, onQty }: { line: CartLine; max: number; onQty: (q:
             {book.title}
           </Link>
           <p className="text-xs text-ink-mute">{book.author}</p>
-          <p className="mt-2 inline-block border border-rule px-1.5 py-0.5 text-2xs text-ink-soft">{CONDITIONS[line.condition].label}</p>
+          <p className="mt-2 flex flex-wrap gap-1.5 text-2xs text-ink-soft">
+            <span className="border border-rule px-1.5 py-0.5">{CONDITIONS[line.condition].label}</span>
+            <span className="border border-rule px-1.5 py-0.5">Người bán: {line.listing.sellerName}</span>
+          </p>
           <p className="mt-1 text-xs text-ink-mute num">{formatMoney(line.unitPrice)} / cuốn</p>
         </div>
       </div>

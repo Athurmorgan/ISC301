@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { STATUS_HINT, STATUS_LABEL } from '../data/catalog'
 import { customerCanCancel, nextStatus } from '../models/order'
 import type { Order, OrderStatus } from '../models/types'
-import { bookRepository } from '../services/bookRepository'
+import { listingRepository } from '../services/listingRepository'
+import { offersFor } from '../models/listing'
+import { userRepository } from '../services/userRepository'
 import { cartRepository } from '../services/cartRepository'
 import { orderRepository, ordersStore } from '../services/orderRepository'
 import { API_ENABLED, api, isNetworkError } from '../services/apiClient'
@@ -90,21 +92,24 @@ export function useOrderActions() {
       notify(`Đã huỷ đơn ${order.code} và hoàn kho`)
       syncRemote(order, 'cancelled', 'Huỷ bởi BookWise', 'admin')
     },
-    /** Đưa lại các sách của đơn cũ vào giỏ (bỏ qua sách đã hết hàng) */
+    /** Đưa lại các sách của đơn cũ vào giỏ: ưu tiên đúng tin cũ, hết thì lấy tin rẻ nhất cùng đầu sách */
     reorder(order: Order): number {
       let items = cartRepository.items()
       let added = 0
+      const me = userRepository.sessionEmail()
       for (const i of order.items) {
-        const book = bookRepository.find(i.bookId)
-        if (!book) continue
-        const r = addItem(items, book, i.condition, i.qty)
+        const same = i.listingId ? listingRepository.find(i.listingId) : undefined
+        const listing = same && same.status === 'active' && same.qty >= i.qty ? same : offersFor(listingRepository.all(), i.bookId).find((l) => l.qty >= i.qty && l.sellerId !== me)
+        if (!listing) continue
+        const r = addItem(items, listing, i.qty, me)
         if (r.ok) {
           items = r.value
           added += i.qty
         }
       }
       cartRepository.save(items)
-      added ? notify(`Đã thêm ${added} cuốn vào giỏ`, { action: { label: 'Xem giỏ', to: '/gio-hang' } }) : notifyError('Các sách trong đơn hiện đã hết hàng')
+      if (added) notify(`Đã thêm ${added} cuốn vào giỏ`, { action: { label: 'Xem giỏ', to: '/gio-hang' } })
+      else notifyError('Các sách trong đơn hiện đã hết hàng')
       return added
     },
   }

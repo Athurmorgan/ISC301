@@ -1,5 +1,6 @@
 import { queryAll, queryOne, run, transaction } from '../db.js'
 import { uniqueCode } from '../lib/codes.js'
+import { addStoreStock } from '../lib/listings.js'
 import { BUYBACK_RATES, buybackQuote } from '../lib/pricing.js'
 import { maskAccount, maskPhone } from '../lib/privacy.js'
 
@@ -8,10 +9,10 @@ const DEFAULT_ESTIMATE = 50000
 
 /** Báo giá theo giá bán bản mới của sách trong kho, khớp với front-end; sách ngoài kho dùng giá khách nhập */
 function estimate(bookId, condition, fallbackPrice) {
-  const book = bookId ? queryOne('SELECT price FROM books WHERE id = ?', [bookId]) : null
-  if (book) return { basePrice: book.price, estimatedPrice: buybackQuote(book, condition) }
+  const book = bookId ? queryOne('SELECT list_price FROM books WHERE id = ?', [bookId]) : null
+  if (book) return { basePrice: book.list_price, estimatedPrice: buybackQuote(book, condition) }
   const basePrice = Math.max(0, Number(fallbackPrice) || 0)
-  return { basePrice, estimatedPrice: basePrice ? buybackQuote({ price: basePrice }, condition) : DEFAULT_ESTIMATE }
+  return { basePrice, estimatedPrice: basePrice ? buybackQuote({ list_price: basePrice }, condition) : DEFAULT_ESTIMATE }
 }
 
 const isAdmin = (req) => req.user?.role === 'admin'
@@ -236,7 +237,8 @@ export function updateBuybackStatus(req, res) {
 
       // Nếu đã thanh toán và có liên kết với bookId: tăng số lượng tồn kho sách
       if (status === 'paid' && buyback.book_id) {
-        run('UPDATE books SET stock = stock + 1 WHERE id = ?', [buyback.book_id])
+        // Sách thu mua về được nhập vào tin của kho BookWise đúng tình trạng
+        addStoreStock(buyback.book_id, buyback.condition, 1, now)
       }
     })
 

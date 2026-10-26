@@ -27,7 +27,6 @@ export function toBook(row: BookRow): Book {
     cover: row.cover,
     price: row.price,
     listPrice: row.list_price,
-    dealPrice: row.deal_price ?? undefined,
     stock: row.stock,
     sold: row.sold,
     rating: row.rating,

@@ -4,10 +4,11 @@ import type { Book, CategoryId } from '../models/types'
 // (covers.openlibrary.org), lưu sẵn trong public/covers để chạy offline.
 // Năm = năm xuất bản lần đầu của nguyên tác; số trang tham khảo theo ấn bản gốc.
 
-type Seed = Omit<Book, 'cover' | 'category'>
+// `price` và `stock` của sách được tính lại từ tin đăng; số tồn ở đây dùng để tạo tin đăng kho BookWise ban đầu.
+type Seed = Omit<Book, 'cover' | 'category'> & { dealPrice?: number }
 
 const shelf = (category: CategoryId, books: Seed[]): Book[] =>
-  books.map((b) => ({ ...b, category, cover: `/covers/${b.id}.jpg` }))
+  books.map(({ dealPrice: _deal, ...b }) => ({ ...b, category, cover: `/covers/${b.id}.jpg` }))
 
 const economics = shelf('kinh-te', [
   {

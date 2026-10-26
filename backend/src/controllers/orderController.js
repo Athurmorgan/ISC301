@@ -1,6 +1,7 @@
 import { queryAll, queryOne, run, transaction } from '../db.js'
 import { uniqueCode } from '../lib/codes.js'
-import { applyCoupons, parseItem, unitPrice } from '../lib/pricing.js'
+import { addStoreStock, refreshBook } from '../lib/listings.js'
+import { applyCoupons, parseItem } from '../lib/pricing.js'
 import { canSeeOrder, isOwner, maskOrder, samePhone } from '../lib/privacy.js'
 import { isStaff } from '../middleware/auth.js'
 
@@ -40,10 +41,11 @@ const findCoupons = (codes) =>
 
 /**
  * Tính giỏ hàng dùng chung cho /calculate-cart và /checkout để hai chỗ luôn ra cùng một con số.
- * Tồn kho dùng chung cho mọi tình trạng của một đầu sách (giống front-end).
+ * Mỗi dòng gắn với một tin đăng (của kho BookWise hoặc người bán); giá và số cuốn còn lại lấy theo tin đó.
+ * Client cũ chỉ gửi bookId + condition thì chọn tin rẻ nhất đang bán đúng tình trạng.
  * `strict` = true khi đặt hàng: sách không tồn tại hoặc thiếu hàng là lỗi; khi chỉ tính thử thì bỏ qua dòng lỗi.
  */
-function priceCart({ items, shippingId = 'standard', couponCodes = [] }, strict) {
+function priceCart({ items, shippingId = 'standard', couponCodes = [] }, strict, buyerEmail = null) {
   if (!Array.isArray(items)) return { error: 'Danh sách sản phẩm không hợp lệ' }
   if (items.length > MAX_LINES) return { error: `Giỏ hàng tối đa ${MAX_LINES} dòng` }
 
@@ -58,31 +60,45 @@ function priceCart({ items, shippingId = 'standard', couponCodes = [] }, strict)
       if (strict) return { error: item.error }
       continue
     }
-    const book = queryOne('SELECT * FROM books WHERE id = ?', [item.bookId])
+    let listing = item.listingId ? queryOne("SELECT * FROM listings WHERE id = ? AND status = 'active'", [item.listingId]) : null
+    if (!listing && item.bookId) {
+      listing = queryOne(
+        "SELECT * FROM listings WHERE book_id = ? AND condition = ? AND status = 'active' AND qty > 0 ORDER BY price ASC, id ASC LIMIT 1",
+        [item.bookId, item.condition]
+      )
+    }
+    const book = listing && queryOne('SELECT * FROM books WHERE id = ?', [listing.book_id])
     if (!book) {
-      if (strict) return { error: `Sách mã ${item.bookId} không tồn tại` }
+      if (strict) return { error: `Sách mã ${item.listingId ?? item.bookId} không còn được bán` }
       continue
     }
-    const price = unitPrice(book, item.condition)
-    needed.set(book.id, (needed.get(book.id) ?? 0) + item.qty)
+    if (buyerEmail && listing.seller_id === buyerEmail) {
+      if (strict) return { error: `Bạn không thể mua tin đăng của chính mình ("${book.title}")` }
+      continue
+    }
+    const price = listing.price
+    needed.set(listing.id, (needed.get(listing.id) ?? 0) + item.qty)
     lines.push({
+      listingId: listing.id,
+      sellerId: listing.seller_id,
+      sellerName: listing.seller_name,
       bookId: book.id,
       title: book.title,
       author: book.author,
       cover: book.cover,
       category: book.category,
-      condition: item.condition,
+      condition: listing.condition,
       unitPrice: price,
       qty: item.qty,
       lineTotal: price * item.qty,
-      stock: book.stock,
+      stock: listing.qty,
     })
   }
 
   if (strict) {
-    for (const [bookId, qty] of needed) {
-      const line = lines.find((l) => l.bookId === bookId)
-      if (line.stock < qty) return { error: `Sách "${line.title}" chỉ còn ${line.stock} cuốn trong kho` }
+    for (const [listingId, qty] of needed) {
+      const line = lines.find((l) => l.listingId === listingId)
+      if (line.stock < qty) return { error: `Sách "${line.title}" của ${line.sellerName} chỉ còn ${line.stock} cuốn` }
     }
   }
 
@@ -194,7 +210,7 @@ export function placeOrder(req, res) {
 
     const newOrder = transaction(() => {
       // Tính lại giá trong transaction để tồn kho đọc được là số mới nhất
-      const cart = priceCart({ items, shippingId, couponCodes }, true)
+      const cart = priceCart({ items, shippingId, couponCodes }, true, req.user?.email ?? null)
       if (cart.error) throw new Error(cart.error)
 
       const { shipping } = cart
@@ -205,10 +221,18 @@ export function placeOrder(req, res) {
         }
       }
 
-      for (const [bookId, qty] of cart.needed) {
-        const result = run('UPDATE books SET stock = stock - ?, sold = sold + ? WHERE id = ? AND stock >= ?', [qty, qty, bookId, qty])
+      const touched = new Set()
+      for (const [listingId, qty] of cart.needed) {
+        const result = run(
+          "UPDATE listings SET qty = qty - ?, sold = sold + ?, updated_at = ? WHERE id = ? AND qty >= ? AND status = 'active'",
+          [qty, qty, new Date().toISOString(), listingId, qty]
+        )
         if (result.changes !== 1) throw new Error('Một số sách vừa hết hàng, vui lòng tải lại giỏ hàng')
+        const { bookId } = cart.lines.find((l) => l.listingId === listingId)
+        run('UPDATE books SET sold = sold + ? WHERE id = ?', [qty, bookId])
+        touched.add(bookId)
       }
+      for (const bookId of touched) refreshBook(bookId)
 
       const orderCode = uniqueCode('BW', 6, 'orders')
       const now = new Date().toISOString()
@@ -249,9 +273,9 @@ export function placeOrder(req, res) {
 
       for (const it of cart.lines) {
         run(
-          `INSERT INTO order_items (order_code, book_id, title, author, cover, category, condition, unit_price, qty)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [orderCode, it.bookId, it.title, it.author, it.cover, it.category, it.condition, it.unitPrice, it.qty]
+          `INSERT INTO order_items (order_code, book_id, listing_id, seller_id, seller_name, title, author, cover, category, condition, unit_price, qty)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [orderCode, it.bookId, it.listingId, it.sellerId, it.sellerName, it.title, it.author, it.cover, it.category, it.condition, it.unitPrice, it.qty]
         )
       }
 
@@ -422,10 +446,19 @@ export function lookupOrders(req, res) {
 }
 
 /** Hoàn lại tồn kho của một đơn; gọi trong transaction */
+/** Trả sách của đơn bị huỷ về đúng tin đăng; đơn cũ chưa ghi tin đăng thì nhập vào kho BookWise */
 function restock(code) {
-  const items = queryAll('SELECT book_id, qty FROM order_items WHERE order_code = ?', [code])
+  const now = new Date().toISOString()
+  const items = queryAll('SELECT book_id, listing_id, condition, qty FROM order_items WHERE order_code = ?', [code])
   for (const it of items) {
-    run('UPDATE books SET stock = stock + ?, sold = MAX(0, sold - ?) WHERE id = ?', [it.qty, it.qty, it.book_id])
+    run('UPDATE books SET sold = MAX(0, sold - ?) WHERE id = ?', [it.qty, it.book_id])
+    const listing = it.listing_id && queryOne('SELECT id FROM listings WHERE id = ?', [it.listing_id])
+    if (listing) {
+      run('UPDATE listings SET qty = qty + ?, sold = MAX(0, sold - ?), updated_at = ? WHERE id = ?', [it.qty, it.qty, now, listing.id])
+      refreshBook(it.book_id)
+    } else {
+      addStoreStock(it.book_id, it.condition === 'likenew' ? 'likenew' : 'used', it.qty, now)
+    }
   }
 }
 

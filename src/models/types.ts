@@ -8,14 +8,16 @@ export interface Category {
   blurb: string
 }
 
-export type ConditionId = 'seal' | 'likenew' | 'used'
+export type ConditionId = 'likenew' | 'used'
 
 export interface Condition {
   id: ConditionId
   label: string
   note: string
-  /** Giá = giá bản mới × hệ số */
+  /** Giá BookWise tự bán = giá bìa × hệ số */
   factor: number
+  /** Người bán không được đăng giá cao hơn giá bìa × mức trần này */
+  cap: number
 }
 
 export interface Book {
@@ -27,13 +29,14 @@ export interface Book {
   publisher?: string
   category: CategoryId
   cover: string
-  /** Giá bán bản mới nguyên seal */
+  /** Giá thấp nhất đang được rao bán (tính lại từ các tin đăng) */
   price: number
   /** Giá in trên bìa */
   listPrice: number
-  /** Giá trong chương trình giá tốt hôm nay (chỉ áp cho bản mới) */
-  dealPrice?: number
+  /** Tổng số cuốn còn bán của mọi người bán (tính lại từ các tin đăng) */
   stock: number
+  /** Số tin đăng còn hàng */
+  offers?: number
   sold: number
   rating: number
   ratingCount: number
@@ -43,7 +46,64 @@ export interface Book {
   staffPick?: string
 }
 
+/** Người bán: 'bookwise' là kho của cửa hàng, còn lại là email người dùng đã được duyệt */
+export const BOOKWISE_SELLER = 'bookwise'
+
+export type ListingStatus = 'active' | 'paused' | 'suspended' | 'removed'
+
+/** Một tin đăng bán: một (hoặc vài) cuốn cụ thể của một người bán, cùng tình trạng và giá */
+export interface Listing {
+  id: string
+  bookId: string
+  sellerId: string
+  sellerName: string
+  condition: ConditionId
+  price: number
+  /** Số cuốn còn lại */
+  qty: number
+  sold: number
+  note: string
+  photo?: string
+  status: ListingStatus
+  /** Lý do khi quản trị gỡ tin */
+  reason?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type SellerStatus = 'pending' | 'approved' | 'rejected' | 'suspended'
+
+export interface SellerEvent {
+  status: SellerStatus
+  at: string
+  note: string
+}
+
+/** Hồ sơ đăng ký bán sách: phải được quản trị duyệt mới được đăng tin */
+export interface SellerApplication {
+  email: string
+  fullName: string
+  phone: string
+  /** Số CCCD 12 chữ số */
+  idNumber: string
+  /** Ảnh mặt trước CCCD */
+  idPhoto: string
+  /** Ảnh thẻ sinh viên (không bắt buộc, có thì được gắn nhãn Sinh viên) */
+  studentCardPhoto?: string
+  school: string
+  pickupAddress: string
+  bankName: string
+  bankAccount: string
+  accountHolder: string
+  status: SellerStatus
+  reason?: string
+  submittedAt: string
+  reviewedAt?: string
+  history: SellerEvent[]
+}
+
 export interface CartItem {
+  listingId: string
   bookId: string
   condition: ConditionId
   qty: number
@@ -51,6 +111,7 @@ export interface CartItem {
 
 export interface CartLine extends CartItem {
   book: Book
+  listing: Listing
   unitPrice: number
   lineTotal: number
 }
@@ -119,6 +180,10 @@ export interface OrderItem {
   condition: ConditionId
   unitPrice: number
   qty: number
+  /** Đơn tạo trước khi có chợ người bán không có các trường này */
+  listingId?: string
+  sellerId?: string
+  sellerName?: string
 }
 
 export interface OrderEvent {
@@ -182,7 +247,7 @@ export interface BuybackRequest {
   bookId?: string
   bookTitle: string
   author: string
-  condition: Exclude<ConditionId, 'seal'>
+  condition: ConditionId
   estimatedPrice: number
   customerName: string
   phone: string

@@ -13,7 +13,7 @@ import { AnnouncementBar } from './AnnouncementBar'
 
 const NAV = [
   { to: '/sach', label: 'Tủ sách' },
-  { to: '/sach?uu-dai=1', label: 'Giá tốt hôm nay' },
+  { to: '/sach?uu-dai=1', label: 'Siêu rẻ' },
   { to: '/don-hang', label: 'Tra cứu đơn' },
   { to: '/ho-tro', label: 'Hỗ trợ' },
   { to: '/bao-cao', label: 'Nghiên cứu' },

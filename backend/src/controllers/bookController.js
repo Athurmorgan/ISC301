@@ -1,5 +1,11 @@
 import { queryAll, queryOne, run } from '../db.js'
-import { CONDITION_FACTORS, unitPrice } from '../lib/pricing.js'
+import { refreshBook, toListing } from '../lib/listings.js'
+import { BUYBACK_RATES, CONDITIONS, priceCap, storePrice } from '../lib/pricing.js'
+
+const CONDITION_NOTES = {
+  likenew: 'Đọc một lần, không ghi chú, gáy thẳng',
+  used: 'Có thể ngả màu, có ghi chú nhẹ, nội dung đầy đủ',
+}
 
 /**
  * Lấy danh sách sách có phân trang, bộ lọc và sắp xếp
@@ -75,14 +81,18 @@ export function getBooks(req, res) {
 
     const rawBooks = queryAll(sql, params)
 
-    // Format giá theo tình trạng nếu có yêu cầu tình trạng cụ thể
+    // `price` là giá thấp nhất đang bán; có lọc tình trạng thì lấy giá thấp nhất của tình trạng đó
     const formattedBooks = rawBooks.map((b) => {
-      const applied = condition in CONDITION_FACTORS ? condition : 'seal'
+      const applied = condition in CONDITIONS ? condition : null
+      const cheapest = applied
+        ? queryOne("SELECT MIN(price) AS price FROM listings WHERE book_id = ? AND condition = ? AND status = 'active' AND qty > 0", [b.id, applied])?.price
+        : b.price
+      const currentPrice = cheapest ?? storePrice(b, applied ?? 'used')
       return {
         ...b,
-        currentPrice: unitPrice(b, applied),
+        currentPrice,
         appliedCondition: applied,
-        discountPercent: b.list_price > b.price ? Math.round(((b.list_price - b.price) / b.list_price) * 100) : 0,
+        discountPercent: b.list_price > currentPrice ? Math.round(((b.list_price - currentPrice) / b.list_price) * 100) : 0,
       }
     })
 
@@ -112,33 +122,27 @@ export function getBookById(req, res) {
       return res.status(404).json({ ok: false, error: 'Không tìm thấy sách' })
     }
 
-    // Tính giá và tình trạng sẵn có
-    const conditions = [
-      {
-        id: 'seal',
-        label: 'Mới, nguyên seal',
-        note: 'Sách mới từ nhà phát hành',
-        price: unitPrice(book, 'seal'),
+    // Các tin đang bán (kho BookWise + người bán), rẻ nhất trước
+    const offers = queryAll(
+      "SELECT * FROM listings WHERE book_id = ? AND status = 'active' AND qty > 0 ORDER BY price ASC, id ASC",
+      [id]
+    ).map(toListing)
+
+    const conditions = Object.entries(CONDITIONS).map(([cid, c]) => {
+      const own = offers.filter((o) => o.condition === cid)
+      return {
+        id: cid,
+        label: c.label,
+        note: CONDITION_NOTES[cid],
+        price: own[0]?.price ?? storePrice(book, cid),
+        storePrice: storePrice(book, cid),
+        priceCap: priceCap(book, cid),
+        buybackPrice: Math.round((book.list_price * BUYBACK_RATES[cid]) / 1000) * 1000,
         listPrice: book.list_price,
-        inStock: book.stock > 0,
-      },
-      {
-        id: 'likenew',
-        label: 'Như mới · 98%',
-        note: 'Đọc một lần, không ghi chú, gáy thẳng',
-        price: unitPrice(book, 'likenew'),
-        listPrice: book.list_price,
-        inStock: book.stock > 0,
-      },
-      {
-        id: 'used',
-        label: 'Đã qua sử dụng · 90%',
-        note: 'Có thể ngả màu nhẹ, nội dung đầy đủ',
-        price: unitPrice(book, 'used'),
-        listPrice: book.list_price,
-        inStock: book.stock > 0,
-      },
-    ]
+        offers: own.length,
+        inStock: own.some((o) => o.qty > 0),
+      }
+    })
 
     // Lấy đánh giá gần nhất
     const reviews = queryAll('SELECT * FROM book_reviews WHERE book_id = ? ORDER BY created_at DESC LIMIT 5', [id])
@@ -154,6 +158,7 @@ export function getBookById(req, res) {
       data: {
         ...book,
         conditions,
+        offers,
         reviews,
         relatedBooks: related,
       },
@@ -173,10 +178,7 @@ export function createBook(req, res) {
       title,
       author,
       category,
-      price,
       listPrice,
-      dealPrice,
-      stock = 20,
       cover,
       description,
       originalTitle,
@@ -187,8 +189,8 @@ export function createBook(req, res) {
       staffPick,
     } = req.body
 
-    if (!title || !author || !category || !price || !listPrice) {
-      return res.status(400).json({ ok: false, error: 'Vui lòng cung cấp tiêu đề, tác giả, thể loại, giá bán và giá bìa' })
+    if (!title || !author || !category || !(Number(listPrice) > 0)) {
+      return res.status(400).json({ ok: false, error: 'Vui lòng cung cấp tiêu đề, tác giả, thể loại và giá bìa' })
     }
 
     const bookId = id || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -213,10 +215,10 @@ export function createBook(req, res) {
         publisher || null,
         category,
         cover || `/covers/${bookId}.jpg`,
-        Number(price),
+        storePrice({ list_price: Number(listPrice) }, 'used'),
         Number(listPrice),
-        dealPrice ? Number(dealPrice) : null,
-        Number(stock),
+        null,
+        0,
         Number(pages || 200),
         firstPublished ? Number(firstPublished) : null,
         description || '',
@@ -225,15 +227,17 @@ export function createBook(req, res) {
       ]
     )
 
+    // Sách mới chưa có tin đăng nào: nhập kho qua thu mua hoặc PATCH /api/listings, hoặc chờ người bán đăng
     const created = queryOne('SELECT * FROM books WHERE id = ?', [bookId])
-    return res.status(201).json({ ok: true, message: 'Thêm sách mới thành công', data: created })
+    return res.status(201).json({ ok: true, message: 'Thêm đầu sách thành công', data: created })
   } catch (error) {
     return res.status(500).json({ ok: false, error: error.message })
   }
 }
 
 /**
- * Cập nhật thông tin sách, giá bán, tồn kho (Admin / API Key)
+ * Cập nhật thông tin đầu sách và giá bìa (Admin / API Key).
+ * Giá bán và tồn kho do các tin đăng quyết định nên không sửa trực tiếp ở đây.
  */
 export function updateBook(req, res) {
   try {
@@ -246,20 +250,22 @@ export function updateBook(req, res) {
     const {
       title = book.title,
       author = book.author,
-      price = book.price,
       listPrice = book.list_price,
-      dealPrice = book.deal_price,
-      stock = book.stock,
       description = book.description,
       staffPick = book.staff_pick,
     } = req.body
 
     run(
       `UPDATE books
-       SET title = ?, author = ?, price = ?, list_price = ?, deal_price = ?, stock = ?, description = ?, staff_pick = ?
+       SET title = ?, author = ?, list_price = ?, description = ?, staff_pick = ?
        WHERE id = ?`,
-      [title, author, Number(price), Number(listPrice), dealPrice ? Number(dealPrice) : null, Number(stock), description, staffPick, id]
+      [title, author, Number(listPrice), description, staffPick, id]
     )
+    // Giá bìa đổi thì giá của kho BookWise đổi theo
+    for (const cid of Object.keys(CONDITIONS)) {
+      run("UPDATE listings SET price = ? WHERE book_id = ? AND seller_id = 'bookwise' AND condition = ?", [storePrice({ list_price: Number(listPrice) }, cid), id, cid])
+    }
+    refreshBook(id)
 
     const updated = queryOne('SELECT * FROM books WHERE id = ?', [id])
     return res.json({ ok: true, message: 'Cập nhật sách thành công', data: updated })

@@ -1,27 +1,56 @@
-// Quy tắc giá dùng chung cho giỏ hàng, đặt hàng và thu mua. Khớp với src/models/pricing.ts ở front-end.
+// Quy tắc giá dùng chung cho giỏ hàng, đặt hàng, đăng bán và thu mua. Khớp với src/models/pricing.ts ở front-end.
+// BookWise chỉ bán sách cũ: giá tính theo giá bìa (list_price) nhân hệ số tình trạng.
 
-export const CONDITION_FACTORS = { seal: 1, likenew: 0.8, used: 0.6 }
-export const BUYBACK_RATES = { likenew: 0.45, used: 0.3 }
-export const MAX_QTY_PER_LINE = 99
-
-const roundThousand = (n) => Math.round(n / 1000) * 1000
-
-/** Giá ưu đãi trong ngày chỉ áp cho bản mới; sách cũ tính theo giá bán × hệ số, làm tròn nghìn. */
-export function unitPrice(book, condition = 'seal') {
-  if (condition === 'seal') return book.deal_price ?? book.price
-  return roundThousand(book.price * CONDITION_FACTORS[condition])
+export const CONDITIONS = {
+  likenew: { label: 'Như mới · 95%', factor: 0.55, cap: 0.7 },
+  used: { label: 'Đã qua sử dụng · 80%', factor: 0.4, cap: 0.55 },
 }
+export const CONDITION_FACTORS = Object.fromEntries(Object.entries(CONDITIONS).map(([k, v]) => [k, v.factor]))
+export const BUYBACK_RATES = { likenew: 0.3, used: 0.2 }
+export const COMMISSION_RATE = 0.1
+export const MIN_LISTING_PRICE = 10000
+export const MAX_LISTING_QTY = 20
+export const MAX_QTY_PER_LINE = 99
+export const BOOKWISE_SELLER = 'bookwise'
 
-export const buybackQuote = (book, condition) => roundThousand(book.price * BUYBACK_RATES[condition])
+export const roundThousand = (n) => Math.round(n / 1000) * 1000
 
-/** Kiểm tra một dòng hàng từ client, trả về { bookId, condition, qty } hoặc thông báo lỗi. */
+const listPriceOf = (book) => book.list_price ?? book.listPrice ?? book.price
+
+/** Giá BookWise tự bán theo tình trạng */
+export const storePrice = (book, condition = 'used') => roundThousand(listPriceOf(book) * CONDITIONS[condition].factor)
+
+/** Giá trần người bán được đăng */
+export const priceCap = (book, condition) => roundThousand(listPriceOf(book) * CONDITIONS[condition].cap)
+
+/** Giữ tên cũ cho các controller đang dùng */
+export const unitPrice = storePrice
+
+export const buybackQuote = (book, condition) => roundThousand(listPriceOf(book) * BUYBACK_RATES[condition])
+
+/** Người bán nhận về sau khi trừ phí dịch vụ */
+export const payoutOf = (price) => price - Math.round(price * COMMISSION_RATE)
+
+/** Kiểm tra một dòng hàng từ client, trả về { listingId?, bookId, condition, qty } hoặc thông báo lỗi. */
 export function parseItem(item) {
-  const condition = item?.condition ?? 'seal'
-  if (!item?.bookId) return { error: 'Thiếu mã sách' }
-  if (!(condition in CONDITION_FACTORS)) return { error: `Tình trạng sách "${condition}" không hợp lệ` }
+  const condition = item?.condition ?? 'used'
+  if (!item?.bookId && !item?.listingId) return { error: 'Thiếu mã sách' }
+  if (!(condition in CONDITIONS)) return { error: `Tình trạng sách "${condition}" không hợp lệ` }
   const qty = Number(item.qty ?? 1)
   if (!Number.isInteger(qty) || qty < 1 || qty > MAX_QTY_PER_LINE) return { error: `Số lượng phải là số nguyên từ 1 đến ${MAX_QTY_PER_LINE}` }
-  return { bookId: String(item.bookId), condition, qty }
+  return { listingId: item.listingId ? String(item.listingId) : null, bookId: item.bookId ? String(item.bookId) : null, condition, qty }
+}
+
+/** Kiểm tra tin đăng của người bán, trả về chuỗi lỗi hoặc null */
+export function validateListing({ condition, price, qty, note = '' }, book) {
+  if (!book) return 'Đầu sách không tồn tại'
+  if (!(condition in CONDITIONS)) return 'Tình trạng sách không hợp lệ'
+  if (!Number.isInteger(price) || price < MIN_LISTING_PRICE) return `Giá tối thiểu ${MIN_LISTING_PRICE.toLocaleString('vi-VN')}đ`
+  const cap = priceCap(book, condition)
+  if (price > cap) return `Giá vượt mức trần ${cap.toLocaleString('vi-VN')}đ (${CONDITIONS[condition].cap * 100}% giá bìa)`
+  if (!Number.isInteger(qty) || qty < 0 || qty > MAX_LISTING_QTY) return `Số lượng từ 0 đến ${MAX_LISTING_QTY}`
+  if (String(note).length > 300) return 'Mô tả tối đa 300 ký tự'
+  return null
 }
 
 const couponGroup = (c) => (c.kind === 'shipping' ? 'shipping' : 'order')

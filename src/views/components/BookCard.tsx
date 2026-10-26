@@ -31,7 +31,7 @@ export function BookCard({ book, eager }: Props) {
             className={`transition-transform duration-300 group-hover:-translate-y-1 ${soldOut ? 'opacity-55 grayscale-[40%]' : ''}`}
           />
           {soldOut && <span className="absolute left-2 top-2 bg-paper px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wider text-ink">Tạm hết</span>}
-          {deal && !soldOut && <span className="absolute left-2 top-2 bg-terra px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wider text-paper">Giá tốt</span>}
+          {deal && !soldOut && <span className="absolute left-2 top-2 bg-terra px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wider text-paper">Siêu rẻ</span>}
         </Link>
         <button
           type="button"

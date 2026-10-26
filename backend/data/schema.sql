@@ -121,9 +121,12 @@ CREATE TABLE IF NOT EXISTS order_items (
   author TEXT NOT NULL,
   cover TEXT NOT NULL,
   category TEXT NOT NULL,
-  condition TEXT NOT NULL, -- 'seal', 'likenew', 'used'
+  condition TEXT NOT NULL, -- 'likenew', 'used' (đơn cũ có thể còn 'seal')
   unit_price INTEGER NOT NULL,
   qty INTEGER NOT NULL,
+  listing_id TEXT,
+  seller_id TEXT,
+  seller_name TEXT,
   FOREIGN KEY (order_code) REFERENCES orders(code) ON DELETE CASCADE
 );
 
@@ -245,3 +248,52 @@ CREATE INDEX IF NOT EXISTS idx_orders_customer_email ON orders(customer_email);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 CREATE INDEX IF NOT EXISTS idx_shipments_tracking ON delivery_shipments(tracking_code);
 CREATE INDEX IF NOT EXISTS idx_tickets_status ON support_tickets(status);
+
+-- Hồ sơ đăng ký bán sách: người dùng gửi CCCD + tài khoản ngân hàng, quản trị duyệt mới được đăng tin
+-- Ảnh giấy tờ không lưu trên máy chủ trong bản demo, chỉ ghi nhận có thẻ sinh viên hay không
+CREATE TABLE IF NOT EXISTS seller_applications (
+  email TEXT PRIMARY KEY,
+  full_name TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  id_number TEXT NOT NULL,
+  school TEXT,
+  pickup_address TEXT NOT NULL,
+  bank_name TEXT NOT NULL,
+  bank_account TEXT NOT NULL,
+  account_holder TEXT NOT NULL,
+  has_student_card INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'pending', -- 'pending', 'approved', 'rejected', 'suspended'
+  reason TEXT,
+  submitted_at TEXT NOT NULL,
+  reviewed_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS seller_history (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  seller_email TEXT NOT NULL,
+  status TEXT NOT NULL,
+  note TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (seller_email) REFERENCES seller_applications(email) ON DELETE CASCADE
+);
+
+-- Tin đăng bán: kho BookWise (seller_id = 'bookwise') và người bán đã được duyệt
+CREATE TABLE IF NOT EXISTS listings (
+  id TEXT PRIMARY KEY,
+  book_id TEXT NOT NULL,
+  seller_id TEXT NOT NULL,
+  seller_name TEXT NOT NULL,
+  condition TEXT NOT NULL, -- 'likenew', 'used'
+  price INTEGER NOT NULL,
+  qty INTEGER NOT NULL DEFAULT 0,
+  sold INTEGER NOT NULL DEFAULT 0,
+  note TEXT,
+  status TEXT NOT NULL DEFAULT 'active', -- 'active', 'paused', 'suspended', 'removed'
+  reason TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_listings_book ON listings(book_id, status);
+CREATE INDEX IF NOT EXISTS idx_listings_seller ON listings(seller_id);
