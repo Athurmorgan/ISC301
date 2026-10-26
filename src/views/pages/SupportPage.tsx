@@ -97,6 +97,7 @@ function FaqList() {
 }
 
 function TicketForm() {
+  const [showBuybackModal, setShowBuybackModal] = useState(false)
   const [params] = useSearchParams()
   const { user } = useAuth()
   const { create } = useTickets()
@@ -149,8 +150,6 @@ function TicketForm() {
       </aside>
     )
   }
-
-  const [showBuybackModal, setShowBuybackModal] = useState(false)
 
   return (
     <aside className="self-start border border-ink bg-card">

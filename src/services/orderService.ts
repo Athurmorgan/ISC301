@@ -1,5 +1,6 @@
 import { PAYMENTS, SHIPPING, STATUS_HINT } from '../data/catalog'
 import { buildLines, computeTotals } from '../models/cart'
+import { couponRepository } from './couponRepository'
 import { generateCode } from '../models/order'
 import { fail, ok } from '../models/result'
 import type { Address, Order, OrderStatus, PaymentId, Result, ShippingId } from '../models/types'
@@ -21,7 +22,7 @@ export function placeOrder(input: PlaceOrderInput): Result<Order> {
   if (shipping.provinces && !shipping.provinces.includes(input.customer.province)) {
     return fail(`${shipping.name} chỉ áp dụng tại ${shipping.provinces.join(' và ')}`)
   }
-  const totals = computeTotals(buildLines(cartRepository.items(), bookRepository.all()), cartRepository.coupons(), shipping)
+  const totals = computeTotals(buildLines(cartRepository.items(), bookRepository.all()), cartRepository.coupons(), shipping, couponRepository.all())
   if (!totals.lines.length) return fail('Giỏ hàng đang trống')
 
   const items = totals.lines.map((l) => ({
