@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { PROVINCES, STATUS_LABEL, TICKET_TOPICS } from '../../data/catalog'
+import { CONDITIONS, PROVINCES, STATUS_LABEL, TICKET_TOPICS } from '../../data/catalog'
 import { useAuth } from '../../controllers/useAuth'
 import { useBuybacks } from '../../controllers/useBuyback'
 import { useCart } from '../../controllers/useCart'
@@ -15,6 +15,7 @@ import { hasErrors, isVietnamesePhone, type Errors } from '../../models/validati
 import { BUYBACK_STATUS_LABEL } from '../../services/buybackRepository'
 import { notify } from '../../services/toastService'
 import { Icon } from '../components/Icon'
+import { SellerCenter } from '../components/SellerCenter'
 import { EmptyState, Modal, SelectField, StatusTag, TextField } from '../components/ui'
 
 export function AccountPage() {
@@ -75,10 +76,13 @@ function LoginForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [showForgot, setShowForgot] = useState(false)
+  const [busy, setBusy] = useState(false)
 
-  function submit(e: FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault()
-    const r = login(email, password)
+    setBusy(true)
+    const r = await login(email, password)
+    setBusy(false)
     if (!r.ok) return setError(r.error)
     notify(`Chào mừng trở lại, ${r.value.name}`)
   }
@@ -96,8 +100,8 @@ function LoginForm() {
           </div>
         </div>
         {error && <p className="text-sm text-terra">{error}</p>}
-        <button type="submit" className="btn-ink w-full">
-          Đăng nhập
+        <button type="submit" className="btn-ink w-full" disabled={busy}>
+          {busy ? 'Đang đăng nhập…' : 'Đăng nhập'}
         </button>
       </form>
       {showForgot && <ForgotPasswordModal onClose={() => setShowForgot(false)} />}
@@ -169,11 +173,14 @@ function RegisterForm() {
   const { register } = useAuth()
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '' })
   const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
   const set = (k: keyof typeof form) => (e: { target: { value: string } }) => setForm((f) => ({ ...f, [k]: e.target.value }))
 
-  function submit(e: FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault()
-    const r = register(form)
+    setBusy(true)
+    const r = await register(form)
+    setBusy(false)
     if (!r.ok) return setError(r.error)
     notify(`Đã tạo tài khoản cho ${r.value.name}`)
   }
@@ -187,8 +194,8 @@ function RegisterForm() {
       </div>
       <TextField label="Mật khẩu" type="password" autoComplete="new-password" hint="Ít nhất 6 ký tự" value={form.password} onChange={set('password')} />
       {error && <p className="text-sm text-terra">{error}</p>}
-      <button type="submit" className="btn-ink w-full">
-        Tạo tài khoản
+      <button type="submit" className="btn-ink w-full" disabled={busy}>
+        {busy ? 'Đang tạo…' : 'Tạo tài khoản'}
       </button>
     </form>
   )
@@ -217,11 +224,12 @@ function AdminLanding({ user }: { user: User }) {
   )
 }
 
-type Tab = 'orders' | 'wishlist' | 'buyback' | 'profile' | 'password' | 'tickets'
+type Tab = 'orders' | 'wishlist' | 'seller' | 'buyback' | 'profile' | 'password' | 'tickets'
 const TABS: Record<Tab, string> = {
   orders: 'Đơn hàng',
   wishlist: 'Yêu thích',
-  buyback: 'Bán sách cũ',
+  seller: 'Kênh người bán',
+  buyback: 'Bán lại cho BookWise',
   profile: 'Hồ sơ & địa chỉ',
   password: 'Đổi mật khẩu',
   tickets: 'Yêu cầu hỗ trợ',
@@ -268,6 +276,7 @@ function CustomerAccount({ user }: { user: User }) {
         <div>
           {tab === 'orders' && <MyOrders user={user} />}
           {tab === 'wishlist' && <MyWishlist />}
+          {tab === 'seller' && <SellerCenter user={user} presetBook={params.get('sach') ?? undefined} />}
           {tab === 'buyback' && <MyBuybacks user={user} />}
           {tab === 'profile' && <Profile user={user} />}
           {tab === 'password' && <ChangePasswordForm />}
@@ -457,7 +466,7 @@ function MyWishlist() {
             <div className="flex items-center gap-2 self-end sm:self-center">
               <button
                 type="button"
-                onClick={() => add(b, 'seal', 1)}
+                onClick={() => add(b)}
                 disabled={b.stock === 0}
                 className="btn-ink btn-sm"
               >
@@ -495,7 +504,7 @@ function MyBuybacks({ user }: { user: User }) {
         title="Chưa có yêu cầu bán lại sách nào"
         action={<Link to="/#thu-mua" className="btn-ink">Bán sách cũ ngay</Link>}
       >
-        Bạn có sách cũ không dùng đến? BookWise thu mua với giá lên đến 45% giá bìa, nhận sách tận nhà và chuyển khoản nhanh.
+        Bạn có sách cũ không dùng đến? BookWise thu mua với giá đến 30% giá bìa, nhận sách tận nhà và chuyển khoản nhanh.
       </EmptyState>
     )
   }
@@ -522,7 +531,7 @@ function MyBuybacks({ user }: { user: User }) {
             <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
               <div>
                 <p className="font-medium text-ink">{b.bookTitle}</p>
-                <p className="text-xs text-ink-mute">{b.author} · {b.condition === 'likenew' ? 'Như mới (98%)' : 'Đã sử dụng (90%)'}</p>
+                <p className="text-xs text-ink-mute">{b.author} · {CONDITIONS[b.condition].label}</p>
               </div>
               <div className="text-xs text-ink-soft">
                 <p>Nhận tiền qua: <strong>{b.bankName}</strong> · {b.bankAccount} ({b.accountHolder})</p>

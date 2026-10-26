@@ -4,8 +4,10 @@ import type {
   Condition,
   ConditionId,
   Coupon,
+  ListingStatus,
   OrderStatus,
   PaymentMethod,
+  SellerStatus,
   ShippingMethod,
   TicketTopic,
 } from '../models/types'
@@ -19,13 +21,45 @@ export const CATEGORIES: Category[] = [
 
 export const categoryName = (id: CategoryId) => CATEGORIES.find((c) => c.id === id)?.name ?? id
 
+// BookWise chỉ bán sách cũ. Giá tính theo giá bìa để sinh viên dễ so sánh.
 export const CONDITIONS: Record<ConditionId, Condition> = {
-  seal: { id: 'seal', label: 'Mới, nguyên seal', note: 'Sách mới từ nhà phát hành', factor: 1 },
-  likenew: { id: 'likenew', label: 'Như mới · 98%', note: 'Đọc một lần, không ghi chú, gáy thẳng', factor: 0.8 },
-  used: { id: 'used', label: 'Đã qua sử dụng · 90%', note: 'Có thể ngả màu nhẹ, nội dung đầy đủ', factor: 0.6 },
+  likenew: { id: 'likenew', label: 'Như mới · 95%', note: 'Đọc một lần, không ghi chú, gáy thẳng', factor: 0.55, cap: 0.7 },
+  used: { id: 'used', label: 'Đã qua sử dụng · 80%', note: 'Có thể ngả màu, gạch chân nhẹ, nội dung đầy đủ', factor: 0.4, cap: 0.55 },
 }
 
-export const CONDITION_ORDER: ConditionId[] = ['seal', 'likenew', 'used']
+export const CONDITION_ORDER: ConditionId[] = ['likenew', 'used']
+
+/** Nhãn tình trạng, chịu được đơn cũ còn ghi 'seal' */
+export const conditionLabel = (id: string) => CONDITIONS[id as ConditionId]?.label ?? 'Sách mới'
+
+/** Phí dịch vụ BookWise thu trên mỗi cuốn người bán bán được (kiểm định, đóng gói, giao hàng) */
+export const COMMISSION_RATE = 0.1
+
+/** Giá đăng bán tối thiểu, tránh tin rao 0đ */
+export const MIN_LISTING_PRICE = 10_000
+
+export const SELLER_STATUS_LABEL: Record<SellerStatus, string> = {
+  pending: 'Chờ duyệt',
+  approved: 'Đã được bán',
+  rejected: 'Bị từ chối',
+  suspended: 'Tạm khoá',
+}
+
+export const LISTING_STATUS_LABEL: Record<ListingStatus, string> = {
+  active: 'Đang bán',
+  paused: 'Tạm ẩn',
+  suspended: 'Khoá theo người bán',
+  removed: 'Bị gỡ',
+}
+
+/** Tài khoản người bán mẫu đã được duyệt sẵn để demo */
+export const DEMO_SELLER = {
+  email: 'sinhvien@bookwise.vn',
+  password: 'sinhvien123',
+  name: 'Trần Thu Hà',
+  phone: '0912345678',
+  school: 'ĐH Kinh tế TP. Hồ Chí Minh',
+}
 
 export const COUPONS: Coupon[] = [
   { code: 'BOOKWISE50K', kind: 'fixed', value: 50_000, minSubtotal: 200_000, description: 'Giảm 50.000đ cho đơn từ 200.000đ' },
@@ -74,7 +108,7 @@ export const STATUS_LABEL: Record<OrderStatus, string> = {
 }
 
 export const STATUS_HINT: Record<OrderStatus, string> = {
-  pending: 'BookWise đang kiểm tra tồn kho và thanh toán',
+  pending: 'BookWise đang kiểm tra sách và thanh toán',
   confirmed: 'Sách đã qua kiểm định và được đóng gói',
   shipping: 'Đơn vị vận chuyển đang giao sách đến bạn',
   delivered: 'Bạn đã nhận được sách',
@@ -91,8 +125,8 @@ export const TICKET_TOPICS: Record<TicketTopic, string> = {
 
 export const ADMIN_ACCOUNT = { email: 'admin@bookwise.vn', password: 'admin123', name: 'Quản trị viên' }
 
-/** Giá thu mua sách cũ = giá bán bản mới × hệ số */
-export const BUYBACK_RATE: Record<Exclude<ConditionId, 'seal'>, number> = {
-  likenew: 0.45,
-  used: 0.3,
+/** Giá BookWise thu mua lại = giá bìa × hệ số (thấp hơn giá bán để bù chi phí kiểm định) */
+export const BUYBACK_RATE: Record<ConditionId, number> = {
+  likenew: 0.3,
+  used: 0.2,
 }

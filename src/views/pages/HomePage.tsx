@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useBook, useBooks, useShelves } from '../../controllers/useBooks'
-import { useCountdownToMidnight } from '../../controllers/useCountdown'
+import { CONDITIONS } from '../../data/catalog'
 import { suggest } from '../../models/catalogQuery'
 import { formatMoney, formatNumber } from '../../models/format'
 import { buybackQuote, unitPrice } from '../../models/pricing'
@@ -23,9 +23,9 @@ export function HomePage() {
       <section className="container-page mt-20">
         <SectionHeading
           index="01"
-          kicker="Giá tốt hôm nay"
-          title="Giảm sâu đến hết ngày"
-          action={<DealCountdown />}
+          kicker="Siêu rẻ"
+          title="Dưới 40% giá bìa"
+          action={<MoreLink to="/sach?uu-dai=1">Xem tất cả</MoreLink>}
         />
         <div className="grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-6">
           {deals.slice(0, 6).map((b) => (
@@ -83,7 +83,7 @@ function Hero() {
     <section className="border-b border-rule">
       <div className="container-page grid items-center gap-12 py-14 md:grid-cols-[1.1fr_1fr] md:py-20 lg:gap-20">
         <div>
-          <p className="eyebrow">Sách mới · Sách cũ đã kiểm định</p>
+          <p className="eyebrow">Sách cũ giá sinh viên · Đã kiểm định</p>
           <h1 className="mt-5 text-[2.6rem] font-medium leading-[1.04] tracking-[-0.02em] xs:text-5xl lg:text-[4.25rem]">
             Mỗi cuốn sách
             <br />
@@ -92,21 +92,21 @@ function Hero() {
             người đọc.
           </h1>
           <p className="mt-6 max-w-md text-[1.05rem] leading-relaxed text-ink-soft">
-            Chọn bản mới nguyên seal hoặc bản đã đọc với giá chỉ từ 60%. Giao trong 2 giờ ở Hà Nội và TP. Hồ Chí Minh.
+            Giáo trình và sách đã đọc, giá chỉ từ 40% giá bìa. Sinh viên được duyệt hồ sơ có thể tự đăng bán sách mình không dùng nữa.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/sach" className="btn-primary">
               Vào tủ sách
               <Icon name="arrowRight" size={16} />
             </Link>
-            <a href="#thu-mua" className="btn-ghost">
-              Bán lại sách cũ
-            </a>
+            <Link to="/tai-khoan?tab=seller" className="btn-ghost">
+              Đăng ký bán sách
+            </Link>
           </div>
           <dl className="mt-12 grid max-w-md grid-cols-3 gap-4 border-t border-rule pt-5">
             {[
               [formatNumber(books.length), 'đầu sách'],
-              [formatNumber(totalBooks), 'cuốn sẵn kho'],
+              [formatNumber(totalBooks), 'cuốn đang bán'],
               ['4,7', 'điểm đánh giá'],
             ].map(([v, l]) => (
               <div key={l}>
@@ -137,7 +137,7 @@ function Hero() {
 
 const PROMISES = [
   { icon: 'shield', title: 'Kiểm định 7 bước', body: 'Đối chiếu ISBN, giấy, bản in và tem nhà phát hành. Phát hiện sách giả, hoàn 200%.' },
-  { icon: 'truck', title: 'Hỏa tốc 2 giờ', body: 'AhaMove giao tận tay tại Hà Nội và TP. HCM. Toàn quốc 2–3 ngày với GHN.' },
+  { icon: 'tag', title: 'Sinh viên bán cho sinh viên', body: 'Đăng ký người bán bằng CCCD, được duyệt là đăng tin. BookWise kiểm sách và giao giúp bạn.' },
   { icon: 'refresh', title: 'Thu mua sách cũ', body: 'Báo giá tức thì, lấy tận nhà, chuyển khoản trong 24 giờ sau kiểm định.' },
 ] as const
 
@@ -156,23 +156,6 @@ function Promises() {
         ))}
       </ul>
     </section>
-  )
-}
-
-function DealCountdown() {
-  const { hours, minutes, seconds } = useCountdownToMidnight()
-  return (
-    <div className="flex items-center gap-4">
-      <p className="text-xs text-ink-mute">Kết thúc sau</p>
-      <p className="flex items-center gap-1 font-mono text-lg num" aria-label={`${hours} giờ ${minutes} phút ${seconds} giây`}>
-        {[hours, minutes, seconds].map((v, i) => (
-          <span key={i} className="flex items-center gap-1">
-            {i > 0 && <span className="text-ink-mute">:</span>}
-            <span className="bg-ink px-1.5 py-0.5 text-paper">{v}</span>
-          </span>
-        ))}
-      </p>
-    </div>
   )
 }
 
@@ -302,11 +285,11 @@ function BuybackEstimator() {
               <BookCover src={picked.cover} title={picked.title} />
               <div>
                 <p className="font-display text-lg leading-snug">{picked.title}</p>
-                <p className="text-xs text-ink-mute">Giá bán bản mới {formatMoney(picked.price)}</p>
+                <p className="text-xs text-ink-mute">Giá bìa {formatMoney(picked.listPrice)}</p>
                 <dl className="mt-4 divide-y divide-rule-soft border-y border-rule-soft text-sm">
                   {(['likenew', 'used'] as const).map((c) => (
                     <div key={c} className="flex items-center justify-between py-2.5">
-                      <dt className="text-ink-soft">{c === 'likenew' ? 'Như mới 98%' : 'Đã qua sử dụng'}</dt>
+                      <dt className="text-ink-soft">{CONDITIONS[c].label}</dt>
                       <dd className="font-semibold text-forest num">{formatMoney(buybackQuote(picked, c))}</dd>
                     </div>
                   ))}
@@ -319,7 +302,7 @@ function BuybackEstimator() {
             </div>
           ) : (
             <div className="mt-6 border border-dashed border-rule px-4 py-8 text-center text-sm text-ink-mute">
-              <p>Giá thu mua: 45% giá bán với sách như mới, 30% với sách đã qua sử dụng.</p>
+              <p>Giá thu mua: 30% giá bìa với sách như mới, 20% với sách đã qua sử dụng.</p>
               <button type="button" onClick={() => setShowModal(true)} className="btn-ghost btn-sm mt-4">
                 Bán sách không có trong danh mục
               </button>

@@ -1,7 +1,7 @@
 import type { CartItem } from '../models/types'
 import { persistentStore } from './store'
 
-export const cartStore = persistentStore<CartItem[]>('cart', () => [])
+export const cartStore = persistentStore<CartItem[]>('cart-v2', () => [])
 export const couponStore = persistentStore<string[]>('coupons', () => [])
 
 export const cartRepository = {

@@ -82,9 +82,8 @@ export function sampleSales(books: Book[]): SalesReport {
       .map((b) => ({ id: b.id, title: b.title, author: b.author, cover: b.cover, qty: b.sold, revenue: b.sold * unitPrice(b) })),
     byPayment: PAYMENTS.map((p) => ({ id: p.id, name: p.name, count: Math.round(orderCount * share[p.id]) })),
     byCondition: [
-      { id: 'seal', label: CONDITIONS.seal.label, qty: Math.round(booksSold * 0.58) },
-      { id: 'likenew', label: CONDITIONS.likenew.label, qty: Math.round(booksSold * 0.29) },
-      { id: 'used', label: CONDITIONS.used.label, qty: Math.round(booksSold * 0.13) },
+      { id: 'likenew', label: CONDITIONS.likenew.label, qty: Math.round(booksSold * 0.42) },
+      { id: 'used', label: CONDITIONS.used.label, qty: booksSold - Math.round(booksSold * 0.42) },
     ],
     express: Math.round(orderCount * 0.34),
   }

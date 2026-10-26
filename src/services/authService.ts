@@ -1,6 +1,8 @@
 import { fail, ok } from '../models/result'
 import type { Result, User } from '../models/types'
 import { isEmail, isVietnamesePhone } from '../models/validation'
+import { API_ENABLED, api, errorMessage, isNetworkError, tokenStore, type ApiUser } from './apiClient'
+import { markOffline } from './syncService'
 import { hashPassword, userRepository } from './userRepository'
 
 export interface RegisterInput {
@@ -58,4 +60,60 @@ export function resetPassword(email: string, otp: string, newPass: string): Resu
   return ok(undefined)
 }
 
-export const logout = () => userRepository.setSession(null)
+export const logout = () => {
+  tokenStore.set(null)
+  userRepository.setSession(null)
+}
+
+/** Lưu bản sao tài khoản máy chủ vào máy để các trang dùng chung một nguồn hồ sơ */
+function mirror(remote: ApiUser, password: string): User {
+  const existing = userRepository.find(remote.email)
+  const user: User = {
+    email: remote.email,
+    name: remote.name,
+    phone: remote.phone ?? '',
+    passwordHash: hashPassword(password),
+    role: remote.role === 'admin' ? 'admin' : 'customer',
+    address: { ...existing?.address, ...remote.address, name: remote.name, phone: remote.phone, email: remote.email },
+    createdAt: remote.createdAt ?? new Date().toISOString(),
+  }
+  // Tài khoản quản trị mặc định đã có sẵn trong mã, không ghi đè
+  if (existing && existing.role !== 'admin') userRepository.update(user.email, user)
+  else if (!existing) userRepository.insert(user)
+  return userRepository.find(user.email) ?? user
+}
+
+/**
+ * Đăng nhập qua máy chủ để nhận JWT. Máy chủ không phản hồi thì dùng tài khoản đã lưu trên máy;
+ * máy chủ từ chối thì vẫn thử tài khoản cục bộ (tạo khi chạy offline trước đó).
+ */
+export async function loginOnline(email: string, password: string): Promise<Result<User>> {
+  if (!API_ENABLED) return login(email, password)
+  try {
+    const { token, user } = await api.auth.login(email.trim().toLowerCase(), password)
+    tokenStore.set(token)
+    const local = mirror(user, password)
+    userRepository.setSession(local.email)
+    return ok(local)
+  } catch (e) {
+    if (isNetworkError(e)) markOffline()
+    tokenStore.set(null)
+    const local = login(email, password)
+    return local.ok || isNetworkError(e) ? local : fail(errorMessage(e))
+  }
+}
+
+export async function registerOnline(input: RegisterInput): Promise<Result<User>> {
+  if (!API_ENABLED) return register(input)
+  try {
+    const { token, user } = await api.auth.register({ ...input, email: input.email.trim().toLowerCase() })
+    tokenStore.set(token)
+    const local = mirror(user, input.password)
+    userRepository.setSession(local.email)
+    return ok(local)
+  } catch (e) {
+    if (!isNetworkError(e)) return fail(errorMessage(e))
+    markOffline()
+    return register(input)
+  }
+}

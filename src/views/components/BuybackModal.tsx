@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../controllers/useAuth'
 import { useBuybacks } from '../../controllers/useBuyback'
+import { BUYBACK_RATE, CONDITIONS } from '../../data/catalog'
 import { formatMoney } from '../../models/format'
 import { buybackQuote } from '../../models/pricing'
 import type { Book, BuybackRequest, ConditionId } from '../../models/types'
@@ -10,7 +11,7 @@ import { Modal, SelectField, TextField } from './ui'
 
 interface Props {
   book?: Book
-  initialCondition?: Exclude<ConditionId, 'seal'>
+  initialCondition?: ConditionId
   onClose: () => void
 }
 
@@ -18,7 +19,7 @@ export function BuybackModal({ book, initialCondition = 'likenew', onClose }: Pr
   const { user } = useAuth()
   const { create } = useBuybacks()
 
-  const [condition, setCondition] = useState<Exclude<ConditionId, 'seal'>>(initialCondition)
+  const [condition, setCondition] = useState<ConditionId>(initialCondition)
   const [bookTitle, setBookTitle] = useState(book?.title ?? '')
   const [author, setAuthor] = useState(book?.author ?? '')
   const [name, setName] = useState(user?.name ?? '')
@@ -97,7 +98,7 @@ export function BuybackModal({ book, initialCondition = 'likenew', onClose }: Pr
             </p>
           </div>
           <div className="border border-rule p-4 text-sm space-y-1.5 bg-paper">
-            <p><strong>Cuốn sách:</strong> {created.bookTitle} ({created.condition === 'likenew' ? 'Như mới 98%' : 'Đã sử dụng 90%'})</p>
+            <p><strong>Cuốn sách:</strong> {created.bookTitle} ({CONDITIONS[created.condition].label})</p>
             <p><strong>Giá ước tính:</strong> <span className="text-forest font-semibold num">{formatMoney(created.estimatedPrice)}</span></p>
             <p><strong>Tài khoản nhận tiền:</strong> {created.bankName} - {created.bankAccount} ({created.accountHolder})</p>
             <p><strong>Địa chỉ lấy sách:</strong> {created.address}</p>
@@ -145,9 +146,9 @@ export function BuybackModal({ book, initialCondition = 'likenew', onClose }: Pr
                       condition === c ? 'border-ink bg-card font-semibold' : 'border-rule hover:border-ink-mute'
                     }`}
                   >
-                    <span>{c === 'likenew' ? 'Như mới · 98%' : 'Đã qua sử dụng · 90%'}</span>
+                    <span>{CONDITIONS[c].label}</span>
                     <span className="block mt-0.5 text-forest num">
-                      {book ? formatMoney(buybackQuote(book, c)) : (c === 'likenew' ? '45% giá bìa' : '30% giá bìa')}
+                      {book ? formatMoney(buybackQuote(book, c)) : `${BUYBACK_RATE[c] * 100}% giá bìa`}
                     </span>
                   </button>
                 ))}

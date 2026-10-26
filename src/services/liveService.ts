@@ -3,7 +3,7 @@
 // 2) presence: các tab BookWise THẬT đang mở trên trình duyệt này, trao đổi qua BroadcastChannel.
 
 import { TICK_MS, nextSnapshot, warmSnapshot, type LiveSnapshot } from '../models/live'
-import { booksStore } from './bookRepository'
+import { catalogStore } from './listingRepository'
 
 type Listener = () => void
 
@@ -13,12 +13,12 @@ function createLiveTraffic() {
   let timer: number | undefined
 
   const tick = () => {
-    snapshot = nextSnapshot(snapshot, booksStore.get(), Date.now())
+    snapshot = nextSnapshot(snapshot, catalogStore.get(), Date.now())
     listeners.forEach((l) => l())
   }
 
   return {
-    get: (): LiveSnapshot => (snapshot ??= warmSnapshot(booksStore.get(), Date.now())),
+    get: (): LiveSnapshot => (snapshot ??= warmSnapshot(catalogStore.get(), Date.now())),
     subscribe(listener: Listener) {
       listeners.add(listener)
       if (listeners.size === 1) timer = window.setInterval(tick, TICK_MS)

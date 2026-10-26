@@ -1,13 +1,13 @@
 import { useMemo } from 'react'
 import type { Book } from '../models/types'
-import { booksStore } from '../services/bookRepository'
+import { catalogStore } from '../services/listingRepository'
 import { notify } from '../services/toastService'
 import { wishlistRepository, wishlistStore } from '../services/wishlistRepository'
 import { useStore } from './useStore'
 
 export function useWishlist() {
   const ids = useStore(wishlistStore)
-  const books = useStore(booksStore)
+  const books = useStore(catalogStore)
 
   const wishlistBooks = useMemo(
     () => ids.map((id) => books.find((b) => b.id === id)).filter((b): b is Book => !!b),

@@ -1,8 +1,7 @@
-import { ADMIN_ACCOUNT } from '../data/catalog'
+import { ADMIN_ACCOUNT, DEMO_SELLER } from '../data/catalog'
 import type { User } from '../models/types'
 import { persistentStore } from './store'
 
-export const usersStore = persistentStore<User[]>('users', () => [])
 export const sessionStore = persistentStore<string | null>('session', () => null)
 
 /** Băm đơn giản chỉ để không lưu mật khẩu dạng chữ thường trong bản demo — không dùng cho hệ thống thật. */
@@ -21,6 +20,20 @@ const ADMIN: User = {
   address: {},
   createdAt: '2024-01-01T00:00:00.000Z',
 }
+
+/** Tài khoản sinh viên mẫu đã được duyệt bán sách */
+const SELLER: User = {
+  email: DEMO_SELLER.email,
+  name: DEMO_SELLER.name,
+  phone: DEMO_SELLER.phone,
+  passwordHash: hashPassword(DEMO_SELLER.password),
+  role: 'customer',
+  address: { name: DEMO_SELLER.name, phone: DEMO_SELLER.phone, email: DEMO_SELLER.email },
+  createdAt: '2024-12-20T08:00:00.000Z',
+}
+
+export const usersStore = persistentStore<User[]>('users', () => [SELLER])
+if (!usersStore.get().some((u) => u.email === SELLER.email)) usersStore.set((list) => [...list, SELLER])
 
 export const userRepository = {
   find: (email: string) => (email === ADMIN.email ? ADMIN : usersStore.get().find((u) => u.email === email)),

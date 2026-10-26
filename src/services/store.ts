@@ -91,5 +91,34 @@ export function memoryStore<T>(initial: T): Store<T> {
   }
 }
 
+export type ReadableStore<T> = Pick<Store<T>, 'get' | 'subscribe'>
+
+/** Kho chỉ đọc, tính từ hai kho khác; chỉ tính lại khi một trong hai thay đổi */
+export function derivedStore<A, B, T>(a: ReadableStore<A>, b: ReadableStore<B>, compute: (a: A, b: B) => T): ReadableStore<T> {
+  let lastA: A | undefined
+  let lastB: B | undefined
+  let value: T | undefined
+  return {
+    get() {
+      const va = a.get()
+      const vb = b.get()
+      if (value === undefined || va !== lastA || vb !== lastB) {
+        lastA = va
+        lastB = vb
+        value = compute(va, vb)
+      }
+      return value
+    },
+    subscribe(listener) {
+      const offA = a.subscribe(listener)
+      const offB = b.subscribe(listener)
+      return () => {
+        offA()
+        offB()
+      }
+    },
+  }
+}
+
 /** Xoá toàn bộ dữ liệu demo và nạp lại dữ liệu gốc */
 export const resetAllStores = () => registry.forEach((s) => s.reset())

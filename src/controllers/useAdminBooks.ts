@@ -1,7 +1,9 @@
 import { normalize } from '../models/format'
 import { fail, ok } from '../models/result'
-import type { Book, CategoryId, Result } from '../models/types'
+import { storePrice } from '../models/pricing'
+import type { Book, CategoryId, ConditionId, Result } from '../models/types'
 import { bookRepository } from '../services/bookRepository'
+import { listingRepository } from '../services/listingRepository'
 import { notify } from '../services/toastService'
 
 /** Dữ liệu form thêm/sửa sách (giá trị chuỗi từ input) */
@@ -12,10 +14,7 @@ export interface BookForm {
   author: string
   publisher: string
   category: CategoryId
-  price: string
   listPrice: string
-  dealPrice: string
-  stock: string
   pages: string
   firstPublished: string
   cover: string
@@ -23,13 +22,12 @@ export interface BookForm {
 }
 
 export const emptyBookForm = (): BookForm => ({
-  title: '', originalTitle: '', author: '', publisher: '', category: 'kinh-te', price: '', listPrice: '', dealPrice: '',
-  stock: '10', pages: '', firstPublished: '', cover: '', description: '',
+  title: '', originalTitle: '', author: '', publisher: '', category: 'kinh-te', listPrice: '', pages: '', firstPublished: '', cover: '', description: '',
 })
 
 export const toForm = (b: Book): BookForm => ({
   id: b.id, title: b.title, originalTitle: b.originalTitle, author: b.author, publisher: b.publisher ?? '', category: b.category,
-  price: String(b.price), listPrice: String(b.listPrice), dealPrice: b.dealPrice ? String(b.dealPrice) : '', stock: String(b.stock),
+  listPrice: String(b.listPrice),
   pages: String(b.pages), firstPublished: String(b.firstPublished), cover: b.cover, description: b.description,
 })
 
@@ -43,12 +41,8 @@ export function validateBookForm(f: BookForm): BookFormErrors {
   if (f.title.trim().length < 2) e.title = 'Nhập tên sách'
   if (f.author.trim().length < 2) e.author = 'Nhập tác giả'
   if (!(n(f.listPrice) > 0)) e.listPrice = 'Giá bìa phải lớn hơn 0'
-  if (!(n(f.price) > 0)) e.price = 'Giá bán phải lớn hơn 0'
-  else if (n(f.price) > n(f.listPrice)) e.price = 'Giá bán không được cao hơn giá bìa'
-  if (f.dealPrice && !(n(f.dealPrice) > 0 && n(f.dealPrice) < n(f.price))) e.dealPrice = 'Giá ưu đãi phải thấp hơn giá bán'
-  if (!Number.isInteger(n(f.stock)) || n(f.stock) < 0) e.stock = 'Số nguyên ≥ 0'
   if (f.firstPublished && !(n(f.firstPublished) > 1400 && n(f.firstPublished) <= new Date().getFullYear())) e.firstPublished = 'Năm không hợp lệ'
-  if (f.cover && !/^(https?:\/\/|\/)/.test(f.cover)) e.cover = 'Đường dẫn ảnh bắt đầu bằng http(s):// hoặc /'
+  if (f.cover && !/^(https?:\/\/|\/|data:image\/)/.test(f.cover)) e.cover = 'Đường dẫn ảnh bắt đầu bằng http(s):// hoặc /'
   return e
 }
 
@@ -63,17 +57,14 @@ export function useAdminBooks() {
         while (bookRepository.find(id)) id = `${base}-${i++}`
       }
       const book: Book = {
-        ...(existing ?? { sold: 0, rating: 0, ratingCount: 0, originalLanguage: '' }),
+        ...(existing ?? { sold: 0, rating: 0, ratingCount: 0, originalLanguage: '', price: 0, stock: 0 }),
         id,
         title: form.title.trim(),
         originalTitle: form.originalTitle.trim(),
         author: form.author.trim(),
         publisher: form.publisher.trim() || undefined,
         category: form.category,
-        price: Number(form.price),
         listPrice: Number(form.listPrice),
-        dealPrice: form.dealPrice ? Number(form.dealPrice) : undefined,
-        stock: Number(form.stock),
         pages: Number(form.pages) || 0,
         firstPublished: Number(form.firstPublished) || new Date().getFullYear(),
         cover: form.cover.trim(),
@@ -81,13 +72,18 @@ export function useAdminBooks() {
       }
       if (!book.title) return fail('Thiếu tên sách')
       bookRepository.save(book)
-      notify(existing ? `Đã cập nhật “${book.title}”` : `Đã thêm “${book.title}” vào kho`)
+      notify(existing ? `Đã cập nhật “${book.title}”` : `Đã thêm “${book.title}” vào danh mục, hãy nhập số cuốn trong kho`)
       return ok(book)
     },
     remove(book: Book) {
       bookRepository.remove(book.id)
       notify(`Đã xoá “${book.title}”`)
     },
-    adjustStock: bookRepository.adjustStock,
+    /** Tăng/giảm số cuốn BookWise tự bán theo tình trạng */
+    adjustStock(book: Book, condition: ConditionId, delta: number) {
+      const listing = listingRepository.find(`bw-${book.id}-${condition}`)
+      if (delta > 0) listingRepository.addStock(book.id, condition, storePrice(book, condition), delta)
+      else if (listing) listingRepository.update(listing.id, { qty: Math.max(0, listing.qty + delta) })
+    },
   }
 }

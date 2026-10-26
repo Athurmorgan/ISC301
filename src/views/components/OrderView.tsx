@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CONDITIONS, ORDER_FLOW, STATUS_HINT, STATUS_LABEL } from '../../data/catalog'
+import { ORDER_FLOW, STATUS_HINT, STATUS_LABEL, conditionLabel } from '../../data/catalog'
 import { formatDateTime, formatMoney } from '../../models/format'
 import { customerCanCancel, itemCount } from '../../models/order'
 import type { Order } from '../../models/types'
@@ -66,7 +66,7 @@ const maskStreet = (street: string) => {
 }
 
 /** Chi tiết đơn: sách, địa chỉ, thanh toán và các thao tác của khách */
-export function OrderDetail({ order }: { order: Order }) {
+export function OrderDetail({ order, verifyPhone }: { order: Order; verifyPhone?: (hint: string) => Promise<boolean> }) {
   const { cancelByCustomer, reorder } = useOrderActions()
   const { user } = useAuth()
   const [armed, setArmed] = useState(false)
@@ -76,11 +76,13 @@ export function OrderDetail({ order }: { order: Order }) {
 
   const isOwner = user?.role === 'admin' || (user?.email && user.email === order.userEmail) || unlocked
 
-  function handleVerifyPhone(e: React.FormEvent) {
+  async function handleVerifyPhone(e: React.FormEvent) {
     e.preventDefault()
     const cleanInput = verifyPhoneInput.replace(/\D/g, '')
     const cleanPhone = order.customer.phone.replace(/\D/g, '')
-    if (cleanPhone.endsWith(cleanInput) && cleanInput.length >= 4) {
+    // Đơn lấy từ máy chủ đã bị che số, phải nhờ máy chủ kiểm tra
+    const matched = cleanInput.length >= 4 && (verifyPhone ? await verifyPhone(cleanInput) : cleanPhone.endsWith(cleanInput))
+    if (matched) {
       setUnlocked(true)
       setVerifyError('')
     } else {
@@ -108,7 +110,7 @@ export function OrderDetail({ order }: { order: Order }) {
           <p className="eyebrow mb-3">{itemCount(order)} cuốn sách</p>
           <ul className="divide-y divide-rule-soft">
             {order.items.map((i) => (
-              <li key={`${i.bookId}-${i.condition}`} className="flex items-center gap-3 py-3">
+              <li key={i.listingId ?? `${i.bookId}-${i.condition}`} className="flex items-center gap-3 py-3">
                 <Link to={`/sach/${i.bookId}`} className="shrink-0">
                   <img src={i.cover} alt="" className="h-16 w-[2.66rem] bg-paper-deep object-cover" />
                 </Link>
@@ -117,7 +119,7 @@ export function OrderDetail({ order }: { order: Order }) {
                     {i.title}
                   </Link>
                   <p className="text-xs text-ink-mute">
-                    {CONDITIONS[i.condition].label} · {i.qty} × {formatMoney(i.unitPrice)}
+                    {conditionLabel(i.condition)}{i.sellerName ? ` · ${i.sellerName}` : ''} · {i.qty} × {formatMoney(i.unitPrice)}
                   </p>
                 </div>
                 <p className="text-sm font-semibold num">{formatMoney(i.qty * i.unitPrice)}</p>

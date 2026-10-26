@@ -2,8 +2,13 @@ import { generateCode } from '../models/order'
 import { fail, ok } from '../models/result'
 import type { BuybackRequest, BuybackStatus, ConditionId, Result } from '../models/types'
 import { isEmail, isVietnamesePhone } from '../models/validation'
+import { CONDITIONS } from '../data/catalog'
+import { storePrice } from '../models/pricing'
 import { bookRepository } from '../services/bookRepository'
+import { listingRepository } from '../services/listingRepository'
 import { buybackRepository, buybacksStore } from '../services/buybackRepository'
+import { api } from '../services/apiClient'
+import { pushInBackground } from '../services/syncService'
 import { notify } from '../services/toastService'
 import { useStore } from './useStore'
 
@@ -11,7 +16,7 @@ export interface CreateBuybackInput {
   bookId?: string
   bookTitle: string
   author: string
-  condition: Exclude<ConditionId, 'seal'>
+  condition: ConditionId
   estimatedPrice: number
   customerName: string
   phone: string
@@ -66,6 +71,9 @@ export function useBuybacks() {
     }
 
     buybackRepository.insert(request)
+    // Ảnh chụp có thể rất nặng nên không gửi kèm; máy chủ tự định giá lại theo bảng giá
+    const { photo: _photo, history: _history, status: _status, ...payload } = request
+    pushInBackground('yêu cầu thu mua', () => api.buybacks.create(payload))
     notify(`Đã gửi yêu cầu bán lại sách (${request.code})`, {
       action: { label: 'Theo dõi', to: `/tai-khoan?tab=buyback` },
     })
@@ -81,8 +89,8 @@ export function useBuybacks() {
     if (item.bookId) {
       const book = bookRepository.find(item.bookId)
       if (book) {
-        bookRepository.adjustStock(book.id, 1)
-        notify(`Đã nhập +1 cuốn “${book.title}” vào tồn kho hệ thống`)
+        listingRepository.addStock(book.id, item.condition, storePrice(book, item.condition))
+        notify(`Đã nhập +1 cuốn “${book.title}” (${CONDITIONS[item.condition].label.toLowerCase()}) vào kho BookWise`)
         return
       }
     }

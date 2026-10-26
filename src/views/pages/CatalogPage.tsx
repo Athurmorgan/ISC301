@@ -15,7 +15,7 @@ export function CatalogPage() {
     document.title = `${category?.name ?? 'Tủ sách'} — BookWise`
   }, [category])
 
-  const heading = query.q ? `Kết quả cho “${query.q}”` : query.deals ? 'Giá tốt hôm nay' : (category?.name ?? 'Toàn bộ tủ sách')
+  const heading = query.q ? `Kết quả cho “${query.q}”` : query.deals ? 'Siêu rẻ — dưới 40% giá bìa' : (category?.name ?? 'Toàn bộ tủ sách')
 
   return (
     <div className="container-page pt-10 sm:pt-14">
@@ -136,7 +136,7 @@ function Filters({ query, update }: { query: CatalogQuery; update: Update }) {
 
       <FilterGroup title="Khác">
         <Check checked={query.inStock} onChange={(v) => update({ inStock: v })} label="Chỉ sách còn hàng" />
-        <Check checked={query.deals} onChange={(v) => update({ deals: v })} label="Đang có giá tốt" />
+        <Check checked={query.deals} onChange={(v) => update({ deals: v })} label="Siêu rẻ (≤ 40% giá bìa)" />
       </FilterGroup>
     </div>
   )
@@ -179,7 +179,7 @@ function ActiveChips({ query, update, reset }: { query: CatalogQuery; update: Up
   if (query.category !== 'all') chips.push({ label: CATEGORIES.find((c) => c.id === query.category)!.name, clear: { category: 'all' } })
   if (query.price !== 'all') chips.push({ label: PRICE_BANDS[query.price].label, clear: { price: 'all' } })
   if (query.inStock) chips.push({ label: 'Còn hàng', clear: { inStock: false } })
-  if (query.deals) chips.push({ label: 'Giá tốt', clear: { deals: false } })
+  if (query.deals) chips.push({ label: 'Siêu rẻ', clear: { deals: false } })
 
   return (
     <div className="hidden flex-wrap items-center gap-2 sm:flex">

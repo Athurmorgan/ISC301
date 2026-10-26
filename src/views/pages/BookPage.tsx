@@ -2,15 +2,15 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { CONDITION_ORDER, CONDITIONS, categoryName } from '../../data/catalog'
 import { useAuth } from '../../controllers/useAuth'
-import { useBook, useBooks } from '../../controllers/useBooks'
+import { useBook, useBooks, useOffers } from '../../controllers/useBooks'
 import { useCart } from '../../controllers/useCart'
 import { useReviews } from '../../controllers/useFeedback'
 import { useWishlist } from '../../controllers/useWishlist'
 import { quantityInCart } from '../../models/cart'
 import { related } from '../../models/catalogQuery'
 import { formatDate, formatMoney, formatNumber } from '../../models/format'
-import { unitPrice } from '../../models/pricing'
-import type { Book, ConditionId } from '../../models/types'
+import { savingPercent, unitPrice } from '../../models/pricing'
+import { BOOKWISE_SELLER, type Book, type ConditionId } from '../../models/types'
 import { BookCard } from '../components/BookCard'
 import { BookCover } from '../components/BookCover'
 import { Icon } from '../components/Icon'
@@ -34,19 +34,25 @@ export function BookPage() {
 
 function BookDetail({ book }: { book: Book }) {
   const books = useBooks()
-  const { items, add } = useCart()
+  const { items, addListing } = useCart()
+  const { user } = useAuth()
   const { isFavorite, toggle: toggleFav } = useWishlist()
+  const offers = useOffers(book.id)
   const navigate = useNavigate()
-  const [condition, setCondition] = useState<ConditionId>('seal')
+  const [filter, setFilter] = useState<ConditionId | 'all'>('all')
+  const [selectedId, setSelectedId] = useState<string>()
   const [qty, setQty] = useState(1)
 
+  const me = user?.email
+  const shown = filter === 'all' ? offers : offers.filter((o) => o.condition === filter)
+  // Mặc định chọn tin rẻ nhất không phải của chính mình
+  const selected = shown.find((o) => o.id === selectedId) ?? shown.find((o) => o.sellerId !== me) ?? shown[0]
   const fav = isFavorite(book.id)
-  const available = Math.max(0, book.stock - quantityInCart(items, book.id))
-  const price = unitPrice(book, condition)
+  const available = selected && selected.sellerId !== me ? Math.max(0, selected.qty - quantityInCart(items, selected.id)) : 0
   const relatedBooks = useMemo(() => related(books, book, 4), [books, book])
 
   function addToCart(goToCheckout: boolean) {
-    if (add(book, condition, qty, goToCheckout)) {
+    if (selected && addListing(selected, qty, goToCheckout)) {
       setQty(1)
       if (goToCheckout) navigate('/thanh-toan')
     }
@@ -75,8 +81,8 @@ function BookDetail({ book }: { book: Book }) {
               Kiểm định 7 bước
             </li>
             <li className="border-x border-rule py-3">
-              <Icon name="truck" size={18} className="mx-auto mb-1 text-forest" />
-              Hỏa tốc 2 giờ
+              <Icon name="tag" size={18} className="mx-auto mb-1 text-forest" />
+              Giá sinh viên
             </li>
             <li className="py-3">
               <Icon name="refresh" size={18} className="mx-auto mb-1 text-forest" />
@@ -100,33 +106,75 @@ function BookDetail({ book }: { book: Book }) {
           </div>
 
           <div className="mt-8 border-y border-rule py-6">
-            <Price price={price} listPrice={book.listPrice} size="lg" highlight={condition === 'seal' && !!book.dealPrice} />
-            {condition === 'seal' && book.dealPrice && (
-              <p className="mt-2 text-xs text-terra">Giá tốt chỉ áp dụng trong hôm nay cho bản mới nguyên seal.</p>
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="text-xs text-ink-mute">{offers.length ? 'Giá rẻ nhất hiện có' : 'Giá tham khảo'}</p>
+                <div className="mt-1">
+                  <Price price={book.price} listPrice={book.listPrice} size="lg" highlight={offers.length > 0} />
+                </div>
+              </div>
+              <p className="text-xs text-ink-mute">
+                {offers.length ? `${offers.length} tin đăng · ${book.stock} cuốn` : 'Chưa có ai đăng bán'}
+              </p>
+            </div>
+
+            {offers.length > 0 && (
+              <fieldset className="mt-6">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <legend className="label mb-0">Chọn người bán</legend>
+                  <div className="flex gap-1.5" role="group" aria-label="Lọc theo tình trạng">
+                    {(['all', ...CONDITION_ORDER] as const).map((c) => {
+                      const count = c === 'all' ? offers.length : offers.filter((o) => o.condition === c).length
+                      return (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setFilter(c)}
+                          disabled={!count}
+                          className={`h-7 border px-2.5 text-2xs disabled:opacity-40 ${filter === c ? 'border-ink bg-ink text-paper' : 'border-rule text-ink-soft hover:border-ink'}`}
+                        >
+                          {c === 'all' ? 'Tất cả' : CONDITIONS[c].label.split(' · ')[0]} ({count})
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+                <ul className="mt-3 space-y-2">
+                  {shown.map((o) => {
+                    const active = o.id === selected?.id
+                    return (
+                      <li key={o.id}>
+                        <label
+                          className={`flex cursor-pointer items-start gap-3 border px-3.5 py-3 transition-colors ${active ? 'border-ink bg-card shadow-[inset_0_0_0_1px_var(--color-ink)]' : 'border-rule hover:border-ink-mute'}`}
+                        >
+                          <input type="radio" name="offer" value={o.id} checked={active} onChange={() => setSelectedId(o.id)} className="sr-only" />
+                          <div className="min-w-0 flex-1">
+                            <p className="flex flex-wrap items-center gap-2 text-sm font-semibold">
+                              {CONDITIONS[o.condition].label}
+                              <span className={`px-1.5 py-0.5 text-2xs font-medium ${o.sellerId === BOOKWISE_SELLER ? 'bg-forest-tint text-forest' : 'bg-paper-deep text-ink-soft'}`}>
+                                {o.sellerId === BOOKWISE_SELLER ? 'Kho BookWise' : `Người bán: ${o.sellerName}`}
+                              </span>
+                            </p>
+                            {o.note && <p className="mt-1 text-xs text-ink-soft">{o.note}</p>}
+                            <p className="mt-1 text-2xs text-ink-mute">Còn {o.qty} cuốn{o.sellerId === me ? ' · Tin của bạn' : ''}</p>
+                          </div>
+                          <span className="shrink-0 text-right">
+                            <span className="block font-semibold num">{formatMoney(o.price)}</span>
+                            <span className="text-2xs text-terra num">−{savingPercent(o.price, book.listPrice)}%</span>
+                          </span>
+                        </label>
+                      </li>
+                    )
+                  })}
+                </ul>
+                <p className="mt-2.5 text-xs text-ink-mute">
+                  Mọi cuốn đều gửi về BookWise kiểm định trước khi giao. Sai mô tả được đổi trả trong 7 ngày.
+                </p>
+              </fieldset>
             )}
 
-            <fieldset className="mt-6">
-              <legend className="label">Tình trạng sách</legend>
-              <div className="grid gap-2 sm:grid-cols-3">
-                {CONDITION_ORDER.map((c) => {
-                  const active = c === condition
-                  return (
-                    <label
-                      key={c}
-                      className={`cursor-pointer border px-3.5 py-3 transition-colors ${active ? 'border-ink bg-card shadow-[inset_0_0_0_1px_var(--color-ink)]' : 'border-rule hover:border-ink-mute'}`}
-                    >
-                      <input type="radio" name="condition" value={c} checked={active} onChange={() => setCondition(c)} className="sr-only" />
-                      <span className="block text-sm font-semibold">{CONDITIONS[c].label}</span>
-                      <span className="mt-0.5 block text-sm num">{formatMoney(unitPrice(book, c))}</span>
-                    </label>
-                  )
-                })}
-              </div>
-              <p className="mt-2.5 text-xs text-ink-mute">{CONDITIONS[condition].note}</p>
-            </fieldset>
-
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              {available > 0 ? (
+              {selected && available > 0 ? (
                 <>
                   <QtyStepper value={Math.min(qty, available)} max={available} onChange={setQty} />
                   <button type="button" onClick={() => addToCart(false)} className="btn-ink flex-1 sm:flex-none">
@@ -135,34 +183,27 @@ function BookDetail({ book }: { book: Book }) {
                   <button type="button" onClick={() => addToCart(true)} className="btn-primary flex-1 sm:flex-none">
                     Mua ngay
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => toggleFav(book)}
-                    className={`grid h-11 w-11 place-items-center border border-rule transition-colors hover:border-ink ${fav ? 'bg-card text-terra border-terra' : 'bg-card text-ink'}`}
-                    aria-label={fav ? 'Bỏ yêu thích' : 'Lưu vào yêu thích'}
-                    title={fav ? 'Bỏ yêu thích' : 'Lưu vào yêu thích'}
-                  >
-                    <Icon name="heart" size={18} filled={fav} />
-                  </button>
+                  <FavButton fav={fav} onClick={() => toggleFav(book)} />
                 </>
               ) : (
                 <div className="flex w-full items-center gap-3">
                   <p className="flex-1 border border-rule bg-card px-4 py-3 text-sm text-ink-soft">
-                    {book.stock === 0 ? 'Sách tạm hết hàng. Chúng tôi sẽ nhập thêm trong 1–2 tuần.' : 'Bạn đã cho toàn bộ số sách còn lại vào giỏ.'}
+                    {!offers.length
+                      ? 'Sách tạm hết. Lưu yêu thích để được báo khi có người đăng bán.'
+                      : selected?.sellerId === me
+                        ? 'Đây là tin bạn đang đăng bán.'
+                        : 'Bạn đã cho toàn bộ số sách của tin này vào giỏ.'}
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => toggleFav(book)}
-                    className={`grid h-11 w-11 shrink-0 place-items-center border border-rule transition-colors hover:border-ink ${fav ? 'bg-card text-terra border-terra' : 'bg-card text-ink'}`}
-                    aria-label={fav ? 'Bỏ yêu thích' : 'Lưu vào yêu thích'}
-                    title={fav ? 'Bỏ yêu thích' : 'Lưu vào yêu thích'}
-                  >
-                    <Icon name="heart" size={18} filled={fav} />
-                  </button>
+                  <FavButton fav={fav} onClick={() => toggleFav(book)} />
                 </div>
               )}
             </div>
-            {book.stock > 0 && book.stock <= 10 && <p className="mt-3 text-xs font-semibold text-terra">Chỉ còn {book.stock} cuốn trong kho</p>}
+            <p className="mt-4 text-xs text-ink-soft">
+              Có cuốn này và không dùng nữa?{' '}
+              <Link to={`/tai-khoan?tab=seller&sach=${book.id}`} className="font-medium text-ink underline underline-offset-4">
+                Đăng bán cho bạn khác
+              </Link>
+            </p>
           </div>
 
           <div className="mt-8">
@@ -206,12 +247,26 @@ function BookDetail({ book }: { book: Book }) {
   )
 }
 
+function FavButton({ fav, onClick }: { fav: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`grid h-11 w-11 shrink-0 place-items-center border border-rule transition-colors hover:border-ink ${fav ? 'bg-card text-terra border-terra' : 'bg-card text-ink'}`}
+      aria-label={fav ? 'Bỏ yêu thích' : 'Lưu vào yêu thích'}
+      title={fav ? 'Bỏ yêu thích' : 'Lưu vào yêu thích'}
+    >
+      <Icon name="heart" size={18} filled={fav} />
+    </button>
+  )
+}
+
 /** Gợi ý mua kèm cuốn cùng kệ bán chạy nhất (ưu tiên cùng tác giả) */
 function Bundle({ book, partner }: { book: Book; partner: Book }) {
   const { add } = useCart()
   const total = unitPrice(book) + unitPrice(partner)
 
-  const addBoth = () => add(book, 'seal', 1, true) && add(partner, 'seal', 1)
+  const addBoth = () => add(book, 1, true) && add(partner)
 
   return (
     <div className="mt-10 border border-rule bg-card p-5">
@@ -226,7 +281,7 @@ function Bundle({ book, partner }: { book: Book; partner: Book }) {
           <Link to={`/sach/${partner.id}`} className="block truncate text-sm font-medium hover:underline">
             {partner.title}
           </Link>
-          <p className="text-xs text-ink-mute">Tổng hai cuốn (bản mới)</p>
+          <p className="text-xs text-ink-mute">Tổng hai cuốn (giá rẻ nhất)</p>
           <p className="mt-1 font-semibold num">{formatMoney(total)}</p>
         </div>
       </div>

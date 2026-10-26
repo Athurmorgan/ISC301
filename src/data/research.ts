@@ -156,7 +156,7 @@ export const SLIDES = [
   {
     kicker: 'Giải pháp',
     title: 'Sàn sách kiểm định với ba tình trạng rõ ràng',
-    points: ['Mới nguyên seal · Như mới 98% · Đã qua sử dụng 90%', 'Giao hỏa tốc 2 giờ tại Hà Nội và TP. HCM', 'Thanh toán VietQR, ví, thẻ, COD'],
+    points: ['Chỉ bán sách cũ: Như mới 95% · Đã qua sử dụng 80%', 'Giao hỏa tốc 2 giờ tại Hà Nội và TP. HCM', 'Thanh toán VietQR, ví, thẻ, COD'],
   },
   {
     kicker: 'Vòng tuần hoàn',

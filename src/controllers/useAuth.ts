@@ -11,8 +11,8 @@ export function useAuth() {
   return {
     user,
     isAdmin: user?.role === 'admin',
-    login: auth.login,
-    register: auth.register,
+    login: auth.loginOnline,
+    register: auth.registerOnline,
     logout: auth.logout,
     changePassword(oldPass: string, newPass: string) {
       if (!user) return { ok: false, error: 'Chưa đăng nhập' } as const
