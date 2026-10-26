@@ -4,6 +4,9 @@
   "description": "Backend REST API cho BookWise với 3 luồng nghiệp vụ: CSKH + Dashboard + Giao hàng, Mua bán sách & Giao dịch, Theo dõi đơn hàng",
   "main": "src/server.js",
   "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",

@@ -1,43 +1,59 @@
 # BookWise Backend API Documentation
 
-Hệ thống Backend REST API hoàn chỉnh cho dự án **BookWise**, phục vụ 3 luồng nghiệp vụ trọng tâm, đi kèm bộ cơ sở dữ liệu mẫu thực tế và cơ chế xác thực linh hoạt bằng **API Key**.
+Hệ thống Backend REST API hoàn chỉnh cho dự án **BookWise**, phục vụ 3 luồng nghiệp vụ trọng tâm, đi kèm bộ cơ sở dữ liệu mẫu thực tế và xác thực bằng **JWT** hoặc **API key** cấu hình qua biến môi trường.
 
 ---
 
-## 1. Cơ Chế Xác Thực & API Key (Headless Mode)
+## 1. Xác thực và phân quyền
 
-Theo yêu cầu: *"nếu không có frontend thì cứ làm api key"*, hệ thống hỗ trợ gọi API trực tiếp không cần giao diện thông qua:
+Có hai cách gọi các API cần quyền:
 
-1. **Header `x-api-key`** (Khuyến nghị):
-   ```http
-   x-api-key: bw-admin-secret-key-2026
-   ```
-2. **Query Parameter `?api_key=`**:
-   ```
-   http://localhost:5000/api/orders?api_key=bw-admin-secret-key-2026
-   ```
-3. **JWT Bearer Token** (Nếu tích hợp qua đăng nhập người dùng):
+1. **JWT** (dùng cho web và khách hàng): gọi `POST /api/auth/login` để nhận token, sau đó gửi kèm
    ```http
    Authorization: Bearer <TOKEN>
    ```
+   Token có hạn 7 ngày, ký bằng `JWT_SECRET` trong `backend/.env`.
+2. **API key** (dùng cho hệ thống khác gọi trực tiếp, không cần giao diện): chỉ nhận qua header
+   ```http
+   x-api-key: <KEY>
+   ```
+   Key **không** còn viết cứng trong mã và không nhận qua query string (`?api_key=` dễ lộ trong log). Đặt key trong `backend/.env`:
+   `ADMIN_API_KEY` (quyền admin), `PARTNER_API_KEY` (đối tác giao hàng), `PUBLIC_API_KEY` (client). Biến nào để trống thì key đó bị tắt.
+   Có thể cấp thêm key riêng bằng cách thêm dòng vào bảng `api_keys`.
 
-### Bảng API Keys Mẫu Sẵn Có
+Tạo nhanh một chuỗi ngẫu nhiên cho `JWT_SECRET` hoặc key:
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
 
-| API Key | Quyền Hạn (`role`) | Tên / Mục Đích | Quyền Thực Thi |
-|---|---|---|---|
-| `bw-admin-secret-key-2026` | `admin` | BookWise Admin Master Key | Toàn quyền (Quản trị kho, đơn hàng, duyệt thu mua, CSKH) |
-| `bw-delivery-partner-key-2026` | `partner` | AhaMove / GHN Logistics Key | Cập nhật trạng thái giao hàng, điều phối shipper |
-| `bw-client-api-key-2026` | `client` | Public Client Key | Tra cứu đơn hàng, danh mục sách, gửi ticket hỗ trợ |
+### Quyền theo nhóm API
+
+| Nhóm | Ai được gọi |
+|---|---|
+| Danh mục sách, FAQ, tính giỏ hàng, đặt hàng, gửi ticket, đăng ký thu mua | Ai cũng gọi được |
+| `GET /api/orders/track/:code` | Ai cũng gọi được, nhưng tên/SĐT/địa chỉ bị che trừ khi là admin, chủ đơn, hoặc gửi kèm `?phone=` khớp 4 số cuối |
+| `POST /api/orders/:code/cancel` | Admin, chủ đơn, hoặc gửi `phone` khớp đầy đủ SĐT người nhận; chỉ huỷ được đơn `pending` |
+| `POST /api/orders/lookup` | Ai cũng gọi được, kết quả bị che với người không phải nhân viên |
+| `GET /api/orders/my-orders`, `GET /api/buybacks` | Cần đăng nhập (khách chỉ thấy dữ liệu của mình) |
+| Dashboard, `GET /api/orders`, đổi trạng thái đơn, danh sách/trả lời ticket, quản lý sách, duyệt thu mua | Chỉ admin |
+| Điều phối và cập nhật giao hàng | Admin hoặc đối tác (`partner`) |
+
+### Quy tắc nghiệp vụ máy chủ tự kiểm tra
+- Giá luôn tính lại trên máy chủ: bản seal = giá deal (nếu có) hoặc giá bán; như mới = 80%, đã dùng = 60%, làm tròn nghìn.
+- Tồn kho tính chung cho mọi tình trạng của một đầu sách; số lượng mỗi dòng từ 1 đến 99.
+- Mỗi nhóm mã giảm giá (giảm đơn / giảm phí giao) chỉ áp một mã; giảm không vượt quá tạm tính hoặc phí giao.
+- Thanh toán lấy phương thức đã chọn lúc đặt đơn; thẻ cần OTP thử `123456`; VietQR gửi `confirm: true` để xác nhận đã chuyển; đơn đã thanh toán gọi lại sẽ nhận 409.
+- Trạng thái đơn chỉ đi theo thứ tự `pending → confirmed → shipping → delivered`, huỷ được khi còn `pending` hoặc `confirmed` (hoàn lại kho).
 
 ---
 
 ## 2. Bộ Cơ Sở Dữ Liệu Mẫu (Sample Database)
 
-Bộ dữ liệu mẫu được lưu trữ đa định dạng trong thư mục [backend/data/](file:///d:/K%E1%BB%B3%207/1_ISC301/project/backend/data/):
+Bộ dữ liệu mẫu được lưu trữ đa định dạng trong thư mục [backend/data/](../data/):
 
-1. **File SQLite:** [bookwise.sqlite](file:///d:/K%E1%BB%B3%207/1_ISC301/project/backend/data/bookwise.sqlite) — Dữ liệu quan hệ chuẩn, chạy trực tiếp với `node:sqlite` (không cần cài database server).
-2. **File Dump JSON:** [sample_database.json](file:///d:/K%E1%BB%B3%207/1_ISC301/project/backend/data/sample_database.json) — Xuất toàn bộ 16 bảng dữ liệu sang JSON để dễ dàng kiểm tra trực quan hoặc import vào NoSQL/MongoDB/Firebase.
-3. **File Schema SQL:** [schema.sql](file:///d:/K%E1%BB%B3%207/1_ISC301/project/backend/data/schema.sql) — Cấu trúc DDL với ràng buộc khóa ngoại, chỉ mục hiệu năng.
+1. **File SQLite:** [bookwise.sqlite](../data/bookwise.sqlite) — Dữ liệu quan hệ chuẩn, chạy trực tiếp với `node:sqlite` (không cần cài database server).
+2. **File Dump JSON:** [sample_database.json](../data/sample_database.json) — Xuất toàn bộ 16 bảng dữ liệu sang JSON để dễ dàng kiểm tra trực quan hoặc import vào NoSQL/MongoDB/Firebase.
+3. **File Schema SQL:** [schema.sql](../data/schema.sql) — Cấu trúc DDL với ràng buộc khóa ngoại, chỉ mục hiệu năng.
 
 ### Dữ Liệu Sẵn Có Khi Khởi Tạo:
 - **49 Đầu sách thật**: Phân chia theo 4 danh mục (`kinh-te`, `ky-nang`, `van-hoc`, `khoa-hoc`), giá bìa, giá khuyến mãi deal, tồn kho, ảnh bìa gốc.
@@ -60,7 +76,7 @@ Bộ dữ liệu mẫu được lưu trữ đa định dạng trong thư mục [
 - `GET /api/support/tickets`: Lấy danh sách ticket (hỗ trợ query filter: `status=open|resolved`, `topic`, `search`, `orderCode`).
 - `GET /api/support/tickets/:code`: Chi tiết ticket kèm phản hồi của tư vấn viên.
 - `POST /api/support/tickets`: Khách tạo ticket khiếu nại hoặc hỏi đáp về đơn hàng.
-- `PATCH /api/support/tickets/:code/reply`: CSKH hoặc Admin trả lời ticket và đổi trạng thái (Yêu cầu `x-api-key: bw-admin-secret-key-2026`).
+- `PATCH /api/support/tickets/:code/reply`: CSKH hoặc Admin trả lời ticket và đổi trạng thái (chỉ admin).
 - `GET /api/support/faqs`: Danh sách câu hỏi thường gặp theo danh mục.
 - `GET /api/support/reviews`: Đánh giá sách từ khách hàng.
 - `POST /api/support/reviews`: Khách hàng đánh giá sách (tự động gắn cờ `verifiedPurchase` nếu đã mua thành công).
@@ -87,7 +103,7 @@ Bộ dữ liệu mẫu được lưu trữ đa định dạng trong thư mục [
 #### 2.1 Danh Mục & Quản Lý Kho Sách
 - `GET /api/books`: Danh sách sách với bộ lọc: `category`, `condition` (`seal`, `likenew`, `used`), `search`, `minPrice`, `maxPrice`, `sort` (`bestseller`, `rating`, `price_asc`, `price_desc`, `newest`), phân trang `page` & `limit`.
 - `GET /api/books/:id`: Chi tiết cuốn sách kèm bảng giá chiết khấu cho 3 tình trạng, đánh giá gần nhất và sách mua kèm.
-- `POST /api/books`: Thêm sách mới (Yêu cầu Admin API Key).
+- `POST /api/books`: Thêm sách mới (chỉ admin).
 - `PUT /api/books/:id`: Cập nhật giá bán, giá deal, số lượng tồn kho.
 - `DELETE /api/books/:id`: Xóa sách khỏi kho.
 
@@ -143,16 +159,18 @@ npm run server:seed
 ### Import Postman Collection
 - Mở Postman hoặc Thunder Client trong VSCode.
 - Bấm **Import** và chọn file:
-  [backend/docs/BookWise_API_Collection.json](file:///d:/K%E1%BB%B3%207/1_ISC301/project/backend/docs/BookWise_API_Collection.json)
-- Toàn bộ các request mẫu cho cả 3 luồng và API Key đã được cấu hình sẵn.
+  [backend/docs/BookWise_API_Collection.json](../docs/BookWise_API_Collection.json)
+- Điền biến `token` (lấy từ đăng nhập) hoặc `apiKeyAdmin` (giá trị `ADMIN_API_KEY` trong `.env`) trước khi gọi các API quản trị.
 
 ---
 
 ## 5. Ví Dụ cURL Test Nhanh
 
-### 1. Xem Thống kê Dashboard (Luồng 1)
+### 1. Đăng nhập và xem Dashboard (Luồng 1)
 ```bash
-curl http://localhost:5000/api/dashboard/summary
+curl -X POST http://localhost:5000/api/auth/login   -H "Content-Type: application/json"   -d '{"email":"admin@bookwise.vn","password":"admin123"}'
+
+curl http://localhost:5000/api/dashboard/summary -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### 2. Tra Cứu Đơn Hàng (Luồng 3)
@@ -184,5 +202,5 @@ curl -X POST http://localhost:5000/api/orders/checkout \
 ### 4. Gọi API Quản Trị bằng API Key (Không Cần Frontend)
 ```bash
 curl http://localhost:5000/api/orders \
-  -H "x-api-key: bw-admin-secret-key-2026"
+  -H "x-api-key: $ADMIN_API_KEY"
 ```

@@ -1,76 +1,52 @@
+import crypto from 'node:crypto'
 import jwt from 'jsonwebtoken'
+import { config } from '../config.js'
 import { queryOne } from '../db.js'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'bookwise_super_secret_jwt_key_2026'
+const ENV_KEYS = [
+  { key: config.apiKeys.admin, name: 'Admin Master Key', role: 'admin' },
+  { key: config.apiKeys.partner, name: 'Logistics Partner Key', role: 'partner' },
+  { key: config.apiKeys.client, name: 'Public Client Key', role: 'client' },
+].filter((k) => k.key)
+
+const sameSecret = (a, b) => {
+  const x = Buffer.from(String(a))
+  const y = Buffer.from(String(b))
+  return x.length === y.length && crypto.timingSafeEqual(x, y)
+}
 
 /**
  * Middleware xác thực tích hợp:
- * 1. Hỗ trợ x-api-key header hoặc ?api_key= query parameter (cho hệ thống bên ngoài / headless không có frontend)
- * 2. Hỗ trợ Authorization: Bearer <token> (JWT cho người dùng/admin đăng nhập)
+ * 1. Header x-api-key (cho hệ thống bên ngoài / headless). Không nhận key qua query string
+ *    vì URL bị ghi vào log và lịch sử trình duyệt.
+ * 2. Authorization: Bearer <token> (JWT cho người dùng/admin đăng nhập)
  */
 export function authenticate(req, res, next) {
-  const apiKey = req.headers['x-api-key'] || req.query.api_key
+  const apiKey = req.headers['x-api-key']
   const authHeader = req.headers.authorization
 
-  // 1. Kiểm tra API Key nếu có
   if (apiKey) {
-    // Kiểm tra trong database
-    const keyRecord = queryOne(
-      'SELECT key, name, role, permissions, active FROM api_keys WHERE key = ? AND active = 1',
-      [apiKey]
-    )
-
-    // Đồng thời chấp nhận các Master API Keys cấu hình trong .env
-    const envAdminKey = process.env.ADMIN_API_KEY || 'bw-admin-secret-key-2026'
-    const envPartnerKey = process.env.PARTNER_API_KEY || 'bw-delivery-partner-key-2026'
-    const envPublicKey = process.env.PUBLIC_API_KEY || 'bw-client-api-key-2026'
-
-    if (keyRecord) {
-      req.authType = 'api_key'
-      req.apiKey = keyRecord
-      req.user = {
-        name: keyRecord.name,
-        role: keyRecord.role,
-        isApiKey: true,
-      }
-      return next()
-    } else if (apiKey === envAdminKey) {
-      req.authType = 'api_key'
-      req.user = { name: 'Admin Master Key', role: 'admin', isApiKey: true }
-      return next()
-    } else if (apiKey === envPartnerKey) {
-      req.authType = 'api_key'
-      req.user = { name: 'Logistics Partner Key', role: 'partner', isApiKey: true }
-      return next()
-    } else if (apiKey === envPublicKey) {
-      req.authType = 'api_key'
-      req.user = { name: 'Public Client Key', role: 'client', isApiKey: true }
-      return next()
-    } else {
-      return res.status(401).json({
-        ok: false,
-        error: 'API Key không hợp lệ hoặc đã bị vô hiệu hóa',
-      })
+    const keyRecord = queryOne('SELECT key, name, role, permissions FROM api_keys WHERE key = ? AND active = 1', [apiKey])
+    const envKey = keyRecord ? null : ENV_KEYS.find((k) => sameSecret(k.key, apiKey))
+    const match = keyRecord ?? envKey
+    if (!match) {
+      return res.status(401).json({ ok: false, error: 'API Key không hợp lệ hoặc đã bị vô hiệu hóa' })
     }
+    req.authType = 'api_key'
+    req.user = { name: match.name, role: match.role, isApiKey: true }
+    return next()
   }
 
-  // 2. Kiểm tra JWT Bearer Token nếu có
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.split(' ')[1]
+  if (authHeader?.startsWith('Bearer ')) {
     try {
-      const decoded = jwt.verify(token, JWT_SECRET)
+      req.user = jwt.verify(authHeader.slice(7), config.jwtSecret)
       req.authType = 'jwt'
-      req.user = decoded
       return next()
     } catch {
-      return res.status(401).json({
-        ok: false,
-        error: 'Phiên đăng nhập hết hạn hoặc token không hợp lệ',
-      })
+      return res.status(401).json({ ok: false, error: 'Phiên đăng nhập hết hạn hoặc token không hợp lệ' })
     }
   }
 
-  // Không có thông tin xác thực
   req.user = null
   next()
 }
@@ -114,6 +90,8 @@ export function requireAdminOrPartner(req, res, next) {
   next()
 }
 
+export const isStaff = (user) => user?.role === 'admin' || user?.role === 'partner'
+
 export function generateToken(payload) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' })
+  return jwt.sign(payload, config.jwtSecret, { expiresIn: '7d' })
 }

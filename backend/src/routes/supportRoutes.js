@@ -13,7 +13,7 @@ import { requireAdmin } from '../middleware/auth.js'
 const router = Router()
 
 // Tickets
-router.get('/tickets', getTickets)
+router.get('/tickets', requireAdmin, getTickets)
 router.get('/tickets/:code', getTicketByCode)
 router.post('/tickets', createTicket)
 router.patch('/tickets/:code/reply', requireAdmin, replyTicket)

@@ -1,10 +1,5 @@
 import { queryAll, queryOne, run } from '../db.js'
-
-const CONDITION_FACTORS = {
-  seal: 1.0,
-  likenew: 0.8,
-  used: 0.6,
-}
+import { CONDITION_FACTORS, unitPrice } from '../lib/pricing.js'
 
 /**
  * Lấy danh sách sách có phân trang, bộ lọc và sắp xếp
@@ -73,7 +68,7 @@ export function getBooks(req, res) {
     const total = countResult ? countResult.total : 0
 
     // Phân trang
-    const numLimit = Math.max(1, Number(limit))
+    const numLimit = Math.min(100, Math.max(1, Number(limit) || 20))
     const offset = (Math.max(1, Number(page)) - 1) * numLimit
     sql += ' LIMIT ? OFFSET ?'
     params.push(numLimit, offset)
@@ -82,12 +77,11 @@ export function getBooks(req, res) {
 
     // Format giá theo tình trạng nếu có yêu cầu tình trạng cụ thể
     const formattedBooks = rawBooks.map((b) => {
-      const factor = condition && CONDITION_FACTORS[condition] ? CONDITION_FACTORS[condition] : 1
-      const currentPrice = Math.round((b.deal_price || b.price) * factor)
+      const applied = condition in CONDITION_FACTORS ? condition : 'seal'
       return {
         ...b,
-        currentPrice,
-        appliedCondition: condition || 'seal',
+        currentPrice: unitPrice(b, applied),
+        appliedCondition: applied,
         discountPercent: b.list_price > b.price ? Math.round(((b.list_price - b.price) / b.list_price) * 100) : 0,
       }
     })
@@ -124,7 +118,7 @@ export function getBookById(req, res) {
         id: 'seal',
         label: 'Mới, nguyên seal',
         note: 'Sách mới từ nhà phát hành',
-        price: book.deal_price || book.price,
+        price: unitPrice(book, 'seal'),
         listPrice: book.list_price,
         inStock: book.stock > 0,
       },
@@ -132,17 +126,17 @@ export function getBookById(req, res) {
         id: 'likenew',
         label: 'Như mới · 98%',
         note: 'Đọc một lần, không ghi chú, gáy thẳng',
-        price: Math.round((book.deal_price || book.price) * 0.8),
+        price: unitPrice(book, 'likenew'),
         listPrice: book.list_price,
-        inStock: true,
+        inStock: book.stock > 0,
       },
       {
         id: 'used',
         label: 'Đã qua sử dụng · 90%',
         note: 'Có thể ngả màu nhẹ, nội dung đầy đủ',
-        price: Math.round((book.deal_price || book.price) * 0.6),
+        price: unitPrice(book, 'used'),
         listPrice: book.list_price,
-        inStock: true,
+        inStock: book.stock > 0,
       },
     ]
 

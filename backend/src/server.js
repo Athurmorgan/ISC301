@@ -1,6 +1,7 @@
-import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
+import { config } from './config.js'
+import { queryOne } from './db.js'
 import { authenticate } from './middleware/auth.js'
 
 import authRoutes from './routes/authRoutes.js'
@@ -11,12 +12,18 @@ import supportRoutes from './routes/supportRoutes.js'
 import dashboardRoutes from './routes/dashboardRoutes.js'
 import buybackRoutes from './routes/buybackRoutes.js'
 
+// Lần chạy đầu (database trống) tự nạp dữ liệu mẫu để front-end có sách ngay
+if (!queryOne('SELECT 1 AS found FROM books LIMIT 1')) {
+  const { seed } = await import('./seed.js')
+  seed({ exportJson: false })
+}
+
 const app = express()
-const PORT = process.env.PORT || 5000
 
 // Middlewares
-app.use(cors())
-app.use(express.json())
+app.disable('x-powered-by')
+app.use(cors(config.corsOrigins.length ? { origin: config.corsOrigins } : undefined))
+app.use(express.json({ limit: '2mb' }))
 
 // Request logger
 app.use((req, res, next) => {
@@ -24,7 +31,7 @@ app.use((req, res, next) => {
   res.on('finish', () => {
     const duration = Date.now() - start
     const authInfo = req.authType ? `[${req.authType}:${req.user?.role}]` : '[public]'
-    console.log(`${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms ${authInfo}`)
+    console.log(`${req.method} ${req.path} ${res.statusCode} - ${duration}ms ${authInfo}`)
   })
   next()
 })
@@ -32,20 +39,15 @@ app.use((req, res, next) => {
 // Authentication middleware (hỗ trợ cả x-api-key và Bearer Token)
 app.use(authenticate)
 
-// Root endpoint: Thông tin API & Hướng dẫn sử dụng API Key
+// Root endpoint: Thông tin API
 app.get('/', (req, res) => {
   res.json({
     name: 'BookWise Backend REST API',
     version: '1.0.0',
     description: 'Hệ thống Backend phục vụ 3 luồng nghiệp vụ: CSKH + Dashboard + Giao hàng, Mua bán sách & Giao dịch, Theo dõi đơn hàng',
-    apiKeySupport: {
-      header: 'x-api-key: <KEY>',
-      queryParam: '?api_key=<KEY>',
-      sampleKeys: {
-        admin: 'bw-admin-secret-key-2026',
-        logisticsPartner: 'bw-delivery-partner-key-2026',
-        publicClient: 'bw-client-api-key-2026',
-      },
+    authentication: {
+      apiKey: 'Header x-api-key: <KEY> (cấu hình trong backend/.env)',
+      bearer: 'Header Authorization: Bearer <JWT> (lấy từ POST /api/auth/login)',
     },
     businessFlows: {
       flow1_support_dashboard_delivery: {
@@ -91,26 +93,33 @@ app.use('/api/buybacks', buybackRoutes)
 app.use((req, res) => {
   res.status(404).json({
     ok: false,
-    error: `Không tìm thấy endpoint: ${req.method} ${req.originalUrl}`,
+    error: `Không tìm thấy endpoint: ${req.method} ${req.path}`,
   })
 })
 
-// Error handler
+// Error handler: JSON sai cú pháp là lỗi của client; lỗi khác không lộ chi tiết nội bộ khi chạy production
 app.use((err, req, res, _next) => {
+  if (err.type === 'entity.parse.failed') {
+    return res.status(400).json({ ok: false, error: 'Body JSON không hợp lệ' })
+  }
+  if (err.type === 'entity.too.large') {
+    return res.status(413).json({ ok: false, error: 'Dữ liệu gửi lên quá lớn' })
+  }
   console.error('Unhandled Server Error:', err)
   res.status(500).json({
     ok: false,
-    error: err.message || 'Lỗi máy chủ nội bộ',
+    error: config.isProduction ? 'Lỗi máy chủ nội bộ' : err.message || 'Lỗi máy chủ nội bộ',
   })
 })
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`\n🚀 BookWise Backend Server đang chạy tại: http://localhost:${PORT}`)
-  console.log(`📖 Tài liệu & API Specs tại: http://localhost:${PORT}/`)
-  console.log(`🔑 Master Admin API Key: ${process.env.ADMIN_API_KEY || 'bw-admin-secret-key-2026'}`)
-  console.log(`🚚 Logistics Partner API Key: ${process.env.PARTNER_API_KEY || 'bw-delivery-partner-key-2026'}`)
-  console.log(`👤 Public Client API Key: ${process.env.PUBLIC_API_KEY || 'bw-client-api-key-2026'}\n`)
+app.listen(config.port, () => {
+  const enabledKeys = Object.entries(config.apiKeys)
+    .filter(([, v]) => v)
+    .map(([k]) => k)
+  console.log(`\n🚀 BookWise Backend Server đang chạy tại: http://localhost:${config.port}`)
+  console.log(`📖 Tài liệu & API Specs tại: http://localhost:${config.port}/`)
+  console.log(`🔑 API key đang bật: ${enabledKeys.length ? enabledKeys.join(', ') : 'không có (chỉ dùng JWT)'}\n`)
 })
 
 export default app

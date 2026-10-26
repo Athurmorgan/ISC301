@@ -1,8 +1,8 @@
-import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { db, run, transaction } from './db.js'
+import { hashPassword } from './lib/password.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -12,11 +12,7 @@ const { CATEGORIES, COUPONS, SHIPPING } = await import('../../src/data/catalog.t
 const { SEED_BOOKS } = await import('../../src/data/books.ts')
 const { FAQS } = await import('../../src/data/faq.ts')
 
-function hashPassword(password) {
-  return crypto.createHash('sha256').update(password).digest('hex')
-}
-
-export function seed() {
+export function seed({ exportJson = true } = {}) {
   console.log('🌱 Bắt đầu nạp dữ liệu mẫu vào BookWise Database...')
 
   transaction(() => {
@@ -40,19 +36,9 @@ export function seed() {
       DELETE FROM api_keys;
     `)
 
-    // 2. Nạp API Keys
-    const apiKeys = [
-      { key: 'bw-admin-secret-key-2026', name: 'BookWise Admin Master Key', role: 'admin', permissions: '*' },
-      { key: 'bw-delivery-partner-key-2026', name: 'AhaMove / GHN Logistics Partner Key', role: 'partner', permissions: 'delivery:*,orders:read,orders:status' },
-      { key: 'bw-client-api-key-2026', name: 'BookWise Public Client Key', role: 'client', permissions: 'books:read,orders:track,support:create' },
-    ]
+    // 2. API Key không nạp sẵn: cấu hình ADMIN_API_KEY / PARTNER_API_KEY / PUBLIC_API_KEY trong .env
+    //    hoặc thêm dòng vào bảng api_keys khi cần cấp key riêng cho từng đối tác.
     const now = new Date().toISOString()
-    for (const k of apiKeys) {
-      run(
-        `INSERT INTO api_keys (key, name, role, permissions, active, created_at) VALUES (?, ?, ?, ?, 1, ?)`,
-        [k.key, k.name, k.role, k.permissions, now]
-      )
-    }
 
     // 3. Nạp Tài khoản người dùng (Admin & Khách hàng mẫu)
     const users = [
@@ -694,10 +680,9 @@ export function seed() {
   })
 
   // 13. Xuất file JSON database mẫu ra `backend/data/sample_database.json`
-  exportSampleJson()
+  if (exportJson) exportSampleJson()
 
   console.log('✅ Đã nạp thành công bộ Database mẫu cho BookWise:')
-  console.log('  - 3 API Keys bảo mật (Admin, Partner, Client)')
   console.log('  - 4 Tài khoản người dùng (1 Admin + 3 Khách hàng)')
   console.log('  - 4 Danh mục sách & 49 Đầu sách đầy đủ giá bìa, giá deal, tồn kho')
   console.log('  - 3 Mã giảm giá (BOOKWISE50K, GIAM10, FREESHIP15K)')
@@ -708,9 +693,9 @@ export function seed() {
   console.log('  - File backup JSON: backend/data/sample_database.json')
 }
 
+// Bản xuất để tham khảo cấu trúc dữ liệu: không kèm API key và mật khẩu đã băm
 function exportSampleJson() {
   const tables = [
-    'api_keys',
     'users',
     'categories',
     'books',
@@ -732,10 +717,13 @@ function exportSampleJson() {
   for (const table of tables) {
     dump[table] = db.prepare(`SELECT * FROM ${table}`).all()
   }
+  dump.users = dump.users.map(({ password_hash: _hash, ...u }) => u)
 
   const exportPath = path.resolve(__dirname, '../data/sample_database.json')
   fs.writeFileSync(exportPath, JSON.stringify(dump, null, 2), 'utf-8')
 }
 
-// Chạy trực tiếp nếu file được gọi bằng node
-seed()
+// Chỉ tự chạy khi gọi trực tiếp `node src/seed.js`; server import file này để nạp dữ liệu lần đầu
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  seed()
+}

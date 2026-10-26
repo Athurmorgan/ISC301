@@ -1,36 +1,36 @@
 import { queryAll, queryOne, run, transaction } from '../db.js'
+import { uniqueCode } from '../lib/codes.js'
+import { BUYBACK_RATES, buybackQuote } from '../lib/pricing.js'
+import { maskAccount, maskPhone } from '../lib/privacy.js'
 
-const BUYBACK_RATES = {
-  likenew: 0.45,
-  used: 0.3,
+const STATUSES = ['pending', 'collecting', 'inspecting', 'paid', 'rejected']
+const DEFAULT_ESTIMATE = 50000
+
+/** Báo giá theo giá bán bản mới của sách trong kho, khớp với front-end; sách ngoài kho dùng giá khách nhập */
+function estimate(bookId, condition, fallbackPrice) {
+  const book = bookId ? queryOne('SELECT price FROM books WHERE id = ?', [bookId]) : null
+  if (book) return { basePrice: book.price, estimatedPrice: buybackQuote(book, condition) }
+  const basePrice = Math.max(0, Number(fallbackPrice) || 0)
+  return { basePrice, estimatedPrice: basePrice ? buybackQuote({ price: basePrice }, condition) : DEFAULT_ESTIMATE }
 }
 
-function generateBuybackCode() {
-  const num = Math.floor(1000 + Math.random() * 9000)
-  return `BB-${num}`
-}
+const isAdmin = (req) => req.user?.role === 'admin'
+
+/** Người không phải quản trị chỉ thấy số tài khoản và SĐT đã che */
+const forViewer = (req, row) => (isAdmin(req) ? row : { ...row, bank_account: maskAccount(row.bank_account), phone: maskPhone(row.phone) })
 
 /**
  * Ước tính giá thu mua sách cũ
  */
 export function estimateBuyback(req, res) {
   try {
-    const { bookId, listPrice, condition } = req.body
-    if (!condition || (!bookId && !listPrice)) {
-      return res.status(400).json({ ok: false, error: 'Thiếu thông tin sách hoặc tình trạng' })
+    const { bookId, listPrice, condition } = req.body ?? {}
+    if (!(condition in BUYBACK_RATES) || (!bookId && !listPrice)) {
+      return res.status(400).json({ ok: false, error: 'Thiếu thông tin sách hoặc tình trạng (likenew / used)' })
     }
 
-    const rate = BUYBACK_RATES[condition] || 0.3
-    let basePrice = Number(listPrice || 0)
-
-    if (bookId) {
-      const book = queryOne('SELECT list_price, price FROM books WHERE id = ?', [bookId])
-      if (book) {
-        basePrice = book.list_price || book.price
-      }
-    }
-
-    const estimatedPrice = Math.round(basePrice * rate)
+    const rate = BUYBACK_RATES[condition]
+    const { basePrice, estimatedPrice } = estimate(bookId, condition, listPrice)
 
     return res.json({
       ok: true,
@@ -65,8 +65,11 @@ export function createBuyback(req, res) {
       accountHolder,
       note,
       photo,
-    } = req.body
+    } = req.body ?? {}
 
+    if (!(condition in BUYBACK_RATES)) {
+      return res.status(400).json({ ok: false, error: 'Tình trạng sách chỉ nhận likenew hoặc used' })
+    }
     if (!bookTitle || !author || !customerName || !phone || !address || !bankName || !bankAccount || !accountHolder) {
       return res.status(400).json({
         ok: false,
@@ -74,16 +77,8 @@ export function createBuyback(req, res) {
       })
     }
 
-    // Tính giá ước tính
-    let estimatedPrice = 50000
-    if (bookId) {
-      const book = queryOne('SELECT price, list_price FROM books WHERE id = ?', [bookId])
-      if (book) {
-        estimatedPrice = Math.round((book.list_price || book.price) * (BUYBACK_RATES[condition] || 0.3))
-      }
-    }
-
-    const code = generateBuybackCode()
+    const { estimatedPrice } = estimate(bookId, condition)
+    const code = uniqueCode('BB', 6, 'buyback_requests')
     const now = new Date().toISOString()
 
     transaction(() => {
@@ -102,7 +97,7 @@ export function createBuyback(req, res) {
           estimatedPrice,
           customerName.trim(),
           phone.trim(),
-          email ? email.trim() : null,
+          email ? email.trim().toLowerCase() : null,
           address.trim(),
           bankName.trim(),
           bankAccount.trim(),
@@ -133,13 +128,22 @@ export function createBuyback(req, res) {
 }
 
 /**
- * Lấy danh sách yêu cầu bán lại sách cũ
+ * Lấy danh sách yêu cầu bán lại sách cũ: admin thấy tất cả, khách đăng nhập chỉ thấy yêu cầu của mình
  */
 export function getBuybacks(req, res) {
   try {
-    const { status, search, limit = 50 } = req.query
+    const { status, search } = req.query
+    const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 50))
     let sql = 'SELECT * FROM buyback_requests WHERE 1=1'
     const params = []
+
+    if (!isAdmin(req)) {
+      if (!req.user?.email) {
+        return res.status(401).json({ ok: false, error: 'Vui lòng đăng nhập để xem yêu cầu thu mua của bạn' })
+      }
+      sql += ' AND lower(email) = ?'
+      params.push(req.user.email.toLowerCase())
+    }
 
     if (status) {
       sql += ' AND status = ?'
@@ -153,9 +157,9 @@ export function getBuybacks(req, res) {
     }
 
     sql += ' ORDER BY created_at DESC LIMIT ?'
-    params.push(Number(limit))
+    params.push(limit)
 
-    const list = queryAll(sql, params)
+    const list = queryAll(sql, params).map((row) => forViewer(req, row))
     return res.json({ ok: true, count: list.length, data: list })
   } catch (error) {
     return res.status(500).json({ ok: false, error: error.message })
@@ -180,7 +184,7 @@ export function getBuybackByCode(req, res) {
     return res.json({
       ok: true,
       data: {
-        buyback,
+        buyback: forViewer(req, buyback),
         history,
       },
     })
@@ -195,16 +199,25 @@ export function getBuybackByCode(req, res) {
 export function updateBuybackStatus(req, res) {
   try {
     const { code } = req.params
-    const { status, finalPrice, note } = req.body
+    const { status, finalPrice, note } = req.body ?? {}
     const cleanCode = code.trim().toUpperCase()
 
+    if (!STATUSES.includes(status)) {
+      return res.status(400).json({ ok: false, error: 'Trạng thái thu mua không hợp lệ' })
+    }
     const buyback = queryOne('SELECT * FROM buyback_requests WHERE code = ?', [cleanCode])
     if (!buyback) {
       return res.status(404).json({ ok: false, error: 'Không tìm thấy yêu cầu thu mua' })
     }
+    if (buyback.status === 'paid' || buyback.status === 'rejected') {
+      return res.status(400).json({ ok: false, error: 'Yêu cầu thu mua đã kết thúc, không thể cập nhật' })
+    }
 
     const now = new Date().toISOString()
-    const finalAmount = finalPrice !== undefined ? Number(finalPrice) : buyback.estimated_price
+    const finalAmount = finalPrice !== undefined && finalPrice !== null ? Number(finalPrice) : buyback.estimated_price
+    if (!Number.isFinite(finalAmount) || finalAmount < 0) {
+      return res.status(400).json({ ok: false, error: 'Giá thu mua không hợp lệ' })
+    }
 
     transaction(() => {
       run(

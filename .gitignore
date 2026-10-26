@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 *.sqlite-wal
 *.sqlite-shm
+
+# Backend: bí mật và database chạy thử
+backend/.env
+backend/data/*.sqlite

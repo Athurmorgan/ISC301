@@ -1,11 +1,12 @@
 import { queryAll, queryOne, run, transaction } from '../db.js'
+import { uniqueCode } from '../lib/codes.js'
+import { maskOrder } from '../lib/privacy.js'
+import { isStaff } from '../middleware/auth.js'
 
 function generateTrackingCode(carrier) {
-  const num = Math.floor(100000 + Math.random() * 900000)
-  if (carrier.toLowerCase().includes('aha')) return `AHA-BW-${num}`
-  if (carrier.toLowerCase().includes('ghn')) return `GHN-VN-${num}`
-  if (carrier.toLowerCase().includes('viettel')) return `VTP-BW-${num}`
-  return `SHIP-${num}`
+  const name = carrier.toLowerCase()
+  const prefix = name.includes('aha') ? 'AHA-BW' : name.includes('ghn') ? 'GHN-VN' : name.includes('viettel') ? 'VTP-BW' : 'SHIP'
+  return uniqueCode(prefix, 6, 'delivery_shipments', 'tracking_code')
 }
 
 /**
@@ -82,12 +83,14 @@ export function getTracking(req, res) {
       [shipment.order_code]
     )
 
+    // Mã vận đơn in trên kiện hàng nên ai cũng có thể thấy: chỉ trả địa chỉ, SĐT đầy đủ cho quản trị/đối tác
+    const staff = isStaff(req.user)
     return res.json({
       ok: true,
       data: {
-        shipment,
+        shipment: staff ? shipment : { ...shipment, destination: order?.customer_province ?? '***', shipper_phone: null },
         checkpoints,
-        order,
+        order: staff || !order ? order : maskOrder(order),
       },
     })
   } catch (error) {
@@ -111,8 +114,8 @@ export function dispatchShipment(req, res) {
       return res.status(404).json({ ok: false, error: 'Không tìm thấy đơn hàng' })
     }
 
-    if (order.status === 'cancelled') {
-      return res.status(400).json({ ok: false, error: 'Đơn hàng đã huỷ, không thể tạo vận đơn' })
+    if (order.status !== 'pending' && order.status !== 'confirmed') {
+      return res.status(400).json({ ok: false, error: `Đơn hàng đang ở trạng thái "${order.status}", không thể tạo vận đơn mới` })
     }
 
     const trackingCode = generateTrackingCode(carrierName)
@@ -214,8 +217,9 @@ export function updateTrackingStatus(req, res) {
         [shipment.id, location || 'Trạm trung chuyển', status, description || `Cập nhật trạng thái: ${status}`, now]
       )
 
-      // 3. Tự động đồng bộ với trạng thái đơn hàng nếu giao thành công hoặc thất bại
-      if (status === 'delivered') {
+      // 3. Tự động đồng bộ với trạng thái đơn hàng khi giao thành công (bỏ qua nếu đơn đã kết thúc)
+      const order = queryOne('SELECT status FROM orders WHERE code = ?', [shipment.order_code])
+      if (status === 'delivered' && order?.status === 'shipping') {
         run(
           `UPDATE orders SET status = 'delivered', is_paid = 1, updated_at = ? WHERE code = ?`,
           [now, shipment.order_code]

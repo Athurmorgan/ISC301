@@ -1,9 +1,10 @@
 import { queryAll, queryOne, run } from '../db.js'
+import { uniqueCode } from '../lib/codes.js'
+import { maskEmail, maskPhone } from '../lib/privacy.js'
 
-function generateTicketCode() {
-  const num = Math.floor(1000 + Math.random() * 9000)
-  return `TK-${num}`
-}
+const TOPICS = ['order', 'quality', 'payment', 'buyback', 'other']
+const TICKET_STATUSES = ['open', 'resolved']
+const MAX_MESSAGE = 2000
 
 /**
  * Lấy danh sách phiếu hỗ trợ (Tickets)
@@ -11,7 +12,8 @@ function generateTicketCode() {
  */
 export function getTickets(req, res) {
   try {
-    const { status, topic, orderCode, search, limit = 50 } = req.query
+    const { status, topic, orderCode, search } = req.query
+    const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 50))
     let sql = 'SELECT * FROM support_tickets WHERE 1=1'
     const params = []
 
@@ -34,7 +36,7 @@ export function getTickets(req, res) {
     }
 
     sql += ' ORDER BY created_at DESC LIMIT ?'
-    params.push(Number(limit))
+    params.push(limit)
 
     const tickets = queryAll(sql, params)
     return res.json({ ok: true, count: tickets.length, data: tickets })
@@ -53,7 +55,9 @@ export function getTicketByCode(req, res) {
     if (!ticket) {
       return res.status(404).json({ ok: false, error: 'Không tìm thấy phiếu hỗ trợ' })
     }
-    return res.json({ ok: true, data: ticket })
+    // Ai có mã phiếu cũng xem được tiến độ, nhưng liên hệ của khách chỉ hiện cho quản trị viên hoặc chính khách
+    const full = req.user?.role === 'admin' || req.user?.email?.toLowerCase() === ticket.email.toLowerCase()
+    return res.json({ ok: true, data: full ? ticket : { ...ticket, email: maskEmail(ticket.email), phone: maskPhone(ticket.phone) } })
   } catch (error) {
     return res.status(500).json({ ok: false, error: error.message })
   }
@@ -64,15 +68,21 @@ export function getTicketByCode(req, res) {
  */
 export function createTicket(req, res) {
   try {
-    const { topic, name, email, phone, orderCode, message, attachment } = req.body
-    if (!topic || !name || !email || !phone || !message) {
+    const { topic, name, email, phone, orderCode, message, attachment } = req.body ?? {}
+    if (![topic, name, email, phone, message].every((v) => typeof v === 'string' && v.trim())) {
       return res.status(400).json({
         ok: false,
         error: 'Vui lòng cung cấp chủ đề, họ tên, email, số điện thoại và nội dung yêu cầu',
       })
     }
+    if (!TOPICS.includes(topic)) {
+      return res.status(400).json({ ok: false, error: 'Chủ đề hỗ trợ không hợp lệ' })
+    }
+    if (message.length > MAX_MESSAGE) {
+      return res.status(400).json({ ok: false, error: `Nội dung tối đa ${MAX_MESSAGE} ký tự` })
+    }
 
-    const code = generateTicketCode()
+    const code = uniqueCode('TK', 6, 'support_tickets')
     const now = new Date().toISOString()
     const cleanOrderCode = orderCode ? orderCode.trim().toUpperCase() : null
 
@@ -88,7 +98,7 @@ export function createTicket(req, res) {
       `INSERT INTO support_tickets (
         code, topic, name, email, phone, order_code, message, attachment, status, created_at
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'open', ?)`,
-      [code, topic, name.trim(), email.trim(), phone.trim(), cleanOrderCode, message.trim(), attachment || null, now]
+      [code, topic, name.trim(), email.trim().toLowerCase(), phone.trim(), cleanOrderCode, message.trim(), attachment || null, now]
     )
 
     const created = queryOne('SELECT * FROM support_tickets WHERE code = ?', [code])
@@ -108,7 +118,10 @@ export function createTicket(req, res) {
 export function replyTicket(req, res) {
   try {
     const { code } = req.params
-    const { response, status = 'resolved', responderName } = req.body
+    const { response, status = 'resolved', responderName } = req.body ?? {}
+    if (!TICKET_STATUSES.includes(status)) {
+      return res.status(400).json({ ok: false, error: 'Trạng thái phiếu không hợp lệ' })
+    }
 
     const existing = queryOne('SELECT * FROM support_tickets WHERE code = ?', [code.trim().toUpperCase()])
     if (!existing) {
@@ -122,7 +135,7 @@ export function replyTicket(req, res) {
       `UPDATE support_tickets
        SET response = ?, responder_name = ?, status = ?, resolved_at = ?
        WHERE code = ?`,
-      [response ? response.trim() : existing.response, finalResponder, status, now, existing.code]
+      [response ? String(response).trim() : existing.response, finalResponder, status, status === 'resolved' ? now : null, existing.code]
     )
 
     const updated = queryOne('SELECT * FROM support_tickets WHERE code = ?', [existing.code])
@@ -175,13 +188,16 @@ export function getReviews(req, res) {
  */
 export function createReview(req, res) {
   try {
-    const { bookId, name, email, rating, body } = req.body
-    if (!bookId || !name || !rating || !body) {
+    const { bookId, rating, body } = req.body ?? {}
+    // Khách đã đăng nhập dùng tên/email của tài khoản; khách vãng lai không được tự khai email để lấy nhãn "đã mua"
+    const name = req.user?.name ?? req.body?.name
+    const email = req.user?.email ?? null
+    if (!bookId || !name || !rating || typeof body !== 'string' || !body.trim()) {
       return res.status(400).json({ ok: false, error: 'Thiếu thông tin đánh giá bắt buộc' })
     }
 
     const numRating = Number(rating)
-    if (numRating < 1 || numRating > 5) {
+    if (!Number.isInteger(numRating) || numRating < 1 || numRating > 5) {
       return res.status(400).json({ ok: false, error: 'Điểm đánh giá phải từ 1 đến 5 sao' })
     }
 
@@ -196,8 +212,8 @@ export function createReview(req, res) {
       const order = queryOne(
         `SELECT o.code FROM orders o
          JOIN order_items oi ON o.code = oi.order_code
-         WHERE o.customer_email = ? AND oi.book_id = ? AND o.status = 'delivered'`,
-        [email.trim().toLowerCase(), bookId]
+         WHERE (o.user_email = ? OR o.customer_email = ?) AND oi.book_id = ? AND o.status = 'delivered'`,
+        [email.toLowerCase(), email.toLowerCase(), bookId]
       )
       if (order) verifiedPurchase = 1
     }
@@ -206,7 +222,7 @@ export function createReview(req, res) {
     run(
       `INSERT INTO book_reviews (book_id, name, email, rating, body, verified_purchase, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [bookId, name.trim(), email ? email.trim() : null, numRating, body.trim(), verifiedPurchase, now]
+      [bookId, String(name).trim(), email, numRating, body.trim().slice(0, MAX_MESSAGE), verifiedPurchase, now]
     )
 
     // Cập nhật điểm đánh giá trung bình của sách

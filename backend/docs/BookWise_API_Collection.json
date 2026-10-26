@@ -12,17 +12,17 @@
     },
     {
       "key": "apiKeyAdmin",
-      "value": "bw-admin-secret-key-2026",
+      "value": "",
       "type": "string"
     },
     {
       "key": "apiKeyPartner",
-      "value": "bw-delivery-partner-key-2026",
+      "value": "",
       "type": "string"
     },
     {
       "key": "apiKeyClient",
-      "value": "bw-client-api-key-2026",
+      "value": "",
       "type": "string"
     }
   ],

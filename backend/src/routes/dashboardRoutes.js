@@ -7,8 +7,12 @@ import {
   getSupportKpi,
   getTopSellingBooks,
 } from '../controllers/dashboardController.js'
+import { requireAdmin } from '../middleware/auth.js'
 
 const router = Router()
+
+// Doanh thu, tồn kho, KPI CSKH là số liệu nội bộ
+router.use(requireAdmin)
 
 router.get('/summary', getSummary)
 router.get('/revenue-trend', getRevenueTrends)
