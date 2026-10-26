@@ -1,7 +1,7 @@
 # BookWise — Nhà sách trực tuyến (React + TypeScript)
 
 Website thương mại điện tử bán sách mới và sách cũ, phát triển từ mẫu giao diện Google Stitch.
-Toàn bộ chạy phía trình duyệt; dữ liệu (giỏ hàng, đơn hàng, tài khoản, phiếu hỗ trợ) lưu trong `localStorage` với tiền tố `bookwise:`.
+Front-end React chạy được độc lập (dữ liệu lưu trong `localStorage` với tiền tố `bookwise:`), hoặc nối với backend Express + SQLite trong thư mục `backend/` để đặt hàng, đăng nhập và tra cứu đơn qua API.
 
 ## Chạy dự án
 
@@ -14,6 +14,30 @@ npm run build      # kiểm tra kiểu + đóng gói vào dist/
 npm run preview    # chạy thử bản đã build
 ```
 
+### Chạy kèm backend
+
+Backend cần Node.js 22.18 trở lên (dùng `node:sqlite` có sẵn).
+
+```bash
+npm --prefix backend install
+cp backend/.env.example backend/.env   # điền JWT_SECRET, các API key nếu cần
+npm run server                          # API tại http://localhost:5000, tự nạp dữ liệu mẫu lần đầu
+npm run server:seed                     # (tuỳ chọn) xoá và nạp lại database mẫu
+
+cp .env.example .env.local              # VITE_API_BASE_URL=http://localhost:5000
+npm run dev
+```
+
+Khi có `VITE_API_BASE_URL`:
+
+- Mở web là đồng bộ giá và tồn kho từ máy chủ.
+- Đăng nhập/đăng ký gọi `/api/auth`, lưu JWT; đặt hàng gọi `/api/orders/checkout` rồi `/process-payment`, mã đơn và tổng tiền do máy chủ tính.
+- Quản trị đổi trạng thái hoặc khách huỷ đơn thì cập nhật cả máy chủ; phiếu hỗ trợ và yêu cầu thu mua cũng được gửi lên.
+- Tra cứu mã đơn không có trên máy sẽ hỏi máy chủ (thông tin người nhận bị che cho tới khi nhập đúng 4 số cuối SĐT).
+- Máy chủ tắt thì web tự chuyển sang chạy offline bằng `localStorage`; trang quản trị hiện trạng thái kết nối.
+
+Tài liệu API: [`backend/docs/API_DOCUMENTATION.md`](backend/docs/API_DOCUMENTATION.md).
+
 Muốn xoá dữ liệu demo: mở DevTools → Application → Local Storage → xoá các khoá `bookwise:*`.
 
 ## Kiến trúc MVC
@@ -23,7 +47,8 @@ src/
   models/        Model — logic thuần, không phụ thuộc React
                  (types, pricing, cart, order, validation, catalogQuery, report, format)
   data/          Dữ liệu khởi tạo: 49 đầu sách, danh mục, mã giảm giá, FAQ, số liệu nghiên cứu
-  services/      Tầng lưu trữ: repository trên localStorage, auth, orderService, toast
+  services/      Tầng lưu trữ: repository trên localStorage, auth, orderService, toast,
+                 apiClient + syncService (gọi backend, đồng bộ sách, chuyển offline khi mất mạng)
   controllers/   Controller — custom hook nối model/service với view
                  (useCart, useOrders, useAuth, useBooks, useReport, ...)
   views/
@@ -55,7 +80,7 @@ Store dùng `useSyncExternalStore` nên mọi tab, mọi component cập nhật 
 Tab **Trực tiếp** làm mới mỗi 3 giây. Mỗi chỉ số có nhãn nguồn:
 
 - **Thật:** đơn hôm nay, doanh thu, đơn theo giờ, đơn mới nhất (đặt đơn ở tab khác là hiện ngay kèm thông báo), các tab BookWise đang mở trên cùng trình duyệt (qua BroadcastChannel).
-- **Mô phỏng:** người online, phiên, lượt xem, hành trình mua hàng, nguồn truy cập, khu vực, thiết bị, hoạt động trực tiếp. Vì chưa có máy chủ nên các số này được sinh theo đường cong lưu lượng trong ngày (`src/models/live.ts`).
+- **Mô phỏng:** người online, phiên, lượt xem, hành trình mua hàng, nguồn truy cập, khu vực, thiết bị, hoạt động trực tiếp. Các số này được sinh theo đường cong lưu lượng trong ngày (`src/models/live.ts`).
 
 Dải chữ chạy đầu trang (`src/models/announcements.ts`) tự tính sách bán chạy nhất tháng, ưu đãi sâu nhất, top từng thể loại và sách được đánh giá cao nhất.
 

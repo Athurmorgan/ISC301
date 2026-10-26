@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "server": "node --watch backend/src/server.js",
-    "server:seed": "node --experimental-strip-types backend/src/seed.js",
+    "server": "npm --prefix backend run dev",
+    "server:seed": "npm --prefix backend run seed",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"

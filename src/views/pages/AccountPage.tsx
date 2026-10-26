@@ -75,10 +75,13 @@ function LoginForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [showForgot, setShowForgot] = useState(false)
+  const [busy, setBusy] = useState(false)
 
-  function submit(e: FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault()
-    const r = login(email, password)
+    setBusy(true)
+    const r = await login(email, password)
+    setBusy(false)
     if (!r.ok) return setError(r.error)
     notify(`Chào mừng trở lại, ${r.value.name}`)
   }
@@ -96,8 +99,8 @@ function LoginForm() {
           </div>
         </div>
         {error && <p className="text-sm text-terra">{error}</p>}
-        <button type="submit" className="btn-ink w-full">
-          Đăng nhập
+        <button type="submit" className="btn-ink w-full" disabled={busy}>
+          {busy ? 'Đang đăng nhập…' : 'Đăng nhập'}
         </button>
       </form>
       {showForgot && <ForgotPasswordModal onClose={() => setShowForgot(false)} />}
@@ -169,11 +172,14 @@ function RegisterForm() {
   const { register } = useAuth()
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '' })
   const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
   const set = (k: keyof typeof form) => (e: { target: { value: string } }) => setForm((f) => ({ ...f, [k]: e.target.value }))
 
-  function submit(e: FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault()
-    const r = register(form)
+    setBusy(true)
+    const r = await register(form)
+    setBusy(false)
     if (!r.ok) return setError(r.error)
     notify(`Đã tạo tài khoản cho ${r.value.name}`)
   }
@@ -187,8 +193,8 @@ function RegisterForm() {
       </div>
       <TextField label="Mật khẩu" type="password" autoComplete="new-password" hint="Ít nhất 6 ký tự" value={form.password} onChange={set('password')} />
       {error && <p className="text-sm text-terra">{error}</p>}
-      <button type="submit" className="btn-ink w-full">
-        Tạo tài khoản
+      <button type="submit" className="btn-ink w-full" disabled={busy}>
+        {busy ? 'Đang tạo…' : 'Tạo tài khoản'}
       </button>
     </form>
   )

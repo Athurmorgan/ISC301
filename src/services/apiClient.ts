@@ -1,85 +1,184 @@
-/**
- * BookWise Backend API Client
- * Hỗ trợ giao tiếp trực tiếp với Backend REST API qua URL và API Key
- */
+// Gọi backend REST của BookWise. Chỉ bật khi có VITE_API_BASE_URL trong .env;
+// nếu không, toàn bộ web vẫn chạy bằng localStorage như trước.
+// Xác thực bằng JWT lấy từ /api/auth/login, không nhúng API key vào mã phía trình duyệt.
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
-export const DEFAULT_API_KEY = import.meta.env.VITE_API_KEY || 'bw-client-api-key-2026'
+import { persistentStore } from './store'
 
-async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const headers = new Headers(options.headers || {})
-  if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
-    headers.set('Content-Type', 'application/json')
+const BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/+$/, '')
+
+export const API_ENABLED = BASE.length > 0
+
+/** JWT của phiên đăng nhập trên máy chủ */
+export const tokenStore = persistentStore<string | null>('api-token', () => null)
+
+/** Lỗi do máy chủ trả về (4xx/5xx), phân biệt với lỗi mạng */
+export class ApiError extends Error {
+  readonly status: number
+  constructor(message: string, status: number) {
+    super(message)
+    this.status = status
   }
-  if (!headers.has('x-api-key') && DEFAULT_API_KEY) {
-    headers.set('x-api-key', DEFAULT_API_KEY)
-  }
-
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  })
-
-  const data = await response.json()
-  if (!response.ok) {
-    throw new Error(data.error || `Lỗi máy chủ (${response.status})`)
-  }
-  return data
 }
 
+interface Envelope<T> {
+  ok: boolean
+  data?: T
+  error?: string
+  message?: string
+}
+
+async function request<T>(path: string, init: { method?: string; body?: unknown } = {}): Promise<T> {
+  if (!API_ENABLED) throw new Error('Chưa cấu hình VITE_API_BASE_URL')
+  const headers: Record<string, string> = {}
+  if (init.body !== undefined) headers['Content-Type'] = 'application/json'
+  const token = tokenStore.get()
+  if (token) headers.Authorization = `Bearer ${token}`
+
+  const res = await fetch(BASE + path, {
+    method: init.method ?? (init.body === undefined ? 'GET' : 'POST'),
+    headers,
+    body: init.body === undefined ? undefined : JSON.stringify(init.body),
+  })
+  const json = (await res.json().catch(() => ({}))) as Envelope<T>
+  if (res.status === 401 && token) tokenStore.set(null)
+  if (!res.ok || json.ok === false) throw new ApiError(json.error ?? `Máy chủ lỗi (${res.status})`, res.status)
+  return (json.data ?? json) as T
+}
+
+/** Lỗi mạng (máy chủ tắt, CORS...) thì nên chuyển sang chế độ offline */
+export const isNetworkError = (e: unknown) => !(e instanceof ApiError)
+
+export const errorMessage = (e: unknown) => (e instanceof Error ? e.message : 'Không kết nối được máy chủ')
+
+// ---- Kiểu dữ liệu thô từ máy chủ (snake_case như trong SQLite) ----
+
+export interface BookRow {
+  id: string
+  title: string
+  original_title: string | null
+  original_language: string | null
+  author: string
+  publisher: string | null
+  category: string
+  cover: string
+  price: number
+  list_price: number
+  deal_price: number | null
+  stock: number
+  sold: number
+  rating: number
+  rating_count: number
+  pages: number
+  first_published: number
+  description: string
+  staff_pick: string | null
+}
+
+export interface ApiUser {
+  id: number
+  email: string
+  name: string
+  phone: string
+  role: 'customer' | 'admin' | 'partner'
+  address: { province?: string; district?: string; street?: string }
+  createdAt: string
+}
+
+export interface CheckoutResult {
+  orderCode: string
+  subtotal: number
+  discount: number
+  shippingFee: number
+  shippingDiscount: number
+  total: number
+  appliedCoupons: string[]
+  createdAt: string
+}
+
+export interface OrderRow {
+  code: string
+  user_email: string | null
+  customer_name: string
+  customer_phone: string
+  customer_email: string
+  customer_province: string
+  customer_district: string
+  customer_street: string
+  note: string
+  shipping_id: string
+  shipping_name: string
+  shipping_fee: number
+  payment_id: string
+  payment_name: string
+  is_paid: number
+  subtotal: number
+  discount: number
+  shipping_discount: number
+  total: number
+  status: string
+  created_at: string
+  masked?: boolean
+}
+
+export interface OrderItemRow {
+  book_id: string
+  title: string
+  author: string
+  cover: string
+  category: string
+  condition: string
+  unit_price: number
+  qty: number
+}
+
+export interface HistoryRow {
+  status: string
+  note: string
+  created_at: string
+}
+
+const json = (body: unknown) => ({ body })
+
 export const api = {
-  // Luồng 1: CSKH + Dashboard + Giao hàng
-  support: {
-    getTickets: (query?: string) => request<any>(`/api/support/tickets${query ? `?${query}` : ''}`),
-    getTicket: (code: string) => request<any>(`/api/support/tickets/${code}`),
-    createTicket: (payload: any) => request<any>('/api/support/tickets', { method: 'POST', body: JSON.stringify(payload) }),
-    replyTicket: (code: string, payload: any) =>
-      request<any>(`/api/support/tickets/${code}/reply`, { method: 'PATCH', body: JSON.stringify(payload) }),
-    getFaqs: () => request<any>('/api/support/faqs'),
-    getReviews: (bookId?: string) => request<any>(`/api/support/reviews${bookId ? `?bookId=${bookId}` : ''}`),
-    createReview: (payload: any) => request<any>('/api/support/reviews', { method: 'POST', body: JSON.stringify(payload) }),
-  },
-  dashboard: {
-    getSummary: () => request<any>('/api/dashboard/summary'),
-    getRevenueTrend: () => request<any>('/api/dashboard/revenue-trend'),
-    getTopBooks: () => request<any>('/api/dashboard/top-books'),
-    getInventoryAlerts: () => request<any>('/api/dashboard/inventory-alerts'),
-    getLive: () => request<any>('/api/dashboard/live'),
-  },
-  delivery: {
-    getMethods: () => request<any>('/api/delivery/methods'),
-    getCarriers: () => request<any>('/api/delivery/carriers'),
-    track: (trackingCode: string) => request<any>(`/api/delivery/track/${trackingCode}`),
-    dispatch: (payload: any) => request<any>('/api/delivery/dispatch', { method: 'POST', body: JSON.stringify(payload) }),
-    updateStatus: (payload: any) => request<any>('/api/delivery/update-status', { method: 'POST', body: JSON.stringify(payload) }),
+  health: () => request<{ status: string }>('/health'),
+
+  auth: {
+    login: (email: string, password: string) => request<{ token: string; user: ApiUser }>('/api/auth/login', json({ email, password })),
+    register: (input: { name: string; email: string; phone: string; password: string }) =>
+      request<{ token: string; user: ApiUser }>('/api/auth/register', json(input)),
   },
 
-  // Luồng 2: Mua bán sách & Giao dịch
   books: {
-    list: (query?: string) => request<any>(`/api/books${query ? `?${query}` : ''}`),
-    get: (id: string) => request<any>(`/api/books/${id}`),
-    categories: () => request<any>('/api/books/categories'),
-  },
-  orders: {
-    calculateCart: (payload: any) => request<any>('/api/orders/calculate-cart', { method: 'POST', body: JSON.stringify(payload) }),
-    applyCoupon: (payload: any) => request<any>('/api/orders/apply-coupon', { method: 'POST', body: JSON.stringify(payload) }),
-    checkout: (payload: any) => request<any>('/api/orders/checkout', { method: 'POST', body: JSON.stringify(payload) }),
-    processPayment: (payload: any) => request<any>('/api/orders/process-payment', { method: 'POST', body: JSON.stringify(payload) }),
-  },
-  buyback: {
-    estimate: (payload: any) => request<any>('/api/buybacks/estimate', { method: 'POST', body: JSON.stringify(payload) }),
-    create: (payload: any) => request<any>('/api/buybacks', { method: 'POST', body: JSON.stringify(payload) }),
-    list: (query?: string) => request<any>(`/api/buybacks${query ? `?${query}` : ''}`),
-    get: (code: string) => request<any>(`/api/buybacks/${code}`),
+    list: (limit = 100) => request<BookRow[]>(`/api/books?limit=${limit}`),
   },
 
-  // Luồng 3: Theo dõi đơn hàng
-  tracking: {
-    trackOrder: (code: string) => request<any>(`/api/orders/track/${code}`),
-    lookup: (payload: { phone?: string; email?: string }) =>
-      request<any>('/api/orders/lookup', { method: 'POST', body: JSON.stringify(payload) }),
-    cancelOrder: (code: string, reason?: string) =>
-      request<any>(`/api/orders/${code}/cancel`, { method: 'POST', body: JSON.stringify({ reason }) }),
-    myOrders: () => request<any>('/api/orders/my-orders'),
+  orders: {
+    checkout: (payload: {
+      customer: { name: string; phone: string; email: string; province: string; district: string; street: string }
+      items: { bookId: string; condition: string; qty: number }[]
+      shippingId: string
+      paymentId: string
+      couponCodes: string[]
+      note: string
+    }) => request<CheckoutResult>('/api/orders/checkout', json(payload)),
+    pay: (orderCode: string, extra: { otp?: string; confirm?: boolean } = {}) =>
+      request<{ isPaid?: boolean }>('/api/orders/process-payment', json({ orderCode, ...extra })),
+    track: (code: string, phone?: string) =>
+      request<{ order: OrderRow; items: OrderItemRow[]; timeline: HistoryRow[] }>(
+        `/api/orders/track/${encodeURIComponent(code)}${phone ? `?phone=${encodeURIComponent(phone)}` : ''}`,
+      ),
+    cancel: (code: string, reason: string, phone?: string) =>
+      request<unknown>(`/api/orders/${encodeURIComponent(code)}/cancel`, json({ reason, phone })),
+    setStatus: (code: string, status: string, note?: string) =>
+      request<unknown>(`/api/orders/${encodeURIComponent(code)}/status`, { method: 'PATCH', body: { status, note } }),
+  },
+
+  support: {
+    createTicket: (payload: { topic: string; name: string; email: string; phone?: string; orderCode?: string; message: string }) =>
+      request<{ code: string }>('/api/support/tickets', json(payload)),
+  },
+
+  buybacks: {
+    create: (payload: Record<string, unknown>) => request<{ code: string }>('/api/buybacks', json(payload)),
   },
 }

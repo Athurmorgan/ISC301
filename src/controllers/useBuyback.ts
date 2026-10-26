@@ -4,6 +4,8 @@ import type { BuybackRequest, BuybackStatus, ConditionId, Result } from '../mode
 import { isEmail, isVietnamesePhone } from '../models/validation'
 import { bookRepository } from '../services/bookRepository'
 import { buybackRepository, buybacksStore } from '../services/buybackRepository'
+import { api } from '../services/apiClient'
+import { pushInBackground } from '../services/syncService'
 import { notify } from '../services/toastService'
 import { useStore } from './useStore'
 
@@ -66,6 +68,9 @@ export function useBuybacks() {
     }
 
     buybackRepository.insert(request)
+    // Ảnh chụp có thể rất nặng nên không gửi kèm; máy chủ tự định giá lại theo bảng giá
+    const { photo: _photo, history: _history, status: _status, ...payload } = request
+    pushInBackground('yêu cầu thu mua', () => api.buybacks.create(payload))
     notify(`Đã gửi yêu cầu bán lại sách (${request.code})`, {
       action: { label: 'Theo dõi', to: `/tai-khoan?tab=buyback` },
     })

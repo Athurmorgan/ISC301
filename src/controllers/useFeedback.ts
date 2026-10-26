@@ -6,6 +6,8 @@ import { isEmail, isVietnamesePhone } from '../models/validation'
 import { reviewRepository, reviewsStore, ticketRepository, ticketsStore } from '../services/feedbackRepository'
 import { orderRepository, ordersStore } from '../services/orderRepository'
 import { bookRepository } from '../services/bookRepository'
+import { api } from '../services/apiClient'
+import { pushInBackground } from '../services/syncService'
 import { sessionStore } from '../services/userRepository'
 import { useStore } from './useStore'
 
@@ -85,6 +87,16 @@ export function useTickets() {
         at: new Date().toISOString(),
       }
       ticketRepository.insert(ticket)
+      pushInBackground('phiếu hỗ trợ', () =>
+        api.support.createTicket({
+          topic: ticket.topic,
+          name: ticket.name,
+          email: ticket.email,
+          phone: ticket.phone,
+          orderCode: ticket.orderCode || undefined,
+          message: ticket.message,
+        }),
+      )
       return ticket
     },
     toggle: (t: Ticket) => ticketRepository.update(t.code, { status: t.status === 'open' ? 'resolved' : 'open' }),

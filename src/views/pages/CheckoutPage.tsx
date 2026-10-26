@@ -6,7 +6,7 @@ import { useCart } from '../../controllers/useCart'
 import { formatMoney } from '../../models/format'
 import type { Address, PaymentId, ShippingId } from '../../models/types'
 import { hasErrors, validateAddress, type Errors } from '../../models/validation'
-import { placeOrder } from '../../services/orderService'
+import { placeOrderOnline } from '../../services/orderService'
 import { notifyError } from '../../services/toastService'
 import { Icon, type IconName } from '../components/Icon'
 import { OrderSummary } from '../components/OrderSummary'
@@ -63,8 +63,8 @@ export function CheckoutPage() {
     else setPaying(true)
   }
 
-  function complete() {
-    const r = placeOrder({ customer: address, shippingId, paymentId, note, userEmail: user?.role === 'customer' ? user.email : null })
+  async function complete() {
+    const r = await placeOrderOnline({ customer: address, shippingId, paymentId, note, userEmail: user?.role === 'customer' ? user.email : null })
     if (!r.ok) {
       setPaying(false)
       return notifyError(r.error)

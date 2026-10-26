@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { useAllOrders, useOrder } from '../../controllers/useOrders'
+import { useAllOrders, useOrder, useRemoteOrder } from '../../controllers/useOrders'
 import { formatDate, formatMoney } from '../../models/format'
 import { itemCount } from '../../models/order'
 import { isVietnamesePhone } from '../../models/validation'
@@ -15,7 +15,9 @@ export function TrackingPage() {
   const code = params.get('code')
   const phone = params.get('sdt')
   const justPlaced = params.get('moi') === '1'
-  const order = useOrder(code)
+  const localOrder = useOrder(code)
+  const remote = useRemoteOrder(code, localOrder)
+  const order = localOrder ?? remote.order
   const orders = useAllOrders()
   const [input, setInput] = useState(code ?? phone ?? '')
 
@@ -65,7 +67,14 @@ export function TrackingPage() {
       )}
 
       <div className="mt-10">
-        {code && (order ? <OrderDetail order={order} /> : <EmptyState title={`Không tìm thấy đơn ${code}`}>Kiểm tra lại mã đơn, hoặc thử tìm bằng số điện thoại đặt hàng.</EmptyState>)}
+        {code &&
+          (order ? (
+            <OrderDetail order={order} verifyPhone={localOrder ? undefined : remote.verifyPhone} />
+          ) : remote.loading ? (
+            <p className="text-sm text-ink-mute">Đang tìm đơn trên hệ thống…</p>
+          ) : (
+            <EmptyState title={`Không tìm thấy đơn ${code}`}>Kiểm tra lại mã đơn, hoặc thử tìm bằng số điện thoại đặt hàng.</EmptyState>
+          ))}
 
         {phone &&
           (byPhone.length ? (

@@ -66,7 +66,7 @@ const maskStreet = (street: string) => {
 }
 
 /** Chi tiết đơn: sách, địa chỉ, thanh toán và các thao tác của khách */
-export function OrderDetail({ order }: { order: Order }) {
+export function OrderDetail({ order, verifyPhone }: { order: Order; verifyPhone?: (hint: string) => Promise<boolean> }) {
   const { cancelByCustomer, reorder } = useOrderActions()
   const { user } = useAuth()
   const [armed, setArmed] = useState(false)
@@ -76,11 +76,13 @@ export function OrderDetail({ order }: { order: Order }) {
 
   const isOwner = user?.role === 'admin' || (user?.email && user.email === order.userEmail) || unlocked
 
-  function handleVerifyPhone(e: React.FormEvent) {
+  async function handleVerifyPhone(e: React.FormEvent) {
     e.preventDefault()
     const cleanInput = verifyPhoneInput.replace(/\D/g, '')
     const cleanPhone = order.customer.phone.replace(/\D/g, '')
-    if (cleanPhone.endsWith(cleanInput) && cleanInput.length >= 4) {
+    // Đơn lấy từ máy chủ đã bị che số, phải nhờ máy chủ kiểm tra
+    const matched = cleanInput.length >= 4 && (verifyPhone ? await verifyPhone(cleanInput) : cleanPhone.endsWith(cleanInput))
+    if (matched) {
       setUnlocked(true)
       setVerifyError('')
     } else {

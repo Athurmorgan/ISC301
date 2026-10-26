@@ -15,6 +15,7 @@ import type { CategoryId, Coupon, CouponKind, OrderStatus } from '../../models/t
 import { hasErrors } from '../../models/validation'
 import { BUYBACK_STATUS_LABEL } from '../../services/buybackRepository'
 import { couponRepository, couponsStore } from '../../services/couponRepository'
+import { serverStatus, syncBooks } from '../../services/syncService'
 import { notify } from '../../services/toastService'
 import { usersStore } from '../../services/userRepository'
 import { Icon } from '../components/Icon'
@@ -74,7 +75,8 @@ export function AdminPage() {
           <p className="eyebrow">Quản trị</p>
           <h1 className="mt-2 text-4xl sm:text-5xl">Bàn làm việc</h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <ServerBadge />
           <Link to="/bao-cao" className="btn-ghost btn-sm">Báo cáo doanh số</Link>
           <button type="button" onClick={logout} className="btn-ghost btn-sm">Đăng xuất</button>
         </div>
@@ -779,5 +781,30 @@ function TicketsPanel() {
         </li>
       ))}
     </ul>
+  )
+}
+
+const SERVER_LABEL = {
+  off: 'Chế độ offline (chưa cấu hình máy chủ)',
+  checking: 'Đang kết nối máy chủ…',
+  online: 'Đã đồng bộ máy chủ',
+  offline: 'Mất kết nối máy chủ — đang dùng dữ liệu trên máy',
+} as const
+
+/** Trạng thái kết nối backend; bấm để đồng bộ lại danh mục và tồn kho */
+function ServerBadge() {
+  const { state, syncedAt } = useStore(serverStatus)
+  const dot = state === 'online' ? 'bg-forest' : state === 'offline' ? 'bg-terra' : 'bg-ink-mute'
+  return (
+    <button
+      type="button"
+      disabled={state === 'off'}
+      onClick={() => void syncBooks().then((ok) => (ok ? notify('Đã đồng bộ sách và tồn kho') : notify('Không kết nối được máy chủ')))}
+      title={syncedAt ? `Lần cuối: ${formatDateTime(syncedAt)}` : undefined}
+      className="inline-flex items-center gap-2 px-2 text-xs text-ink-soft hover:text-ink disabled:cursor-default"
+    >
+      <span className={`h-2 w-2 rounded-full ${dot}`} aria-hidden />
+      {SERVER_LABEL[state]}
+    </button>
   )
 }
