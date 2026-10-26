@@ -10,6 +10,7 @@ import { BookCard } from '../components/BookCard'
 import { BookCover } from '../components/BookCover'
 import { Icon } from '../components/Icon'
 import { MoreLink, SectionHeading } from '../components/ui'
+import { BuybackModal } from '../components/BuybackModal'
 
 export function HomePage() {
   const { deals, bestsellers, staffPicks, categoryCounts } = useShelves()
@@ -236,8 +237,6 @@ function StaffPicks({ books }: { books: Book[] }) {
     </div>
   )
 }
-
-import { BuybackModal } from '../components/BuybackModal'
 
 function BuybackEstimator() {
   const books = useBooks()

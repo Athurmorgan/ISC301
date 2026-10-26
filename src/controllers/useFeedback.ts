@@ -5,10 +5,9 @@ import type { Result, Review, Ticket, TicketTopic } from '../models/types'
 import { isEmail, isVietnamesePhone } from '../models/validation'
 import { reviewRepository, reviewsStore, ticketRepository, ticketsStore } from '../services/feedbackRepository'
 import { orderRepository, ordersStore } from '../services/orderRepository'
-import { useStore } from './useStore'
-
 import { bookRepository } from '../services/bookRepository'
 import { sessionStore } from '../services/userRepository'
+import { useStore } from './useStore'
 
 export function useAllReviews() {
   const all = useStore(reviewsStore)
@@ -27,8 +26,8 @@ export function useReviews(bookId: string) {
   // Người dùng đã mua cuốn sách này hay chưa?
   const hasPurchased = useMemo(() => {
     if (!sessionEmail) return false
-    return orderRepository
-      .byEmail(sessionEmail)
+    return orders
+      .filter((o) => o.userEmail === sessionEmail)
       .some((o) => o.status !== 'cancelled' && o.items.some((i) => i.bookId === bookId))
   }, [sessionEmail, bookId, orders])
 

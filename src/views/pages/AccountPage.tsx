@@ -230,13 +230,10 @@ const TABS: Record<Tab, string> = {
 function CustomerAccount({ user }: { user: User }) {
   const { logout } = useAuth()
   const [params, setParams] = useSearchParams()
-  const initialTab = (params.get('tab') as Tab) || 'orders'
-  const [tab, setTabState] = useState<Tab>(initialTab in TABS ? initialTab : 'orders')
-
-  function setTab(t: Tab) {
-    setTabState(t)
-    setParams({ tab: t })
-  }
+  // Đọc tab từ URL để nút trái tim trên header mở đúng mục cả khi đang ở trang này
+  const fromUrl = params.get('tab') as Tab | null
+  const tab: Tab = fromUrl && fromUrl in TABS ? fromUrl : 'orders'
+  const setTab = (t: Tab) => setParams({ tab: t }, { replace: true })
 
   return (
     <div className="container-page pt-10 sm:pt-14">

@@ -4,6 +4,7 @@ import * as cart from '../models/cart'
 import type { Book, ConditionId, Result, ShippingId } from '../models/types'
 import { booksStore } from '../services/bookRepository'
 import { cartRepository, cartStore, couponStore } from '../services/cartRepository'
+import { couponRepository, couponsStore } from '../services/couponRepository'
 import { notify, notifyError } from '../services/toastService'
 import { useStore } from './useStore'
 
@@ -11,11 +12,12 @@ export function useCart(shippingId: ShippingId = 'standard') {
   const items = useStore(cartStore)
   const codes = useStore(couponStore)
   const books = useStore(booksStore)
+  const coupons = useStore(couponsStore)
 
   const totals = useMemo(() => {
     const shipping = SHIPPING.find((s) => s.id === shippingId) ?? SHIPPING[0]
-    return cart.computeTotals(cart.buildLines(items, books), codes, shipping)
-  }, [items, codes, books, shippingId])
+    return cart.computeTotals(cart.buildLines(items, books), codes, shipping, coupons)
+  }, [items, codes, books, shippingId, coupons])
 
   function add(book: Book, condition: ConditionId = 'seal', qty = 1, silent = false): boolean {
     const result = cart.addItem(cartRepository.items(), book, condition, qty)
@@ -34,7 +36,7 @@ export function useCart(shippingId: ShippingId = 'standard') {
     cartRepository.save(cart.setItemQty(cartRepository.items(), book, condition, qty))
 
   function applyCoupon(code: string): Result<string[]> {
-    const result = cart.applyCoupon(cartRepository.coupons(), code, totals.subtotal)
+    const result = cart.applyCoupon(couponRepository.all(), cartRepository.coupons(), code, totals.subtotal)
     if (result.ok) cartRepository.saveCoupons(result.value)
     return result
   }

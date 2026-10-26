@@ -6,6 +6,7 @@ import { customerCanCancel, itemCount } from '../../models/order'
 import type { Order } from '../../models/types'
 import { useOrderActions } from '../../controllers/useOrders'
 import { ConfirmButton, StatusTag } from './ui'
+import { useAuth } from '../../controllers/useAuth'
 
 /** Dòng thời gian 4 bước; đơn huỷ hiển thị điểm dừng màu đất nung */
 export function StatusTimeline({ order }: { order: Order }) {
@@ -48,8 +49,6 @@ export function StatusTimeline({ order }: { order: Order }) {
     </ol>
   )
 }
-
-import { useAuth } from '../../controllers/useAuth'
 
 const maskPhone = (p: string) => {
   const clean = p.replace(/\D/g, '')

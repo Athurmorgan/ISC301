@@ -576,14 +576,14 @@ function CouponEditor({ initial, onClose, onSave }: { initial: Coupon; onClose: 
     e.preventDefault()
     if (!form.code.trim()) return setError('Vui lòng nhập mã code')
     if (form.value <= 0) return setError('Giá trị giảm phải lớn hơn 0')
-    if (!form.description.trim()) {
-      const desc =
-        form.kind === 'percent'
-          ? `Giảm ${form.value}% cho đơn từ ${formatMoney(form.minSubtotal)}`
-          : `Giảm ${formatMoney(form.value)} cho đơn từ ${formatMoney(form.minSubtotal)}`
-      form.description = desc
-    }
-    onSave(form)
+    if (form.kind === 'percent' && form.value > 100) return setError('Phần trăm giảm tối đa là 100')
+    if (form.minSubtotal < 0) return setError('Đơn tối thiểu không được âm')
+    const description =
+      form.description.trim() ||
+      (form.kind === 'percent'
+        ? `Giảm ${form.value}% cho đơn từ ${formatMoney(form.minSubtotal)}`
+        : `Giảm ${formatMoney(form.value)} cho đơn từ ${formatMoney(form.minSubtotal)}`)
+    onSave({ ...form, code: form.code.trim(), description })
   }
 
   return (
@@ -613,20 +613,20 @@ function CouponEditor({ initial, onClose, onSave }: { initial: Coupon; onClose: 
             onChange={(e) => setForm({ ...form, value: Number(e.target.value) })}
             required
           />
-          {form.kind === 'percent' ? (
+          <TextField
+            label="Đơn tối thiểu (đ)"
+            type="number"
+            value={form.minSubtotal}
+            onChange={(e) => setForm({ ...form, minSubtotal: Number(e.target.value) })}
+            required
+          />
+          {form.kind === 'percent' && (
             <TextField
+              className="col-span-2"
               label="Giảm tối đa (đ)"
               type="number"
               value={form.cap ?? ''}
               onChange={(e) => setForm({ ...form, cap: e.target.value ? Number(e.target.value) : undefined })}
-            />
-          ) : (
-            <TextField
-              label="Đơn tối thiểu (đ)"
-              type="number"
-              value={form.minSubtotal}
-              onChange={(e) => setForm({ ...form, minSubtotal: Number(e.target.value) })}
-              required
             />
           )}
         </div>

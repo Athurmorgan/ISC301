@@ -45,8 +45,8 @@ Store dùng `useSyncExternalStore` nên mọi tab, mọi component cập nhật 
 | `/gio-hang` | Giỏ hàng, mã giảm giá |
 | `/thanh-toan` | Địa chỉ, vận chuyển, phương thức thanh toán |
 | `/don-hang` | Tra cứu và theo dõi đơn |
-| `/tai-khoan` | Đăng nhập/đăng ký, lịch sử đơn, phiếu hỗ trợ |
-| `/quan-tri` | Quản trị: thống kê trực tiếp, đơn hàng, kho sách, phiếu hỗ trợ |
+| `/tai-khoan` | Đăng nhập/đăng ký, quên/đổi mật khẩu, lịch sử đơn, sách yêu thích, yêu cầu bán sách cũ, phiếu hỗ trợ |
+| `/quan-tri` | Quản trị: thống kê trực tiếp, đơn hàng, kho sách, thu mua sách cũ, mã giảm giá, khách hàng, đánh giá, phiếu hỗ trợ |
 | `/ho-tro` | FAQ và gửi yêu cầu hỗ trợ / bán lại sách |
 | `/bao-cao` | Báo cáo doanh số thật + nghiên cứu thị trường, trình chiếu, in PDF |
 
@@ -65,6 +65,8 @@ Dải chữ chạy đầu trang (`src/models/announcements.ts`) tự tính sách
 - **Mã giảm giá:** `BOOKWISE50K` (−50.000đ, đơn từ 200.000đ), `GIAM10` (−10%, tối đa 30.000đ, đơn từ 100.000đ), `FREESHIP15K` (−15.000đ phí giao, đơn từ 150.000đ)
 - **Vận chuyển:** Tiêu chuẩn 15.000đ; Hoả tốc 30.000đ chỉ ở Hà Nội và TP. Hồ Chí Minh
 - **Thẻ thử:** `4111 1111 1111 1111`, hạn bất kỳ trong tương lai, CVV 3 số, OTP `123456`
+- **Quên mật khẩu:** OTP demo `123456`
+- **Tra cứu đơn của người khác:** thông tin người nhận bị che, nhập 4 số cuối SĐT để xem đầy đủ
 - VietQR / ví điện tử / COD đều được giả lập
 
 ## Kịch bản demo (khoảng 5 phút)
